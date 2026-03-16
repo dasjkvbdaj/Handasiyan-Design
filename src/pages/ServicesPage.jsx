@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import Services from '../components/Services';
-import CTA from '../components/CTA';
+import { Services, CTA } from './Homepage';
 import { Check } from 'lucide-react';
 
 const whyChooseUs = [

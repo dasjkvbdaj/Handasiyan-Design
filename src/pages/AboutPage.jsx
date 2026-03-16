@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import About from '../components/About';
+import { About } from './Homepage';
 import Process from '../components/Process';
 import husseinImg from '../assets/hussein.png';
 

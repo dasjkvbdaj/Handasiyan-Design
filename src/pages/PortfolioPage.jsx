@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import Portfolio from '../components/Portfolio';
-import CTA from '../components/CTA';
+import { Portfolio, CTA } from './Homepage';
 
 const PortfolioPage = () => {
     return (
