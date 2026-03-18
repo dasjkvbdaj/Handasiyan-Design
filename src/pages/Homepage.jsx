@@ -383,7 +383,6 @@ const HomePage = () => {
             <Hero />
             <About isPreview={true} />
             <Services isPreview={true} />
-            <Portfolio isPreview={true} />
             <ContactSection />
             <CTA />
         </>
