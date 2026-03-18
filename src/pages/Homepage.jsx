@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Palette, Home, Layout, Ruler, X, Mail, Phone } from 'lucide-react';
-import heroBg from '../assets/hero-bg.png';
 
 export const Hero = () => {
     return (
