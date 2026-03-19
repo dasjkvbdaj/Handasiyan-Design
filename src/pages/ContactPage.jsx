@@ -1,122 +1,667 @@
-import { motion } from 'framer-motion';
-import { Phone, Mail, Instagram, Linkedin, Send } from 'lucide-react';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { Phone, Mail, Instagram, Linkedin, Send, MapPin, ArrowUpRight, Sparkles } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
-const ContactPage = () => {
-    const socialLinks = [
-        { icon: <Instagram className="w-6 h-6" />, href: "#", name: "Instagram" },
-        { icon: <Linkedin className="w-6 h-6" />, href: "#", name: "LinkedIn" }
-    ];
+/* ─── Floating Particle ─────────────────────────────────────────── */
+const Particle = ({ delay, x, size, color }) => (
+    <motion.div
+        className="absolute rounded-full pointer-events-none"
+        style={{ left: `${x}%`, bottom: '-10px', width: size, height: size, background: color, opacity: 0.18 }}
+        animate={{ y: [0, -700], opacity: [0, 0.35, 0] }}
+        transition={{ duration: 6 + Math.random() * 4, delay, repeat: Infinity, ease: 'linear' }}
+    />
+);
+
+/* ─── Infinite Marquee Text Strip ───────────────────────────────── */
+const MarqueeStrip = ({ text, speed = 30, gold = false, reverse = false }) => {
+    const items = Array(12).fill(text);
+    return (
+        <div className="overflow-hidden whitespace-nowrap flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
+            <motion.div
+                className="flex gap-0 shrink-0"
+                animate={{ x: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
+                transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
+            >
+                {[...items, ...items].map((t, i) => (
+                    <span
+                        key={i}
+                        className={`cormorant text-sm tracking-[0.3em] uppercase px-6 ${gold ? 'text-[#d4af37]/60' : 'text-white/10'}`}
+                    >
+                        {t} <span className={gold ? 'text-[#d4af37]/30' : 'text-white/5'}>✦</span>
+                    </span>
+                ))}
+            </motion.div>
+        </div>
+    );
+};
+
+/* ─── Typewriter with cursor blink (loops forever) ──────────────── */
+const Typewriter = ({ phrases, className }) => {
+    const [phraseIdx, setPhraseIdx] = useState(0);
+    const [displayed, setDisplayed] = useState('');
+    const [deleting, setDeleting] = useState(false);
+    const [blink, setBlink] = useState(true);
+
+    useEffect(() => {
+        const current = phrases[phraseIdx];
+        let timeout;
+
+        if (!deleting && displayed.length < current.length) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
+        } else if (!deleting && displayed.length === current.length) {
+            timeout = setTimeout(() => setDeleting(true), 1800);
+        } else if (deleting && displayed.length > 0) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40);
+        } else if (deleting && displayed.length === 0) {
+            setDeleting(false);
+            setPhraseIdx((phraseIdx + 1) % phrases.length);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [displayed, deleting, phraseIdx, phrases]);
+
+    useEffect(() => {
+        const interval = setInterval(() => setBlink(b => !b), 530);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <div className="pt-20">
-            {/* Page Hero */}
-            <section className="py-24 bg-[#064e3b] relative overflow-hidden text-center border-b border-white/5">
-                <div className="absolute inset-0 bg-black/40"></div>
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
+        <span className={className}>
+            {displayed}
+            <span style={{ opacity: blink ? 1 : 0, color: '#d4af37' }}>|</span>
+        </span>
+    );
+};
+
+/* ─── Looping shimmer word ──────────────────────────────────────── */
+const ShimmerText = ({ children, className }) => (
+    <span className={`relative inline-block overflow-hidden ${className}`}>
+        <span className="relative z-10">{children}</span>
+        <motion.span
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
+            style={{ mixBlendMode: 'overlay' }}
+            animate={{ x: ['-100%', '200%'] }}
+            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
+        />
+    </span>
+);
+
+/* ─── Looping wave letters ──────────────────────────────────────── */
+const WaveText = ({ text, className }) => (
+    <span className={`inline-flex ${className}`}>
+        {text.split('').map((ch, i) => (
+            <motion.span
+                key={i}
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                    duration: 1.6,
+                    delay: i * 0.08,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                }}
+                style={{ display: 'inline-block' }}
+            >
+                {ch === ' ' ? '\u00A0' : ch}
+            </motion.span>
+        ))}
+    </span>
+);
+
+/* ─── Looping color-pulse word ──────────────────────────────────── */
+const PulseWord = ({ children, className }) => (
+    <motion.span
+        className={className}
+        animate={{ color: ['#d4af37', '#f5e27a', '#c49f27', '#d4af37'] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+    >
+        {children}
+    </motion.span>
+);
+
+/* ─── Magnetic Button ───────────────────────────────────────────── */
+const MagneticBtn = ({ children, className, onClick }) => {
+    const ref = useRef(null);
+    const [pos, setPos] = useState({ x: 0, y: 0 });
+
+    const handleMove = (e) => {
+        const rect = ref.current.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        setPos({ x: (e.clientX - cx) * 0.25, y: (e.clientY - cy) * 0.25 });
+    };
+
+    return (
+        <motion.button
+            ref={ref}
+            onMouseMove={handleMove}
+            onMouseLeave={() => setPos({ x: 0, y: 0 })}
+            animate={{ x: pos.x, y: pos.y }}
+            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+            className={className}
+            onClick={onClick}
+        >
+            {children}
+        </motion.button>
+    );
+};
+
+/* ─── Animated Floating Input ───────────────────────────────────── */
+const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', options }) => {
+    const [focused, setFocused] = useState(false);
+    const [filled, setFilled] = useState(false);
+    const Tag = as === 'textarea' ? 'textarea' : as === 'select' ? 'select' : 'input';
+
+    const baseClass =
+        'w-full bg-transparent border-b-2 pt-6 pb-2 text-white placeholder-transparent focus:outline-none transition-all duration-300 resize-none text-sm peer';
+    const borderClass = focused ? 'border-[#d4af37]' : filled ? 'border-white/30' : 'border-white/10';
+
+    return (
+        <div className="relative group">
+            {as === 'select' ? (
+                <Tag
+                    className={`${baseClass} ${borderClass} appearance-none`}
+                    style={{ background: 'transparent' }}
+                    onFocus={() => setFocused(true)}
+                    onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
+                    onChange={(e) => setFilled(!!e.target.value)}
+                >
+                    {options?.map((o) => (
+                        <option key={o} value={o} style={{ background: '#0a0a0a', color: '#fff' }}>{o}</option>
+                    ))}
+                </Tag>
+            ) : (
+                <Tag
+                    type={type}
+                    placeholder={placeholder}
+                    rows={as === 'textarea' ? 4 : undefined}
+                    className={`${baseClass} ${borderClass}`}
+                    onFocus={() => setFocused(true)}
+                    onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
+                    onChange={(e) => setFilled(!!e.target.value)}
+                />
+            )}
+
+            <label
+                className={`absolute left-0 transition-all duration-300 font-medium tracking-widest uppercase pointer-events-none
+                    ${focused || filled ? 'top-0 text-[10px] text-[#d4af37]' : 'top-6 text-xs text-white/40'}`}
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+            >
+                {label}
+            </label>
+
+            <motion.div
+                className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#d4af37] to-[#f5d673]"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: focused ? 1 : 0 }}
+                style={{ originX: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+            />
+        </div>
+    );
+};
+
+/* ─── Contact Info Card ─────────────────────────────────────────── */
+const InfoCard = ({ icon: Icon, title, value, index }) => (
+    <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: index * 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        whileHover={{ x: 8 }}
+        className="flex items-center gap-5 group cursor-pointer"
+    >
+        <div className="relative">
+            <motion.div
+                className="w-14 h-14 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center text-[#d4af37] z-10 relative"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+            >
+                <Icon className="w-5 h-5" />
+            </motion.div>
+            <div className="absolute inset-0 rounded-2xl bg-[#d4af37]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        </div>
+        <div>
+            <p className="text-white/30 text-[10px] uppercase tracking-[0.2em] mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>{title}</p>
+            <p className="text-white font-medium text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{value}</p>
+        </div>
+    </motion.div>
+);
+
+/* ─── Social Link ───────────────────────────────────────────────── */
+const SocialLink = ({ icon, name, href, index }) => (
+    <motion.a
+        href={href}
+        initial={{ opacity: 0, scale: 0.5 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.5 + index * 0.1, type: 'spring', stiffness: 260, damping: 20 }}
+        whileHover={{ scale: 1.15, rotate: -5 }}
+        whileTap={{ scale: 0.9 }}
+        className="relative w-12 h-12 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center text-[#d4af37] hover:text-black transition-colors duration-300 overflow-hidden"
+        aria-label={name}
+    >
+        <span className="relative z-10">{icon}</span>
+        <motion.div
+            className="absolute inset-0 bg-[#d4af37]"
+            initial={{ scale: 0, borderRadius: '100%' }}
+            whileHover={{ scale: 2.5, borderRadius: '0%' }}
+            transition={{ duration: 0.4 }}
+        />
+    </motion.a>
+);
+
+/* ══════════════════════════════════════════════════════════════════
+   MAIN CONTACT PAGE
+══════════════════════════════════════════════════════════════════ */
+const ContactPage = () => {
+    const [submitted, setSubmitted] = useState(false);
+    const [sending, setSending] = useState(false);
+    const heroRef = useRef(null);
+    const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
+    const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+    const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+    const particles = Array.from({ length: 18 }, (_, i) => ({
+        id: i,
+        delay: i * 0.4,
+        x: Math.random() * 100,
+        size: 3 + Math.random() * 5,
+        color: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ffffff' : '#064e3b',
+    }));
+
+    const handleSend = () => {
+        setSending(true);
+        setTimeout(() => { setSending(false); setSubmitted(true); }, 2000);
+        setTimeout(() => setSubmitted(false), 5000);
+    };
+
+    const socialLinks = [
+        { icon: <Instagram className="w-5 h-5" />, href: '#', name: 'Instagram' },
+        { icon: <Linkedin className="w-5 h-5" />, href: '#', name: 'LinkedIn' },
+    ];
+
+    /* Title — letter stagger on mount, then looping float */
+    const title = "#Let's Talk";
+    const letters = title.split('');
+
+    return (
+        <div className="pt-20 bg-black overflow-x-hidden">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+                * { box-sizing: border-box; }
+                ::selection { background: #d4af37; color: #000; }
+                .cormorant { font-family: 'Cormorant Garamond', serif; }
+                .montserrat { font-family: 'Montserrat', sans-serif; }
+            `}</style>
+
+            {/* ── TOP MARQUEE STRIP (loops forever) ─────────────── */}
+            {/* <div className="bg-[#d4af37]/5 border-b border-[#d4af37]/10 py-2">
+                <MarqueeStrip
+                    text="Interior Design · Architecture · Consultation · Project Management"
+                    speed={35}
+                    gold
+                />
+            </div> */}
+
+            {/* ── HERO ─────────────────────────────────────────────── */}
+            <section
+                ref={heroRef}
+                className="relative py-36 bg-[#042d22] overflow-hidden flex items-center justify-center text-center min-h-[55vh]"
+            >
+                {/* Grain overlay */}
+                <div
+                    className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                    style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                        backgroundSize: '200px',
+                    }}
+                />
+
+                {/* Pulsing radial glow */}
+                <motion.div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(212,175,55,0.12) 0%, transparent 70%)' }}
+                    animate={{ opacity: [0.6, 1, 0.6] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                />
+
+                {particles.map((p) => <Particle key={p.id} {...p} />)}
+
+                <div className="absolute top-8 left-8 w-16 h-16 border-l-2 border-t-2 border-[#d4af37]/30" />
+                <div className="absolute bottom-8 right-8 w-16 h-16 border-r-2 border-b-2 border-[#d4af37]/30" />
+
+                <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-5xl mx-auto px-6">
+
+                    {/* Looping eyebrow label */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-5xl md:text-7xl font-bold text-white mb-6"
+                        transition={{ duration: 0.6 }}
+                        className="montserrat flex items-center justify-center gap-3 mb-8"
                     >
-                        #Let's Talk
-                    </motion.h1>
-                    <p className="text-white/60 text-xl max-w-2xl mx-auto font-light">
-                        Every great project starts with a conversation. We're here to bring your vision to life.
-                    </p>
-                </div>
+                        <motion.div
+                            className="h-px bg-[#d4af37]/50"
+                            animate={{ width: ['0px', '48px', '0px'] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                        {/* ★ Looping shimmer on eyebrow text */}
+                        <ShimmerText className="cormorant text-[#d4af37]/70 text-sm tracking-[0.4em] uppercase">
+                            Contact Us
+                        </ShimmerText>
+                        <motion.div
+                            className="h-px bg-[#d4af37]/50"
+                            animate={{ width: ['0px', '48px', '0px'] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                        />
+                    </motion.div>
+
+                    {/* ★ Title: entrance stagger → then each letter continuously floats at random phase */}
+                    <h1 className="cormorant text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.9] mb-8 flex flex-wrap justify-center">
+                        {letters.map((letter, i) => (
+                            <motion.span
+                                key={i}
+                                /* entrance */
+                                initial={{ opacity: 0, y: 60, rotateX: -90 }}
+                                animate={{
+                                    opacity: 1,
+                                    y: [0, -6, 0],            // ← loops forever after entrance
+                                    rotateX: 0,
+                                }}
+                                transition={{
+                                    /* entrance part */
+                                    opacity: { delay: 0.05 * i, duration: 0.5 },
+                                    rotateX: { delay: 0.05 * i, duration: 0.5 },
+                                    /* continuous float */
+                                    y: {
+                                        delay: i * 0.07,
+                                        duration: 2.2,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    },
+                                }}
+                                className={letter === '#' ? 'text-[#d4af37]' : ''}
+                                style={{ display: 'inline-block', transformOrigin: 'bottom' }}
+                            >
+                                {letter === ' ' ? '\u00A0' : letter}
+                            </motion.span>
+                        ))}
+                    </h1>
+
+                    {/* ★ Typewriter cycling tagline — loops forever */}
+                    <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed min-h-[2rem]">
+                        <Typewriter
+                            phrases={[
+                                "Every great project starts with a conversation.",
+                                "We're here to bring your vision to life.",
+                                "Let's build something extraordinary together.",
+                                "Your dream space is one message away.",
+                            ]}
+                            className="montserrat text-white/50 text-base"
+                        />
+                    </div>
+
+                    {/* Scroll line */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 }}
+                        className="mt-16 flex flex-col items-center"
+                    >
+                        <motion.div
+                            className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent"
+                            animate={{ scaleY: [0, 1, 0] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                            style={{ originY: 0 }}
+                        />
+                    </motion.div>
+                </motion.div>
             </section>
 
-            <section className="py-24 bg-black">
-                <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
-                    {/* Contact Info */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                    >
-                        <h2 className="text-3xl font-bold text-white mb-8">Get In Touch</h2>
-                        <div className="space-y-12">
-                            <div className="flex items-start space-x-6 group">
-                                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-[#d4af37] group-hover:bg-[#d4af37] group-hover:text-black transition-all">
-                                    <Phone className="w-6 h-6" />
+            {/* ── MID MARQUEE (reverse direction) ──────────────────── */}
+            {/* <div className="bg-black border-y border-white/[0.04] py-3">
+                <MarqueeStrip
+                    text="Let's Create · Dream Spaces · Premium Design · Built With Excellence"
+                    speed={40}
+                    reverse
+                />
+            </div> */}
+
+            {/* ── CONTENT ─────────────────────────────────────────── */}
+            <section className="py-32 bg-black relative">
+                <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                        backgroundImage: 'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)',
+                        backgroundSize: '60px 60px',
+                    }}
+                />
+
+                <div className="max-w-7xl mx-auto px-6 relative">
+                    <div className="grid grid-cols-1 lg:grid-cols-5 gap-20 lg:gap-16 items-start">
+
+                        {/* ── LEFT ── */}
+                        <div className="lg:col-span-2 space-y-16">
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                whileInView={{ opacity: 1, x: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.7 }}
+                            >
+                                <div className="montserrat flex items-center gap-3 mb-4">
+                                    {/* ★ Looping width-pulse line */}
+                                    <motion.div
+                                        className="h-px bg-[#d4af37]"
+                                        animate={{ width: ['8px', '32px', '8px'] }}
+                                        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                                    />
+                                    {/* ★ Shimmer on section label */}
+                                    <ShimmerText className="text-[#d4af37] text-[10px] tracking-[0.4em] uppercase cormorant">
+                                        Get in Touch
+                                    </ShimmerText>
                                 </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-1">Phone</h3>
-                                    <p className="text-white/50">+233 596 399 006</p>
-                                </div>
+
+                                <h2 className="cormorant text-4xl md:text-5xl font-bold text-white leading-tight">
+                                    Let's create something<br />
+                                    {/* ★ Color-pulsing "extraordinary" */}
+                                    <PulseWord className="cormorant italic font-bold text-4xl md:text-5xl">
+                                        extraordinary
+                                    </PulseWord>
+                                </h2>
+                            </motion.div>
+
+                            <div className="space-y-8">
+                                <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} />
+                                <InfoCard icon={Mail} title="Email" value="Handasiyan.2020@gmail.com" index={1} />
                             </div>
 
-                            <div className="flex items-start space-x-6 group">
-                                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-[#d4af37] group-hover:bg-[#d4af37] group-hover:text-black transition-all">
-                                    <Mail className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold text-white mb-1">Email</h3>
-                                    <p className="text-white/50">Handasiyan.2020@gmail.com</p>
-                                </div>
-                            </div>
+                            <motion.div
+                                initial={{ scaleX: 0 }}
+                                whileInView={{ scaleX: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.8, delay: 0.3 }}
+                                className="h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent"
+                                style={{ originX: 0 }}
+                            />
 
-                            <div className="pt-8 border-t border-white/5">
-                                <h3 className="text-white font-semibold mb-6 uppercase text-sm tracking-widest">Follow Us</h3>
-                                <div className="flex space-x-4">
-                                    {socialLinks.map((social) => (
-                                        <a
-                                            key={social.name}
-                                            href={social.href}
-                                            className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all group"
-                                            aria-label={social.name}
-                                        >
-                                            {social.icon}
-                                        </a>
-                                    ))}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.4 }}
+                            >
+                                <p className="montserrat text-white/30 text-[10px] uppercase tracking-[0.3em] mb-5">Follow Us</p>
+                                <div className="flex gap-3">
+                                    {socialLinks.map((s, i) => <SocialLink key={s.name} {...s} index={i} />)}
                                 </div>
-                            </div>
+                            </motion.div>
+
+                            {/* ★ Looping wave text quote */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: 0.6 }}
+                                className="border-l-2 border-[#d4af37]/30 pl-4"
+                            >
+                                <WaveText
+                                    text="Building dreams with excellence."
+                                    className="cormorant text-base text-white/25 italic"
+                                />
+                            </motion.div>
                         </div>
-                    </motion.div>
 
-                    {/* Contact Form */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        className="bg-white/5 p-10 rounded-3xl border border-white/10"
-                    >
-                        <form className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-white/50 text-sm font-medium mb-2">First Name</label>
-                                    <input type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="John" />
-                                </div>
-                                <div>
-                                    <label className="block text-white/50 text-sm font-medium mb-2">Last Name</label>
-                                    <input type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="Doe" />
-                                </div>
+                        {/* ── RIGHT FORM ── */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                            className="lg:col-span-3 relative"
+                        >
+                            <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-[#d4af37]/40 pointer-events-none" />
+                            <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-[#d4af37]/40 pointer-events-none" />
+
+                            <div className="bg-white/[0.03] backdrop-blur-sm border border-white/[0.07] rounded-3xl p-10 md:p-14 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 rounded-full blur-3xl pointer-events-none" />
+
+                                <AnimatePresence mode="wait">
+                                    {!submitted ? (
+                                        <motion.div
+                                            key="form"
+                                            initial={{ opacity: 1 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            className="space-y-10"
+                                        >
+                                            <div>
+                                                {/* ★ Shimmer on form heading label */}
+                                                <ShimmerText className="montserrat text-[#d4af37] text-[10px] tracking-[0.4em] uppercase block mb-2">
+                                                    Start a project
+                                                </ShimmerText>
+                                                <h3 className="cormorant text-2xl text-white font-semibold">
+                                                    Tell us about your vision
+                                                </h3>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <FloatingInput label="First Name" placeholder="John" />
+                                                <FloatingInput label="Last Name" placeholder="Doe" />
+                                            </div>
+
+                                            <FloatingInput label="Email Address" type="email" placeholder="email@example.com" />
+
+                                            <FloatingInput
+                                                label="Service Interest"
+                                                as="select"
+                                                options={['Full Interior Design', 'Architecture', 'Consultation', 'Project Management']}
+                                            />
+
+                                            <FloatingInput label="Your Message" as="textarea" placeholder="Tell us about your project..." />
+
+                                            <div className="flex items-center gap-6 pt-2">
+                                                <MagneticBtn
+                                                    onClick={handleSend}
+                                                    className="montserrat group relative overflow-hidden bg-[#d4af37] text-black font-bold text-sm tracking-widest uppercase px-10 py-4 rounded-xl flex items-center gap-3 hover:shadow-[0_0_40px_rgba(212,175,55,0.4)] transition-shadow duration-500 cursor-pointer"
+                                                >
+                                                    {/* ★ Looping shimmer sweep on button */}
+                                                    <motion.div
+                                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                                        animate={{ x: ['-100%', '200%'] }}
+                                                        transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 1.5, ease: 'easeInOut' }}
+                                                    />
+                                                    <AnimatePresence mode="wait">
+                                                        {sending ? (
+                                                            <motion.div
+                                                                key="loading"
+                                                                initial={{ opacity: 0 }}
+                                                                animate={{ opacity: 1 }}
+                                                                exit={{ opacity: 0 }}
+                                                                className="flex items-center gap-2 relative z-10"
+                                                            >
+                                                                <motion.div
+                                                                    className="w-4 h-4 border-2 border-black/40 border-t-black rounded-full"
+                                                                    animate={{ rotate: 360 }}
+                                                                    transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                                                                />
+                                                                <span>Sending...</span>
+                                                            </motion.div>
+                                                        ) : (
+                                                            <motion.div
+                                                                key="idle"
+                                                                initial={{ opacity: 0 }}
+                                                                animate={{ opacity: 1 }}
+                                                                exit={{ opacity: 0 }}
+                                                                className="flex items-center gap-2 relative z-10"
+                                                            >
+                                                                <span>Send Message</span>
+                                                                {/* ★ Looping bounce on send icon */}
+                                                                <motion.span
+                                                                    animate={{ x: [0, 3, 0] }}
+                                                                    transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                                                                >
+                                                                    <Send className="w-3.5 h-3.5" />
+                                                                </motion.span>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </MagneticBtn>
+                                            </div>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.div
+                                            key="success"
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                            className="py-20 flex flex-col items-center justify-center text-center gap-6"
+                                        >
+                                            <motion.div
+                                                initial={{ scale: 0, rotate: -180 }}
+                                                animate={{ scale: 1, rotate: 0 }}
+                                                transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+                                                className="w-20 h-20 rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 flex items-center justify-center"
+                                            >
+                                                {/* ★ Looping spin on sparkle icon */}
+                                                <motion.div
+                                                    animate={{ rotate: [0, 360] }}
+                                                    transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                                                >
+                                                    <Sparkles className="w-8 h-8 text-[#d4af37]" />
+                                                </motion.div>
+                                            </motion.div>
+                                            <div>
+                                                {/* ★ Wave text on success message */}
+                                                <WaveText
+                                                    text="Message Sent!"
+                                                    className="cormorant text-3xl text-white font-bold"
+                                                />
+                                                <p className="montserrat text-white/40 text-sm mt-2">
+                                                    We'll be in touch within 24 hours.
+                                                </p>
+                                            </div>
+                                            <motion.div
+                                                className="absolute inset-0 rounded-3xl border-2 border-[#d4af37]/30 pointer-events-none"
+                                                animate={{ opacity: [0.5, 0, 0.5], scale: [1, 1.02, 1] }}
+                                                transition={{ duration: 2, repeat: Infinity }}
+                                            />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </div>
-                            <div>
-                                <label className="block text-white/50 text-sm font-medium mb-2">Email Address</label>
-                                <input type="email" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="email@example.com" />
-                            </div>
-                            <div>
-                                <label className="block text-white/50 text-sm font-medium mb-2">Service Interest</label>
-                                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37] transition-colors appearance-none">
-                                    <option>Full Interior Design</option>
-                                    <option>Architecture</option>
-                                    <option>Consultation</option>
-                                    <option>Project Management</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-white/50 text-sm font-medium mb-2">Message</label>
-                                <textarea rows="4" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d4af37] transition-colors" placeholder="Tell us about your project..."></textarea>
-                            </div>
-                            <button type="button" className="w-full py-4 bg-[#d4af37] text-black font-bold rounded-xl hover:bg-[#c49f27] transition-all flex items-center justify-center space-x-2">
-                                <span>Send Message</span>
-                                <Send className="w-4 h-4" />
-                            </button>
-                        </form>
-                    </motion.div>
+                        </motion.div>
+                    </div>
                 </div>
             </section>
+
+            {/* ── BOTTOM MARQUEE ────────────────────────────────── */}
+            <div className="bg-[#d4af37]/5 border-t border-[#d4af37]/10 py-2">
+                <MarqueeStrip
+                    text="Handasiyan · Est. 2020 · Building Dreams With Excellence · A Legacy of Discipline & Craftsmanship"
+                    speed={50}
+                    gold
+                    reverse
+                />
+            </div>
         </div>
     );
 };
