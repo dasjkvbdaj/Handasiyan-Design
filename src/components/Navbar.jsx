@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/logo.png";
+import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { currentUser, logout } = useAuth();
+  const [openMenu, setOpenMenu] = useState(false);
 
   // Handle scroll for navbar visibility
   useEffect(() => {
@@ -33,13 +36,15 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${shouldHide
-        ? "opacity-0 -translate-y-full pointer-events-none"
-        : "opacity-100 translate-y-0"
-        } ${scrolled
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        shouldHide
+          ? "opacity-0 -translate-y-full pointer-events-none"
+          : "opacity-100 translate-y-0"
+      } ${
+        scrolled
           ? "bg-black/90 backdrop-blur-md border-b border-white/10 shadow-lg"
           : "bg-transparent"
-        }`}
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
@@ -57,14 +62,67 @@ const Navbar = () => {
             <Link
               key={link.name}
               to={link.path}
-              className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                ? "text-[#d4af37] scale-105"
-                : "text-white/70 hover:text-white"
-                }`}
+              className={`text-sm font-medium transition-all duration-300 ${
+                isActive(link.path)
+                  ? "text-[#d4af37] scale-105"
+                  : "text-white/70 hover:text-white"
+              }`}
             >
               {link.name}
             </Link>
           ))}
+
+          {/* 🔥 AUTH PART */}
+          {currentUser ? (
+            <div className="relative flex items-center gap-4">
+              {/* Avatar */}
+              <button onClick={() => setOpenMenu(!openMenu)}>
+                <img
+                  src={`https://ui-avatars.com/api/?name=${currentUser.email}`}
+                  className="w-9 h-9 rounded-full border border-white/20 cursor-pointer"
+                />
+              </button>
+
+              {/* Dropdown */}
+              {openMenu && (
+                <div className="absolute right-0 top-12 bg-white text-black shadow-lg rounded-lg w-48 p-2 z-50">
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 hover:bg-gray-100 rounded"
+                    onClick={() => setOpenMenu(false)}
+                  >
+                    👤 Edit Profile
+                  </Link>
+
+                  <Link
+                    to="/reset-password"
+                    className="block px-3 py-2 hover:bg-gray-100 rounded"
+                    onClick={() => setOpenMenu(false)}
+                  >
+                    🔒 Reset Password
+                  </Link>
+
+                  <button
+                    onClick={async () => {
+                      await logout();
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-red-100 text-red-500 rounded"
+                  >
+                    🚪 Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link to="/login" className="text-white/70 hover:text-white">
+                Login
+              </Link>
+              <Link to="/signup" className="text-white/70 hover:text-white">
+                Signup
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -85,12 +143,39 @@ const Navbar = () => {
                 key={link.name}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`text-lg font-medium transition-colors ${isActive(link.path) ? "text-[#d4af37]" : "text-white/60"
-                  }`}
+                className={`text-lg font-medium transition-colors ${
+                  isActive(link.path) ? "text-[#d4af37]" : "text-white/60"
+                }`}
               >
                 {link.name}
               </Link>
             ))}
+            {/* AUTH MOBILE */}
+            {currentUser ? (
+              <>
+                <Link to="/profile" onClick={() => setIsOpen(false)}>
+                  Profile
+                </Link>
+                <button
+                  onClick={async () => {
+                    await logout();
+                    setIsOpen(false);
+                  }}
+                  className="text-left"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  Login
+                </Link>
+                <Link to="/signup" onClick={() => setIsOpen(false)}>
+                  Signup
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

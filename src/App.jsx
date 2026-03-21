@@ -8,6 +8,10 @@ import ServicesPage from './pages/ServicesPage'
 import PortfolioPage from './pages/PortfolioPage'
 import ContactPage from './pages/ContactPage'
 import AIDesignPage from './pages/AIDesignPage'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import Profile from './pages/Profile'
+import ResetPassword from './pages/ResetPassword'
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -30,6 +34,10 @@ function App() {
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/ai-design" element={<AIDesignPage />} />
+           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/reset-password" element={<ResetPassword/>} />
+          <Route path="/profile" element={<Profile/>} />
         </Routes>
       </Layout>
     </Router>
