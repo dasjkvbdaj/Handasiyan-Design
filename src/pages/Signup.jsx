@@ -16,6 +16,7 @@ const fadeInUp = {
   }),
 };
 
+
 const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -66,6 +67,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-[#030f0a] flex items-center justify-center relative overflow-hidden px-6 py-20">
+
       {/* Background Orbs */}
       <motion.div
         className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/20 blur-3xl"
@@ -87,7 +89,7 @@ const Signup = () => {
       >
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl">
           <div className="text-center mb-10">
-            <motion.h2 
+            <motion.h2
               variants={fadeInUp}
               custom={0.1}
               className="text-4xl font-bold text-white mb-2"
@@ -95,7 +97,7 @@ const Signup = () => {
             >
               Create Account
             </motion.h2>
-            <motion.p 
+            <motion.p
               variants={fadeInUp}
               custom={0.2}
               className="text-white/50 text-sm tracking-wide"
@@ -167,11 +169,10 @@ const Signup = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 mt-2 ${
-                loading 
-                  ? "bg-white/10 text-white/30 cursor-not-allowed" 
-                  : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
-              }`}
+              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 mt-2 ${loading
+                ? "bg-white/10 text-white/30 cursor-not-allowed"
+                : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
+                }`}
             >
               {loading ? "Creating..." : "Create Account"}
             </motion.button>
@@ -218,8 +219,8 @@ const Signup = () => {
             </motion.button>
           </motion.div>
 
-          <motion.p 
-            variants={fadeInUp} 
+          <motion.p
+            variants={fadeInUp}
             custom={0.8}
             className="text-center mt-10 text-white/30 text-xs tracking-wider"
           >

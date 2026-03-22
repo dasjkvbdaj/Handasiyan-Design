@@ -150,8 +150,8 @@ const Login = () => {
               disabled={loading}
               className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 ${
                 loading 
-                  ? "bg-white/10 text-white/30 cursor-not-allowed" 
-                  : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
+                    ? "bg-white/10 text-white/30 cursor-not-allowed" 
+                    : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
               }`}
             >
               {loading ? "Verifying..." : "Sign In"}
