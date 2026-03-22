@@ -77,7 +77,7 @@ const Login = () => {
       >
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl">
           <div className="text-center mb-10">
-            <motion.h2 
+            <motion.h2
               variants={fadeInUp}
               custom={0.1}
               className="text-4xl font-bold text-white mb-2"
@@ -85,7 +85,7 @@ const Login = () => {
             >
               Welcome Back
             </motion.h2>
-            <motion.p 
+            <motion.p
               variants={fadeInUp}
               custom={0.2}
               className="text-white/50 text-sm tracking-wide"
@@ -148,11 +148,10 @@ const Login = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 ${
-                loading 
-                    ? "bg-white/10 text-white/30 cursor-not-allowed" 
-                    : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
-              }`}
+              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 ${loading
+                  ? "bg-white/10 text-white/30 cursor-not-allowed"
+                  : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
+                }`}
             >
               {loading ? "Verifying..." : "Sign In"}
             </motion.button>
@@ -199,8 +198,8 @@ const Login = () => {
             </motion.button>
           </motion.div>
 
-          <motion.p 
-            variants={fadeInUp} 
+          <motion.p
+            variants={fadeInUp}
             custom={0.7}
             className="text-center mt-10 text-white/30 text-xs tracking-wider"
           >
