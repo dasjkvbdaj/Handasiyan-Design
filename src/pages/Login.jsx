@@ -327,7 +327,7 @@ const Login = () => {
         animate="visible"
         variants={fadeInUp}
         custom={0}
-        className="w-[75%] md:w-full max-w-sm md:max-w-md relative z-10"
+        className="w-[70%] md:w-full max-w-sm md:max-w-md relative z-10"
       >
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-5 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl">
           <div className="text-center mb-5 md:mb-10">
