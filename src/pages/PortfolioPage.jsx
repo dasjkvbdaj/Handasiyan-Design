@@ -31,7 +31,7 @@ function FloatingPaths({ position }) {
                         animate={{
                             pathLength: 1,
                             opacity: [0.2, 0.5, 0.2],
-                            
+
                         }}
                         transition={{
                             duration: 8 + Math.random() * 5,
@@ -98,7 +98,7 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
 // ─── Animated hero section (Updated to match Services scale) ──────────────────
 function PortfolioHero() {
     const title = 'Portfolio';
-    const subtitle = 'A visual journey through our most inspiring interior transformations.';
+    // const subtitle = 'A visual journey through our most inspiring interior transformations.';
 
     return (
         /* Updated: py-36 and min-h-[55vh] to match Services page */
@@ -172,8 +172,8 @@ function PortfolioHero() {
                         <TypewriterLoopText
                             className="text-white/70"
                             texts={[
-                                subtitle,
-                                'Crafting spaces with precision and care.',
+                                //subtitle,
+                                'Crafting spaces with precision.',
                                 'Every design tells a unique story.',
                                 'Elevating living experiences.',
                             ]}

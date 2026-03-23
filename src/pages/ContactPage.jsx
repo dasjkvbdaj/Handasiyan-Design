@@ -657,7 +657,7 @@ const ContactPage = () => {
             <div className="bg-[#d4af37]/5 border-t border-[#d4af37]/10 py-2">
                 <MarqueeStrip
                     text="Handasiyan · Est. 2020 · Building Dreams With Excellence · A Legacy of Discipline & Craftsmanship"
-                    speed={50}
+                    speed={30}
                     gold
                     reverse
                 />

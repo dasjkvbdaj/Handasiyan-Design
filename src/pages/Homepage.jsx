@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Palette, Home, Layout, Ruler, X, Mail, Phone, ArrowRight, ChevronDown } from 'lucide-react';
+import { Palette, Home, Layout, Ruler, X, Mail, Phone, ArrowRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 
 /* ─── LOOPING TEXT COMPONENTS ────────────────────────────────────────────── */
 
@@ -148,7 +148,7 @@ const MarqueeStrip = ({ items }) => {
             <motion.div
                 className="flex gap-12 whitespace-nowrap"
                 animate={{ x: ['0%', '-50%'] }}
-                transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
             >
                 {doubled.map((item, i) => (
                     <span key={i} className="inline-flex items-center gap-4 text-white/20 text-xs uppercase tracking-[0.25em] font-medium">
@@ -298,10 +298,13 @@ export const About = ({ isPreview = false }) => {
 
 /* ─── SERVICES ────────────────────────────────────────────────────────────── */
 const services = [
-    { icon: <Home className="w-6 h-6" />, title: 'Full Interior Design', description: 'From concept to completion, we handle every detail of your renovation or new build.', number: '01' },
-    { icon: <Palette className="w-6 h-6" />, title: 'Color Consulting', description: 'Expert guidance on palettes, finishes, and textures to bring your vision to life.', number: '02' },
-    { icon: <Layout className="w-6 h-6" />, title: 'Space Planning', description: 'Optimizing flow and functionality to make the most of your available square footage.', number: '03' },
-    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture', description: 'Bespoke furniture design and sourcing for truly unique statement pieces.', number: '04' },
+    { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '01' },
+    { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '02' },
+    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03' },
+    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04' },
+    { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05' },
+    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06' },
+    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07' },
 ];
 
 export const Services = ({ isPreview = false }) => {
@@ -346,7 +349,7 @@ export const Services = ({ isPreview = false }) => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             custom={i}
-                            className="group relative bg-neutral-950 p-8 hover:bg-[#0a1f16] transition-colors duration-500 cursor-default"
+                            className={`group relative bg-neutral-950 p-8 hover:bg-[#0a1f16] transition-colors duration-500 cursor-default ${!isPreview && i === 6 ? 'md:col-span-2' : ''}`}
                         >
                             <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none"
                                 style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -565,7 +568,7 @@ export const Portfolio = ({ isPreview = false }) => {
                 <div className="absolute right-0 bottom-0 w-[600px] h-[400px] bg-[#064e3b]/10 blur-[120px] pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
                         <div>
                             <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
                                 className="inline-flex items-center gap-3 mb-4">
