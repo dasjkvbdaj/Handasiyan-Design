@@ -4,7 +4,7 @@ import { Portfolio, CTA } from './Homepage';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position }) {
-    const paths = Array.from({ length: 36 }, (_, i) => ({
+    const paths = Array.from({ length: 45 }, (_, i) => ({
         id: i,
         d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position
             } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position
@@ -95,18 +95,17 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
     );
 };
 
-// ─── Animated hero section (Updated to match Services scale) ──────────────────
+// ─── Animated hero section ────────────────────────────────────────────────────
 function PortfolioHero() {
     const title = 'Portfolio';
-    // const subtitle = 'A visual journey through our most inspiring interior transformations.';
 
     return (
-        /* Updated: py-36 and min-h-[55vh] to match Services page */
-        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[55vh] flex items-center justify-center">
-            {/* Floating animated paths */}
+        // Change 1: min-h-[55vh] → min-h-[90vh]
+        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[90vh] flex items-center justify-center">
+            {/* Change 2: FloatingPaths positions updated */}
             <div className="absolute inset-0">
-                <FloatingPaths position={1} />
-                <FloatingPaths position={-1} />
+                <FloatingPaths position={-2} />
+                <FloatingPaths position={-4} />
             </div>
 
             {/* Subtle radial vignette */}
@@ -118,14 +117,15 @@ function PortfolioHero() {
                 }}
             />
 
-            <div className="max-w-7xl mx-auto px-6 relative z-10">
+            {/* Change 3: flex-col + gap-4 keeps title and subtitle tight together, centered */}
+            <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center gap-4">
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1.2 }}
+                    className="flex flex-col items-center gap-4"
                 >
-                    {/* Updated: text-6xl md:text-8xl lg:text-9xl and mb-8 to match Services page */}
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold mb-8 tracking-tighter flex flex-wrap justify-center">
+                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter flex flex-wrap justify-center">
                         {title.split(' ').map((word, wordIndex) => (
                             <span key={wordIndex} className="inline-block mr-4 last:mr-0">
                                 {word.split('').map((letter, letterIndex) => (
@@ -162,17 +162,15 @@ function PortfolioHero() {
                         ))}
                     </h1>
 
-                    {/* Subtitle */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.9 }}
-                        className="text-xl max-w-2xl mx-auto font-light tracking-wide mt-4"
+                        className="text-xl max-w-2xl font-light tracking-wide"
                     >
                         <TypewriterLoopText
                             className="text-white/70"
                             texts={[
-                                //subtitle,
                                 'Crafting spaces with precision.',
                                 'Every design tells a unique story.',
                                 'Elevating living experiences.',

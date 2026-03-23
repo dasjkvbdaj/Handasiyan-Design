@@ -170,14 +170,14 @@ const Signup = () => {
         animate="visible"
         variants={fadeInUp}
         custom={0}
-        className="w-full max-w-md relative z-10"
+        className="w-[75%] md:w-full max-w-sm md:max-w-md relative z-10"
       >
-        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl">
-          <div className="text-center mb-10">
+        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-5 md:p-10 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl">
+          <div className="text-center mb-5 md:mb-10">
             <motion.h2
               variants={fadeInUp}
               custom={0.1}
-              className="text-4xl font-bold text-white mb-2"
+              className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               Create Account
@@ -185,7 +185,7 @@ const Signup = () => {
             <motion.p
               variants={fadeInUp}
               custom={0.2}
-              className="text-white/50 text-sm tracking-wide"
+              className="text-white/50 text-xs md:text-sm tracking-wide"
             >
               Join the elite circle of architectural excellence
             </motion.p>
@@ -197,16 +197,16 @@ const Signup = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl mb-6 text-sm text-center"
+                className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 md:p-4 rounded-xl md:rounded-2xl mb-4 md:mb-6 text-xs md:text-sm text-center"
               >
                 {error}
               </motion.div>
             )}
           </AnimatePresence>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
             <motion.div variants={fadeInUp} custom={0.3}>
-              <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium mb-2 ml-1">
+              <label className="block text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium mb-1 md:mb-2 ml-1">
                 Email Address
               </label>
               <input
@@ -215,12 +215,12 @@ const Signup = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
               />
             </motion.div>
 
             <motion.div variants={fadeInUp} custom={0.4}>
-              <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium mb-2 ml-1">
+              <label className="block text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium mb-1 md:mb-2 ml-1">
                 Password
               </label>
               <input
@@ -229,12 +229,12 @@ const Signup = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 6 characters"
                 required
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
               />
             </motion.div>
 
             <motion.div variants={fadeInUp} custom={0.5}>
-              <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium mb-2 ml-1">
+              <label className="block text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium mb-1 md:mb-2 ml-1">
                 Confirm Password
               </label>
               <input
@@ -243,7 +243,7 @@ const Signup = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat password"
                 required
-                className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
+                className="w-full bg-white/5 border border-white/10 text-white text-sm md:text-base rounded-xl md:rounded-2xl px-4 md:px-5 py-3 md:py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all duration-300 placeholder:text-white/20"
               />
             </motion.div>
 
@@ -254,7 +254,7 @@ const Signup = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 mt-2 ${loading
+              className={`w-full py-3 md:py-4 rounded-xl md:rounded-2xl font-bold tracking-widest uppercase text-[10px] md:text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 mt-1 md:mt-2 ${loading
                 ? "bg-white/10 text-white/30 cursor-not-allowed"
                 : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
                 }`}
@@ -263,8 +263,8 @@ const Signup = () => {
             </motion.button>
           </form>
 
-          <motion.div variants={fadeInUp} custom={0.7} className="mt-8">
-            <div className="relative flex items-center justify-center mb-8">
+          <motion.div variants={fadeInUp} custom={0.7} className="mt-5 md:mt-8">
+            <div className="relative flex items-center justify-center mb-5 md:mb-8">
               <div className="border-t border-white/10 w-full" />
               <span className="bg-[#0b1612] px-4 text-white/20 text-[10px] uppercase tracking-[0.3em] absolute">Or join with</span>
             </div>
@@ -280,7 +280,7 @@ const Signup = () => {
                   console.error(err);
                 }
               }}
-              className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 py-4 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300"
+              className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 py-3 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 transition-all duration-300"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -307,7 +307,7 @@ const Signup = () => {
           <motion.p
             variants={fadeInUp}
             custom={0.8}
-            className="text-center mt-10 text-white/30 text-xs tracking-wider"
+            className="text-center mt-5 md:mt-10 text-white/30 text-[10px] md:text-xs tracking-wider"
           >
             Already have an account?{" "}
             <Link to="/login" className="text-[#d4af37] hover:text-[#b8962d] font-bold transition-colors ml-1">
