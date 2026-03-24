@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Palette, ArrowRight, Home, Layout, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 /* ─── LOOPING TEXT COMPONENTS ────────────────────────────────────────────── */
 
@@ -205,7 +205,7 @@ export const Hero = () => {
     return (
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
-            <motion.div style={{ y, scale }} className="absolute inset-0 z-0">
+            <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
                 <video autoPlay muted loop playsInline className="absolute min-w-full min-h-full object-cover">
                     <source src="/video.mp4" type="video/mp4" />
                 </video>
@@ -222,6 +222,22 @@ export const Hero = () => {
                 }}
             />
 
+            
+
+            {/* Scrolling Indicator Cue */}
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 2 }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
+            >
+                <span className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium">Scroll Down</span>
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="w-px h-12 bg-gradient-to-b from-[#d4af37] to-transparent"
+                />
+            </motion.div>
         </section>
     );
 };
@@ -297,13 +313,13 @@ export const About = ({ isPreview = false }) => {
 
 /* ─── SERVICES ────────────────────────────────────────────────────────────── */
 const services = [
-    { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '01' },
-    { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '02' },
-    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03' },
-    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04' },
-    { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05' },
-    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06' },
-    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07' },
+    { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '01', category: 'Architectural Design' },
+    { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '02', category: 'Interior Design' },
+    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03', category: 'Construction' },
+    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04', category: 'Supervision' },
+    { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: '3D Visualization' },
+    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06', category: 'Custom Furniture & Joinery' },
+    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07', category: 'Renovation' },
 ];
 
 export const Services = ({ isPreview = false }) => {
@@ -357,9 +373,11 @@ export const Services = ({ isPreview = false }) => {
                             <div className="mb-6 p-3 bg-white/5 rounded-xl w-fit group-hover:bg-[#d4af37]/15 transition-colors duration-300">
                                 <div className="text-[#d4af37]">{service.icon}</div>
                             </div>
-                            <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-[#d4af37] transition-colors duration-300">
-                                {service.title}
-                            </h3>
+                             <Link to={`/portfolio?category=${encodeURIComponent(service.category)}`} className="block group/link">
+                                <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-[#d4af37] transition-colors duration-300">
+                                    {service.title}
+                                </h3>
+                            </Link>
                             <p className="text-white/40 text-sm leading-relaxed">{service.description}</p>
                             <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#d4af37] group-hover:w-full transition-all duration-500 rounded-full" />
                         </motion.div>
@@ -384,10 +402,19 @@ export const Services = ({ isPreview = false }) => {
 /* ─── CONTACT SECTION ─────────────────────────────────────────────────────── */
 export const ContactSection = () => {
     return (
-        <section className="py-28 bg-[#040f0a] relative overflow-hidden">
+        <section className="py-28 bg-[#061e15] relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#064e3b]/30 rounded-full blur-[150px]" />
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#d4af37]/8 rounded-full blur-[100px]" />
+                {/* Wavy Pattern Consistency */}
+                <div className="absolute inset-0 overflow-hidden opacity-[0.03]">
+                    {[...Array(6)].map((_, i) => (
+                        <div key={i}
+                            className="absolute h-px bg-gradient-to-r from-transparent via-[#d4af37] to-transparent w-full"
+                            style={{ top: `${15 + i * 15}%`, transform: `rotate(3deg) scaleX(1.5)` }}
+                        />
+                    ))}
+                </div>
             </div>
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -538,13 +565,17 @@ const projects = [
         name: 'Classic Style Villa Design',
         folder: '/portfolio_images/Classic Style Villa design',
         imageCount: 3,
+        category: 'Architectural Design'
     },
     {
         name: 'Colourful Style Apartment',
         folder: '/portfolio_images/Colourful Style Apartment',
         imageCount: 5,
+        category: 'Interior Design'
     },
 ];
+
+
 
 
 function getProjectImages(project) {
@@ -725,6 +756,8 @@ function ProjectCard({ project, index, onOpen }) {
 
 export const Portfolio = ({ isPreview = false }) => {
     const [lightbox, setLightbox] = useState(null); // { project, startIndex }
+    const [searchParams] = useSearchParams();
+    const categoryFilter = searchParams.get('category');
 
     // Lock scroll when lightbox is open
     useEffect(() => {
@@ -732,7 +765,12 @@ export const Portfolio = ({ isPreview = false }) => {
         return () => { document.body.style.overflow = 'unset'; };
     }, [lightbox]);
 
-    const displayProjects = isPreview ? projects.slice(0, 6) : projects;
+    const allProjects = [...projects].reverse();
+    const filteredProjects = categoryFilter 
+        ? allProjects.filter(p => p.category === categoryFilter)
+        : allProjects;
+
+    const displayProjects = isPreview ? filteredProjects.slice(0, 1) : filteredProjects;
 
     const openLightbox = (project) => {
         setLightbox({ project, startIndex: 0 });
@@ -817,6 +855,7 @@ const HomePage = () => {
             <Hero />
             <About isPreview={true} />
             <Services isPreview={true} />
+            <Portfolio isPreview={true} />
             <ContactSection />
             <CTA />
         </>
