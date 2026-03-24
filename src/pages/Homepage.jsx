@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Palette, Home, Layout, Ruler, X, Mail, Phone, ArrowRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
-
+import { Palette, ArrowRight, Home, Layout, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 /* ─── LOOPING TEXT COMPONENTS ────────────────────────────────────────────── */
 
 /**
@@ -534,33 +533,212 @@ export const CTA = () => {
     );
 };
 
-const portfolioImages = [
-    '/portfolio_images/Contemporary Style (1).jpeg',
-    '/portfolio_images/Contemporary Style (3).jpeg',
-    '/portfolio_images/Contemporary west African Style (1).jpeg',
-    '/portfolio_images/Contemporary west African Style (3).jpeg',
-    '/portfolio_images/Image 16-01-2026 at 12.24.png',
-    '/portfolio_images/Modern Style (1).jpeg',
-    '/portfolio_images/Modern Style (2).jpeg',
-    '/portfolio_images/Modern Style .jpeg',
-    '/portfolio_images/Scandinavian (1).jpeg',
-    '/portfolio_images/Scandinavian (2).jpeg',
-    '/portfolio_images/Scandinavian .jpeg',
-    '/portfolio_images/Tropical Modern Luxury Style .jpeg',
-    '/portfolio_images/Tropical Modern Luxury Style left side .jpeg',
-    '/portfolio_images/Tropical Modern Luxury Style zoom out view.jpeg',
+const projects = [
+    {
+        name: 'Classic Style Villa Design',
+        folder: '/portfolio_images/Classic Style Villa design',
+        imageCount: 3,
+    },
+    {
+        name: 'Colourful Style Apartment',
+        folder: '/portfolio_images/Colourful Style Apartment',
+        imageCount: 5,
+    },
 ];
 
-export const Portfolio = ({ isPreview = false }) => {
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [hoveredIndex, setHoveredIndex] = useState(null);
 
+function getProjectImages(project) {
+    return Array.from(
+        { length: project.imageCount },
+        (_, i) => `${project.folder}/image-${i + 1}.avif`
+    );
+}
+
+function Lightbox({ project, startIndex, onClose }) {
+    const images = getProjectImages(project);
+    const [currentIndex, setCurrentIndex] = useState(startIndex);
+
+    const goPrev = useCallback((e) => {
+        e?.stopPropagation();
+        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    }, [images.length]);
+
+    const goNext = useCallback((e) => {
+        e?.stopPropagation();
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, [images.length]);
+
+    // Keyboard navigation
     useEffect(() => {
-        document.body.style.overflow = selectedImage ? 'hidden' : 'unset';
-        return () => { document.body.style.overflow = 'unset'; };
-    }, [selectedImage]);
+        const handleKey = (e) => {
+            if (e.key === 'ArrowLeft') goPrev();
+            if (e.key === 'ArrowRight') goNext();
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKey);
+        return () => window.removeEventListener('keydown', handleKey);
+    }, [goPrev, goNext, onClose]);
 
-    const displayImages = isPreview ? portfolioImages.slice(0, 6) : portfolioImages;
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={onClose}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/98 backdrop-blur-md"
+        >
+            {/* Close button */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={(e) => { e.stopPropagation(); onClose(); }}
+                className="absolute top-6 right-6 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 hover:rotate-90 duration-300"
+            >
+                <X className="w-6 h-6" />
+            </motion.button>
+
+            {/* Project name + counter */}
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-50">
+                <span className="text-[#d4af37] font-semibold tracking-widest uppercase text-xs">
+                    {project.name}
+                </span>
+                <span className="text-white/40 text-xs">
+                    {currentIndex + 1} / {images.length}
+                </span>
+            </div>
+
+            {/* Left arrow */}
+            {images.length > 1 && (
+                <motion.button
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    onClick={goPrev}
+                    className="absolute left-4 md:left-8 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 duration-200"
+                >
+                    <ChevronLeft className="w-7 h-7" />
+                </motion.button>
+            )}
+
+            {/* Image */}
+            <AnimatePresence mode="wait">
+                <motion.img
+                    key={currentIndex}
+                    initial={{ opacity: 0, scale: 0.95, x: 30 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, x: -30 }}
+                    transition={{ duration: 0.25, ease: 'easeInOut' }}
+                    src={images[currentIndex]}
+                    alt={`${project.name} — image ${currentIndex + 1}`}
+                    className="max-w-[85vw] max-h-[75vh] object-contain rounded-lg shadow-2xl relative z-40"
+                    onClick={(e) => e.stopPropagation()}
+                />
+            </AnimatePresence>
+
+            {/* Right arrow */}
+            {images.length > 1 && (
+                <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    onClick={goNext}
+                    className="absolute right-4 md:right-8 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 duration-200"
+                >
+                    <ChevronRight className="w-7 h-7" />
+                </motion.button>
+            )}
+
+            {/* Dot indicators */}
+            {images.length > 1 && (
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+                    {images.map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
+                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex
+                                ? 'bg-[#d4af37] w-4'
+                                : 'bg-white/30 hover:bg-white/60'
+                                }`}
+                        />
+                    ))}
+                </div>
+            )}
+        </motion.div>
+    );
+}
+
+function ProjectCard({ project, index, onOpen }) {
+    const [hovered, setHovered] = useState(false);
+    const coverImage = `${project.folder}/image-1.avif`;
+
+    return (
+        <motion.div
+            variants={scaleIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
+            custom={index % 6}
+            className={`group relative rounded-xl overflow-hidden cursor-pointer border border-white/5
+                ${index === 0 ? 'md:col-span-2 lg:col-span-1 aspect-[4/3]' : 'aspect-square'}
+            `}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onClick={() => onOpen(project)}
+            whileHover={{ scale: 1.01 }}
+            transition={{ duration: 0.4 }}
+        >
+            {/* Cover image — always image-1.avif */}
+            <img
+                src={coverImage}
+                alt={project.name}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+
+            {/* Hover overlay with project name */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: hovered ? 1 : 0 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col items-start justify-end p-6"
+            >
+                <p className="text-[#d4af37] text-xs font-semibold tracking-widest uppercase mb-1">
+                    View Project
+                </p>
+                <h3 className="text-white text-lg font-bold leading-tight">
+                    {project.name}
+                </h3>
+                <div className="flex items-center gap-2 mt-2 text-white/60 text-xs">
+                    <span>{project.imageCount} images</span>
+                    <ArrowRight className="w-3 h-3" />
+                </div>
+            </motion.div>
+
+            {/* Gold corner accent */}
+            <div className="absolute top-3 right-3 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute top-0 right-0 w-full h-0.5 bg-[#d4af37]" />
+                <div className="absolute top-0 right-0 w-0.5 h-full bg-[#d4af37]" />
+            </div>
+        </motion.div>
+    );
+}
+
+export const Portfolio = ({ isPreview = false }) => {
+    const [lightbox, setLightbox] = useState(null); // { project, startIndex }
+
+    // Lock scroll when lightbox is open
+    useEffect(() => {
+        document.body.style.overflow = lightbox ? 'hidden' : 'unset';
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [lightbox]);
+
+    const displayProjects = isPreview ? projects.slice(0, 6) : projects;
+
+    const openLightbox = (project) => {
+        setLightbox({ project, startIndex: 0 });
+    };
+
+    const closeLightbox = () => setLightbox(null);
 
     return (
         <>
@@ -592,50 +770,15 @@ export const Portfolio = ({ isPreview = false }) => {
                         )}
                     </div>
 
-                    {/* Masonry-style grid */}
+                    {/* Project grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {displayImages.map((image, index) => (
-                            <motion.div
-                                key={index}
-                                variants={scaleIn}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true, margin: '-50px' }}
-                                custom={index % 6}
-                                className={`group relative rounded-xl overflow-hidden cursor-pointer border border-white/5
-                  ${index === 0 ? 'md:col-span-2 lg:col-span-1 aspect-[4/3]' : 'aspect-square'}
-                `}
-                                onMouseEnter={() => setHoveredIndex(index)}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                                onClick={() => setSelectedImage(image)}
-                                whileHover={{ scale: 1.01 }}
-                                transition={{ duration: 0.4 }}
-                            >
-                                <img
-                                    src={image}
-                                    alt={`Portfolio ${index + 1}`}
-                                    loading="lazy"
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-
-                                {/* Reveal overlay */}
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: hoveredIndex === index ? 1 : 0 }}
-                                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-6"
-                                >
-                                    <div className="flex items-center gap-2 text-white text-sm font-medium">
-                                        <span>View Project</span>
-                                        <ArrowRight className="w-4 h-4" />
-                                    </div>
-                                </motion.div>
-
-                                {/* Gold corner accent */}
-                                <div className="absolute top-3 right-3 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <div className="absolute top-0 right-0 w-full h-0.5 bg-[#d4af37]" />
-                                    <div className="absolute top-0 right-0 w-0.5 h-full bg-[#d4af37]" />
-                                </div>
-                            </motion.div>
+                        {displayProjects.map((project, index) => (
+                            <ProjectCard
+                                key={project.name}
+                                project={project}
+                                index={index}
+                                onOpen={openLightbox}
+                            />
                         ))}
                     </div>
 
@@ -653,41 +796,18 @@ export const Portfolio = ({ isPreview = false }) => {
 
             {/* Lightbox */}
             <AnimatePresence>
-                {selectedImage && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        onClick={() => setSelectedImage(null)}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/98 backdrop-blur-md"
-                    >
-                        <motion.button
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
-                            className="absolute top-6 right-6 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 hover:rotate-90 duration-300"
-                        >
-                            <X className="w-6 h-6" />
-                        </motion.button>
-
-                        <motion.img
-                            initial={{ scale: 0.85, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.85, opacity: 0, y: 20 }}
-                            transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-                            src={selectedImage}
-                            alt="Enlarged view"
-                            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl relative z-40"
-                            onClick={(e) => e.stopPropagation()}
-                        />
-                    </motion.div>
+                {lightbox && (
+                    <Lightbox
+                        project={lightbox.project}
+                        startIndex={lightbox.startIndex}
+                        onClose={closeLightbox}
+                    />
                 )}
             </AnimatePresence>
         </>
     );
 };
+
 
 /* ─── HOME PAGE ───────────────────────────────────────────────────────────── */
 const HomePage = () => {

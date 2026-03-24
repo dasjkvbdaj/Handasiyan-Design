@@ -31,7 +31,6 @@ function FloatingPaths({ position }) {
                         animate={{
                             pathLength: 1,
                             opacity: [0.2, 0.5, 0.2],
-
                         }}
                         transition={{
                             duration: 8 + Math.random() * 5,
@@ -45,13 +44,10 @@ function FloatingPaths({ position }) {
     );
 }
 
-/**
- * TypewriterLoopText — types out text, pauses, erases it, then repeats forever.
- */
 const TypewriterLoopText = ({ texts, className = '' }) => {
     const [textIndex, setTextIndex] = useState(0);
     const [displayed, setDisplayed] = useState('');
-    const [phase, setPhase] = useState('typing'); // 'typing' | 'pause' | 'erasing'
+    const [phase, setPhase] = useState('typing');
 
     useEffect(() => {
         const current = texts[textIndex];
@@ -85,7 +81,6 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
     return (
         <span className={`font-mono ${className}`}>
             {displayed}
-            {/* blinking cursor */}
             <motion.span
                 className="inline-block w-0.5 h-[1em] bg-[#d4af37] ml-0.5 align-middle"
                 animate={{ opacity: [1, 0, 1] }}
@@ -95,20 +90,16 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
     );
 };
 
-// ─── Animated hero section ────────────────────────────────────────────────────
 function PortfolioHero() {
     const title = 'Portfolio';
 
     return (
-        // Change 1: min-h-[55vh] → min-h-[90vh]
         <section className="relative py-36 bg-black overflow-hidden text-center min-h-[90vh] flex items-center justify-center">
-            {/* Change 2: FloatingPaths positions updated */}
             <div className="absolute inset-0">
                 <FloatingPaths position={-2} />
                 <FloatingPaths position={-4} />
             </div>
 
-            {/* Subtle radial vignette */}
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
@@ -117,7 +108,6 @@ function PortfolioHero() {
                 }}
             />
 
-            {/* Change 3: flex-col + gap-4 keeps title and subtitle tight together, centered */}
             <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center gap-4">
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -183,7 +173,6 @@ function PortfolioHero() {
     );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 const PortfolioPage = () => {
     return (
         <div className="pt-20 bg-black">

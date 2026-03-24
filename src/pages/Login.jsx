@@ -84,9 +84,9 @@ const ShaderMaterial = ({ source, uniforms, maxFps = 60 }) => {
 
 const DotMatrix = ({
   colors = [[0, 0, 0]],
-  opacities = [0.04, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
-  totalSize = 20,
-  dotSize = 2,
+  opacities = [1, 0.04, 0.04, 0.04, 0.04, 0.08, 0.08, 0.08, 0.08, 0.14],
+  totalSize = 9,
+  dotSize = 5,
   reverse = false,
   center = ["x", "y"],
 }) => {
