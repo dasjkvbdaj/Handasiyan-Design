@@ -86,13 +86,13 @@ const Navbar = () => {
               {/* Dropdown */}
               {openMenu && (
                 <div className="absolute right-0 top-12 bg-white text-black shadow-lg rounded-lg w-48 p-2 z-50">
-                  <Link
+                  {/* <Link
                     to="/profile"
                     className="block px-3 py-2 hover:bg-gray-100 rounded"
                     onClick={() => setOpenMenu(false)}
                   >
                     👤 Edit Profile
-                  </Link>
+                  </Link> */}
 
                   <Link
                     to="/reset-password"
