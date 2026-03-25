@@ -43,7 +43,7 @@ const Process = () => {
                             key={index}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
+                            viewport={{ once: true, margin: "-50px" }}
                             transition={{ delay: index * 0.2 }}
                             className="flex flex-col items-center text-center group"
                         >

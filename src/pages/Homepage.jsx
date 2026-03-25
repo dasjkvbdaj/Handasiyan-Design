@@ -231,12 +231,14 @@ export const Hero = () => {
                 transition={{ duration: 1, delay: 2 }}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
             >
-                <span className="text-white/40 text-[10px] uppercase tracking-[0.3em] font-medium">Scroll Down</span>
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="w-px h-12 bg-gradient-to-b from-[#d4af37] to-transparent"
-                />
+                    className="flex flex-col items-center gap-1"
+                >
+                    <div className="w-px h-12 bg-gradient-to-b from-[#d4af37] to-transparent" />
+                    <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                </motion.div>
             </motion.div>
         </section>
     );
@@ -245,7 +247,7 @@ export const Hero = () => {
 /* ─── ABOUT ───────────────────────────────────────────────────────────────── */
 export const About = ({ isPreview = false }) => {
     return (
-        <section className={`py-28 ${isPreview ? 'bg-[#061e15]' : 'bg-black'} relative overflow-hidden`}>
+        <section className="py-28 bg-[#061e15] relative overflow-hidden">
             <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[#064e3b]/20 blur-[120px] pointer-events-none" />
 
             <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
@@ -315,11 +317,11 @@ export const About = ({ isPreview = false }) => {
 const services = [
     { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '01', category: 'Architectural Design' },
     { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '02', category: 'Interior Design' },
-    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03', category: 'Construction' },
-    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04', category: 'Supervision' },
-    { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: '3D Visualization' },
-    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06', category: 'Custom Furniture & Joinery' },
-    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07', category: 'Renovation' },
+    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03', category: 'Full Design' },
+    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04', category: 'Full Design' },
+    { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: 'Full Design' },
+    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06', category: 'Full Design' },
+    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07', category: 'Full Design' },
 ];
 
 export const Services = ({ isPreview = false }) => {
@@ -364,22 +366,23 @@ export const Services = ({ isPreview = false }) => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             custom={i}
-                            className={`group relative bg-neutral-950 p-8 hover:bg-[#0a1f16] transition-colors duration-500 cursor-default ${!isPreview && i === 6 ? 'md:col-span-2' : ''}`}
+                            whileTap={{ scale: 0.98 }}
+                            className={`group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer ${!isPreview && i === 6 ? 'md:col-span-2' : ''}`}
                         >
-                            <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none"
-                                style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                                {service.number}
-                            </span>
-                            <div className="mb-6 p-3 bg-white/5 rounded-xl w-fit group-hover:bg-[#d4af37]/15 transition-colors duration-300">
-                                <div className="text-[#d4af37]">{service.icon}</div>
-                            </div>
-                             <Link to={`/portfolio?category=${encodeURIComponent(service.category)}`} className="block group/link">
+                            <Link to={`/portfolio?category=${encodeURIComponent(service.category)}`} className="block w-full h-full p-8 focus:outline-none">
+                                <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none pointer-events-none"
+                                    style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                                    {service.number}
+                                </span>
+                                <div className="mb-6 p-3 bg-white/5 rounded-xl w-fit group-hover:bg-[#d4af37]/15 transition-colors duration-300 pointer-events-none">
+                                    <div className="text-[#d4af37]">{service.icon}</div>
+                                </div>
                                 <h3 className="text-lg font-semibold text-white mb-3 group-hover:text-[#d4af37] transition-colors duration-300">
                                     {service.title}
                                 </h3>
+                                <p className="text-white/40 text-sm leading-relaxed">{service.description}</p>
                             </Link>
-                            <p className="text-white/40 text-sm leading-relaxed">{service.description}</p>
-                            <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#d4af37] group-hover:w-full transition-all duration-500 rounded-full" />
+                            <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#d4af37] group-hover:w-full transition-all duration-500 rounded-full pointer-events-none" />
                         </motion.div>
                     ))}
                 </div>
@@ -573,6 +576,27 @@ const projects = [
         imageCount: 5,
         category: 'Interior Design'
     },
+
+    {
+        name: 'Tropical Modern Style',
+        folder: '/portfolio_images/Tropical Modern Style',
+        imageCount: 5,
+        category: 'Architectural Design'
+    },
+
+    {
+        name: 'Minimalist Contemporary West African style',
+        folder: '/portfolio_images/Minimalist Contemporary West African style',
+        imageCount: 3,
+        category: 'Architectural Design'
+    },
+
+    {
+        name: 'Scandinavian African style',
+        folder: '/portfolio_images/Scandinavian African style',
+        imageCount: 3,
+        category: 'Architectural Design'
+    },
 ];
 
 
@@ -710,7 +734,7 @@ function ProjectCard({ project, index, onOpen }) {
             viewport={{ once: true, margin: '-50px' }}
             custom={index % 6}
             className={`group relative rounded-xl overflow-hidden cursor-pointer border border-white/5
-                ${index === 0 ? 'md:col-span-2 lg:col-span-1 aspect-[4/3]' : 'aspect-square'}
+                ${index === 0 ? 'lg:col-span-1 aspect-[4/3]' : 'aspect-square'}
             `}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -756,8 +780,29 @@ function ProjectCard({ project, index, onOpen }) {
 
 export const Portfolio = ({ isPreview = false }) => {
     const [lightbox, setLightbox] = useState(null); // { project, startIndex }
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const categoryFilter = searchParams.get('category');
+    
+    const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
+    const [hoveredCategory, setHoveredCategory] = useState(null);
+
+    const CATEGORIES_DATA = [
+        { 
+            id: 'Full Design', 
+        },
+        { 
+            id: 'Architectural Design', 
+        },
+        { 
+            id: 'Interior Design', 
+        }
+    ];
+
+    useEffect(() => {
+        if (categoryFilter) {
+            setActiveCategory(categoryFilter);
+        }
+    }, [categoryFilter]);
 
     // Lock scroll when lightbox is open
     useEffect(() => {
@@ -766,9 +811,9 @@ export const Portfolio = ({ isPreview = false }) => {
     }, [lightbox]);
 
     const allProjects = [...projects].reverse();
-    const filteredProjects = categoryFilter 
-        ? allProjects.filter(p => p.category === categoryFilter)
-        : allProjects;
+    const filteredProjects = activeCategory === 'Full Design' 
+        ? allProjects 
+        : allProjects.filter(p => p.category === activeCategory);
 
     const displayProjects = isPreview ? filteredProjects.slice(0, 1) : filteredProjects;
 
@@ -808,8 +853,55 @@ export const Portfolio = ({ isPreview = false }) => {
                         )}
                     </div>
 
+                    {!isPreview && (
+                        <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="w-full mb-10">
+                            {/* Thin Divider above categories as requested by design */}
+                            <div className="w-full h-px bg-white/10 mb-6" />
+                            
+                            <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4">
+                                {CATEGORIES_DATA.map((cat) => (
+                                    <div 
+                                        key={cat.id} 
+                                        className="relative transition-all duration-500"
+                                        onMouseEnter={() => setHoveredCategory(cat.id)}
+                                        onMouseLeave={() => setHoveredCategory(null)}
+                                    >
+                                        <button
+                                            onClick={() => {
+                                                setActiveCategory(cat.id);
+                                                setSearchParams({ category: cat.id });
+                                            }}
+                                            className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${
+                                                activeCategory === cat.id
+                                                    ? 'text-white blur-0 opacity-100'
+                                                    : (hoveredCategory === cat.id ? 'text-white/90 blur-0 opacity-90 cursor-pointer' : 'text-white/20 blur-[1px] opacity-40 cursor-pointer')
+                                            }`}
+                                        >
+                                            {cat.id}
+                                        </button>
+                                        
+                                        <AnimatePresence mode="wait">
+                                            {activeCategory === cat.id && cat.desc && (
+                                                <motion.p
+                                                    key={cat.id}
+                                                    initial={{ opacity: 0, y: 5, filter: 'blur(5px)' }}
+                                                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                                    exit={{ opacity: 0, y: -5, filter: 'blur(5px)' }}
+                                                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                                                    className="text-white/40 text-sm leading-relaxed max-w-xs font-light"
+                                                >
+                                                    {cat.desc}
+                                                </motion.p>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+
                     {/* Project grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {displayProjects.map((project, index) => (
                             <ProjectCard
                                 key={project.name}

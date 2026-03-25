@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { Portfolio, CTA } from './Homepage';
+import { ChevronDown } from 'lucide-react';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position }) {
@@ -166,6 +167,24 @@ function PortfolioHero() {
                                 'Elevating living experiences.',
                             ]}
                         />
+                    </motion.div>
+                </motion.div>
+
+                {/* Scroll indicator */}
+                <motion.div
+                    className="absolute top-47 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1, delay: 1.8 }}
+                >
+                    <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll Down</span>
+                    <motion.div
+                        animate={{ y: [0, 8, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        className="flex flex-col items-center gap-1"
+                    >
+                        <div className="w-px h-12 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
+                        <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
                     </motion.div>
                 </motion.div>
             </div>

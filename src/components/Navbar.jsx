@@ -64,8 +64,8 @@ const Navbar = () => {
               to={link.path}
               className={`text-sm font-medium transition-all duration-300 ${
                 isActive(link.path)
-                  ? "text-[#d4af37] scale-105"
-                  : "text-white/70 hover:text-white"
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[1px] hover:blur-none hover:text-white"
               }`}
             >
               {link.name}
@@ -74,7 +74,7 @@ const Navbar = () => {
 
           {/* 🔥 AUTH PART */}
           {currentUser ? (
-            <div className="relative flex items-center gap-4">
+            <div className="relative flex items-center gap-4 transition-all duration-300 blur-[1px] hover:blur-none">
               {/* Avatar */}
               <button onClick={() => setOpenMenu(!openMenu)}>
                 <img
@@ -115,10 +115,18 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <Link to="/login" className="text-white/70 hover:text-white">
+              <Link to="/login" className={`text-sm font-medium transition-all duration-300 ${
+                isActive("/login")
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[1px] hover:blur-none hover:text-white"
+              }`}>
                 Login
               </Link>
-              <Link to="/signup" className="text-white/70 hover:text-white">
+              <Link to="/signup" className={`text-sm font-medium transition-all duration-300 ${
+                isActive("/signup")
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[1px] hover:blur-none hover:text-white"
+              }`}>
                 Signup
               </Link>
             </>

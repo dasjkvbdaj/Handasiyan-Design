@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Phone, Mail, Instagram, Linkedin, Send, MapPin, ArrowUpRight, Sparkles } from 'lucide-react';
+import { Phone, Mail, Instagram, Linkedin, Send, MapPin, ArrowUpRight, Sparkles, ChevronDown, Facebook } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
@@ -276,6 +276,7 @@ const ContactPage = () => {
     };
 
     const socialLinks = [
+        { icon: <Facebook className="w-5 h-5" />, href: '#', name: 'Facebook' },
         { icon: <Instagram className="w-5 h-5" />, href: '#', name: 'Instagram' },
         { icon: <Linkedin className="w-5 h-5" />, href: '#', name: 'LinkedIn' },
     ];
@@ -402,17 +403,20 @@ const ContactPage = () => {
 
                     {/* Scroll line */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.2 }}
-                        className="mt-16 flex flex-col items-center"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 1.2 }}
+                        className="mt-16 flex flex-col items-center gap-2 z-20"
                     >
+                        <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll Down</span>
                         <motion.div
-                            className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent"
-                            animate={{ scaleY: [0, 1, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                            style={{ originY: 0 }}
-                        />
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                            className="flex flex-col items-center gap-1"
+                        >
+                            <div className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
+                            <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                        </motion.div>
                     </motion.div>
                 </motion.div>
             </section>
@@ -470,7 +474,14 @@ const ContactPage = () => {
                             </motion.div>
 
                             <div className="space-y-8">
-                                <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} />
+                                <div className="flex items-center gap-4">
+                                    <div className="flex-1">
+                                        <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} />
+                                    </div>
+                                    <a href="https://wa.me/233596399006" target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 flex flex-shrink-0 items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.15)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:scale-105" aria-label="WhatsApp">
+                                        <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 3.825.001 6.938 3.113 6.939 6.938-.001 3.825-3.114 6.938-6.939 6.938z"/></svg>
+                                    </a>
+                                </div>
                                 <InfoCard icon={Mail} title="Email" value="Handasiyan.2020@gmail.com" index={1} />
                             </div>
 

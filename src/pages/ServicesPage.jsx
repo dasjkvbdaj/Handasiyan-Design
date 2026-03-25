@@ -1,6 +1,6 @@
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Services, CTA } from './Homepage';
-import { Check, Sparkles } from 'lucide-react';
+import { Check, Sparkles, ChevronDown } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
@@ -252,17 +252,20 @@ const ServicesPage = () => {
 
                     {/* Scroll line */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.2 }}
-                        className="mt-16 flex flex-col items-center"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 1.2 }}
+                        className="mt-16 flex flex-col items-center gap-2 z-20"
                     >
+                        <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll Down</span>
                         <motion.div
-                            className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent"
-                            animate={{ scaleY: [0, 1, 0] }}
-                            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                            style={{ originY: 0 }}
-                        />
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                            className="flex flex-col items-center gap-1"
+                        >
+                            <div className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
+                            <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                        </motion.div>
                     </motion.div>
                 </motion.div>
             </section>
