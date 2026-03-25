@@ -1,26 +1,31 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Phone, Mail, Instagram, Linkedin, Send, MapPin, ArrowUpRight, Sparkles, ChevronDown, Facebook } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useScroll, useTransform, motion, AnimatePresence} from 'framer-motion';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
-const Particle = ({ delay, x, size, color }) => (
-    <motion.div
-        className="absolute rounded-full pointer-events-none"
-        style={{ left: `${x}%`, bottom: '-10px', width: size, height: size, background: color, opacity: 0.18 }}
-        animate={{ y: [0, -700], opacity: [0, 0.35, 0] }}
-        transition={{ duration: 6 + Math.random() * 4, delay, repeat: Infinity, ease: 'linear' }}
-    />
-);
+const Particle = ({ delay, x, size, color }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.div
+            className="absolute rounded-full pointer-events-none"
+            style={{ left: `${x}%`, bottom: '-10px', width: size, height: size, background: color, opacity: 0.18 }}
+            animate={isMobile ? { y: [0, -350], opacity: [0, 0.35, 0] } : { y: [0, -700], opacity: [0, 0.35, 0] }}
+            transition={{ duration: isMobile ? 8 : 6 + Math.random() * 4, delay, repeat: Infinity, ease: 'linear' }}
+        />
+    );
+};
 
 /* ─── Infinite Marquee Text Strip ───────────────────────────────── */
 const MarqueeStrip = ({ text, speed = 30, gold = false, reverse = false }) => {
-    const items = Array(12).fill(text);
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const items = Array(isMobile ? 6 : 12).fill(text);
     return (
         <div className="overflow-hidden whitespace-nowrap flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
             <motion.div
                 className="flex gap-0 shrink-0"
                 animate={{ x: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
-                transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
+                transition={{ duration: isMobile ? speed * 1.5 : speed, repeat: Infinity, ease: 'linear' }}
             >
                 {[...items, ...items].map((t, i) => (
                     <span
@@ -42,23 +47,28 @@ const Typewriter = ({ phrases, className }) => {
     const [deleting, setDeleting] = useState(false);
     const [blink, setBlink] = useState(true);
 
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+
     useEffect(() => {
         const current = phrases[phraseIdx];
         let timeout;
 
+        const typeSpeed = isMobile ? 120 : 80;
+        const deleteSpeed = isMobile ? 60 : 40;
+
         if (!deleting && displayed.length < current.length) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
         } else if (!deleting && displayed.length === current.length) {
-            timeout = setTimeout(() => setDeleting(true), 1800);
+            timeout = setTimeout(() => setDeleting(true), 2400);
         } else if (deleting && displayed.length > 0) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), deleteSpeed);
         } else if (deleting && displayed.length === 0) {
             setDeleting(false);
             setPhraseIdx((phraseIdx + 1) % phrases.length);
         }
 
         return () => clearTimeout(timeout);
-    }, [displayed, deleting, phraseIdx, phrases]);
+    }, [displayed, deleting, phraseIdx, phrases, isMobile]);
 
     useEffect(() => {
         const interval = setInterval(() => setBlink(b => !b), 530);
@@ -74,49 +84,63 @@ const Typewriter = ({ phrases, className }) => {
 };
 
 /* ─── Looping shimmer word ──────────────────────────────────────── */
-const ShimmerText = ({ children, className }) => (
-    <span className={`relative inline-block overflow-hidden ${className}`}>
-        <span className="relative z-10">{children}</span>
-        <motion.span
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
-            style={{ mixBlendMode: 'overlay' }}
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
-        />
-    </span>
-);
+const ShimmerText = ({ children, className }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span className={`relative inline-block overflow-hidden ${className}`}>
+            <span className="relative z-10">{children}</span>
+            <motion.span
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
+                style={{ mixBlendMode: 'overlay' }}
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{
+                    duration: isMobile ? 3.5 : 2.5,
+                    repeat: Infinity,
+                    repeatDelay: isMobile ? 3 : 2,
+                    ease: 'easeInOut'
+                }}
+            />
+        </span>
+    );
+};
 
 /* ─── Looping wave letters ──────────────────────────────────────── */
-const WaveText = ({ text, className }) => (
-    <span className={`inline-flex ${className}`}>
-        {text.split('').map((ch, i) => (
-            <motion.span
-                key={i}
-                animate={{ y: [0, -8, 0] }}
-                transition={{
-                    duration: 1.6,
-                    delay: i * 0.08,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                }}
-                style={{ display: 'inline-block' }}
-            >
-                {ch === ' ' ? '\u00A0' : ch}
-            </motion.span>
-        ))}
-    </span>
-);
+const WaveText = ({ text, className }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span className={`inline-flex ${className}`}>
+            {text.split('').map((ch, i) => (
+                <motion.span
+                    key={i}
+                    animate={isMobile ? { y: [0, -4, 0] } : { y: [0, -8, 0] }}
+                    transition={{
+                        duration: isMobile ? 2.4 : 1.6,
+                        delay: i * (isMobile ? 0.12 : 0.08),
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                    }}
+                    style={{ display: 'inline-block' }}
+                >
+                    {ch === ' ' ? '\u00A0' : ch}
+                </motion.span>
+            ))}
+        </span>
+    );
+};
 
 /* ─── Looping color-pulse word ──────────────────────────────────── */
-const PulseWord = ({ children, className }) => (
-    <motion.span
-        className={className}
-        animate={{ color: ['#d4af37', '#f5e27a', '#c49f27', '#d4af37'] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-    >
-        {children}
-    </motion.span>
-);
+const PulseWord = ({ children, className }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.span
+            className={className}
+            animate={{ color: ['#d4af37', '#f5e27a', '#c49f27', '#d4af37'] }}
+            transition={{ duration: isMobile ? 4.5 : 3, repeat: Infinity, ease: 'easeInOut' }}
+        >
+            {children}
+        </motion.span>
+    );
+};
 
 /* ─── Magnetic Button ───────────────────────────────────────────── */
 const MagneticBtn = ({ children, className, onClick }) => {
@@ -261,13 +285,15 @@ const ContactPage = () => {
     const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
     const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-    const particles = Array.from({ length: 18 }, (_, i) => ({
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+
+    const particles = useMemo(() => Array.from({ length: isMobile ? 6 : 18 }, (_, i) => ({
         id: i,
         delay: i * 0.4,
         x: Math.random() * 100,
         size: 3 + Math.random() * 5,
         color: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ffffff' : '#064e3b',
-    }));
+    })), [isMobile]);
 
     const handleSend = () => {
         setSending(true);

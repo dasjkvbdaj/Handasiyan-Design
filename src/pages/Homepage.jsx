@@ -1,60 +1,82 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, } from 'framer-motion';
+import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useRef, useState, useEffect } from 'react';
+import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Palette, ArrowRight, Home, Layout, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 
 /**
  * GoldShimmer — continuous gold shimmer sweep, loops forever.
  */
-const GoldShimmer = ({ children, className = '' }) => (
-    <span className={`relative inline-block ${className}`}>
-        {/* Base text rendered twice: once for layout, once clipped by shimmer */}
-        <span className="relative">{children}</span>
-        <motion.span
-            aria-hidden
-            className="absolute inset-0 pointer-events-none overflow-hidden"
-            style={{ mixBlendMode: 'screen' }}
-        >
+const GoldShimmer = ({ children, className = '' }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span className={`relative inline-block ${className}`}>
+            {/* Base text rendered twice: once for layout, once clipped by shimmer */}
+            <span className="relative">{children}</span>
             <motion.span
-                className="absolute inset-0"
-                style={{
-                    background: 'linear-gradient(105deg, transparent 25%, rgba(255,220,80,0.7) 50%, transparent 75%)',
-                    backgroundSize: '250% 100%',
-                }}
-                animate={{ backgroundPosition: ['-250% 0%', '250% 0%'] }}
-                transition={{ duration: 2.6, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
-            />
-        </motion.span>
-    </span>
-);
+                aria-hidden
+                className="absolute inset-0 pointer-events-none overflow-hidden"
+                style={{ mixBlendMode: 'screen' }}
+            >
+                <motion.span
+                    className="absolute inset-0"
+                    style={{
+                        background: 'linear-gradient(105deg, transparent 25%, rgba(255,220,80,0.7) 50%, transparent 75%)',
+                        backgroundSize: '250% 100%',
+                    }}
+                    animate={{ backgroundPosition: ['-250% 0%', '250% 0%'] }}
+                    transition={{
+                        duration: isMobile ? 3.5 : 2.6,
+                        repeat: Infinity,
+                        repeatDelay: isMobile ? 3 : 2,
+                        ease: 'easeInOut'
+                    }}
+                />
+            </motion.span>
+        </span>
+    );
+};
 
 /**
  * BreathingLabel — section labels that pulse letter-spacing & opacity forever.
  */
-const BreathingLabel = ({ children, className = '' }) => (
-    <motion.span
-        className={`text-[#d4af37] font-semibold uppercase text-xs tracking-[0.22em] ${className}`}
-        animate={{
-            letterSpacing: ['0.22em', '0.33em', '0.22em'],
-            opacity: [0.65, 1, 0.65],
-        }}
-        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-    >
-        {children}
-    </motion.span>
-);
+const BreathingLabel = ({ children, className = '' }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.span
+            className={`text-[#d4af37] font-semibold uppercase text-xs tracking-[0.22em] ${className}`}
+            animate={isMobile ? {
+                opacity: [0.7, 1, 0.7],
+            } : {
+                letterSpacing: ['0.22em', '0.33em', '0.22em'],
+                opacity: [0.65, 1, 0.65],
+            }}
+            transition={{ duration: isMobile ? 4.5 : 3.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+            {children}
+        </motion.span>
+    );
+};
 
 /**
  * PulsingLine — a horizontal rule that breathes its width.
  */
-const PulsingLine = ({ delay = 0 }) => (
-    <motion.span
-        className="block h-px bg-[#d4af37]/50"
-        animate={{ width: ['24px', '52px', '24px'], opacity: [0.35, 0.85, 0.35] }}
-        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay }}
-        style={{ display: 'inline-block' }}
-    />
-);
+const PulsingLine = ({ delay = 0 }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.span
+            className="block h-px bg-[#d4af37]/50"
+            animate={isMobile ? {
+                opacity: [0.4, 0.8, 0.4]
+            } : {
+                width: ['24px', '52px', '24px'],
+                opacity: [0.35, 0.85, 0.35]
+            }}
+            transition={{ duration: isMobile ? 4 : 3.2, repeat: Infinity, ease: 'easeInOut', delay }}
+            style={{ display: 'inline-block', width: isMobile ? '32px' : 'auto' }}
+        />
+    );
+};
 
 /**
  * RotatingWords — cycles through words with a vertical slide, forever.
@@ -96,11 +118,12 @@ const TypewriterLoop = ({ texts, className = '' }) => {
     const [textIdx, setTextIdx] = useState(0);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+    const isMobile = useMediaQuery('(max-width: 1024px)');
 
     useEffect(() => {
         if (isPaused) return;
         const current = texts[textIdx];
-        const speed = isDeleting ? 36 : 65;
+        const speed = isDeleting ? (isMobile ? 50 : 36) : (isMobile ? 100 : 65);
 
         const timeout = setTimeout(() => {
             if (!isDeleting) {
@@ -108,7 +131,7 @@ const TypewriterLoop = ({ texts, className = '' }) => {
                 setDisplay(next);
                 if (next === current) {
                     setIsPaused(true);
-                    setTimeout(() => { setIsPaused(false); setIsDeleting(true); }, 1600);
+                    setTimeout(() => { setIsPaused(false); setIsDeleting(true); }, isMobile ? 2200 : 1600);
                 }
             } else {
                 const next = display.slice(0, -1);
@@ -121,7 +144,7 @@ const TypewriterLoop = ({ texts, className = '' }) => {
         }, speed);
 
         return () => clearTimeout(timeout);
-    }, [display, isDeleting, isPaused, textIdx, texts]);
+    }, [display, isDeleting, isPaused, textIdx, texts, isMobile]);
 
     return (
         <span className={className}>
@@ -213,9 +236,9 @@ export const Hero = () => {
             </motion.div>
 
             {/* Grain */}
-            <div className="absolute inset-0 z-[6] opacity-[0.035] pointer-events-none"
+            <div className="absolute inset-0 z-[6] opacity-[0.035] pointer-events-none overflow-hidden"
                 style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
                     backgroundRepeat: 'repeat',
                     backgroundSize: '128px',
                 }}

@@ -1,9 +1,11 @@
-import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
 import { About } from './Homepage';
 import Process from '../components/Process';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import husseinImg from '../assets/hussein.png';
 import { ChevronDown } from 'lucide-react';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { useScroll, useTransform, motion, useInView} from 'framer-motion';
+
 
 /* ─────────────────────────────────────────────
    Reusable animation variants
@@ -119,35 +121,44 @@ const FloatingParticle = ({ style }) => (
  * GoldShimmerText — a gold shimmer sweep that loops forever.
  * The light beam travels from left to right continuously.
  */
-const GoldShimmerText = ({ children, className = '' }) => (
-    <span
-        className={`relative inline-block overflow-hidden ${className}`}
-        style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}
-    >
-        {/* Base text (muted gold) */}
-        <span className="text-[#d4af37]/70">{children}</span>
-
-        {/* Shimmer overlay — loops forever */}
-        <motion.span
-            className="absolute inset-0 pointer-events-none"
-            style={{
-                background: 'linear-gradient(105deg, transparent 30%, rgba(255,220,80,0.85) 50%, transparent 70%)',
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                color: 'transparent',
-            }}
-            animate={{ backgroundPositionX: ['-200%', '300%'] }}
-            transition={{ duration: 2.8, repeat: Infinity, ease: 'linear', repeatDelay: 1.2 }}
+const GoldShimmerText = ({ children, className = '' }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span
+            className={`relative inline-block overflow-hidden ${className}`}
+            style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}
         >
-            {children}
-        </motion.span>
-    </span>
-);
+            {/* Base text (muted gold) */}
+            <span className="text-[#d4af37]/70">{children}</span>
+
+            {/* Shimmer overlay — loops forever */}
+            <motion.span
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    background: 'linear-gradient(105deg, transparent 30%, rgba(255,220,80,0.85) 50%, transparent 70%)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                }}
+                animate={{ backgroundPositionX: ['-200%', '300%'] }}
+                transition={{
+                    duration: isMobile ? 4 : 2.8,
+                    repeat: Infinity,
+                    ease: 'linear',
+                    repeatDelay: isMobile ? 2 : 1.2
+                }}
+            >
+                {children}
+            </motion.span>
+        </span>
+    );
+};
 
 /**
  * WaveText — each character bobs up and down in a staggered wave, looping forever.
  */
 const WaveText = ({ children, className = '', charClassName = 'text-white' }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
     const chars = String(children).split('');
     return (
         <span className={`inline-flex ${className}`} aria-label={children}>
@@ -156,13 +167,13 @@ const WaveText = ({ children, className = '', charClassName = 'text-white' }) =>
                     key={i}
                     className={charClassName}
                     style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : 'normal' }}
-                    animate={{ y: [0, -8, 0] }}
+                    animate={isMobile ? { y: [0, -4, 0] } : { y: [0, -8, 0] }}
                     transition={{
-                        duration: 1.6,
+                        duration: isMobile ? 2.4 : 1.6,
                         repeat: Infinity,
                         ease: 'easeInOut',
-                        delay: i * 0.06,
-                        repeatDelay: 0.4,
+                        delay: i * (isMobile ? 0.1 : 0.06),
+                        repeatDelay: isMobile ? 0.8 : 0.4,
                     }}
                 >
                     {char}
@@ -179,35 +190,38 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
     const [textIndex, setTextIndex] = useState(0);
     const [displayed, setDisplayed] = useState('');
     const [phase, setPhase] = useState('typing'); // 'typing' | 'pause' | 'erasing'
+    const isMobile = useMediaQuery('(max-width: 1024px)');
 
     useEffect(() => {
         const current = texts[textIndex];
+        const typeSpeed = isMobile ? 85 : 55;
+        const eraseSpeed = isMobile ? 50 : 32;
 
         if (phase === 'typing') {
             if (displayed.length < current.length) {
-                const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 55);
+                const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
                 return () => clearTimeout(t);
             } else {
-                const t = setTimeout(() => setPhase('pause'), 1400);
+                const t = setTimeout(() => setPhase('pause'), 1800);
                 return () => clearTimeout(t);
             }
         }
 
         if (phase === 'pause') {
-            const t = setTimeout(() => setPhase('erasing'), 600);
+            const t = setTimeout(() => setPhase('erasing'), 1000);
             return () => clearTimeout(t);
         }
 
         if (phase === 'erasing') {
             if (displayed.length > 0) {
-                const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 32);
+                const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), eraseSpeed);
                 return () => clearTimeout(t);
             } else {
                 setTextIndex((prev) => (prev + 1) % texts.length);
                 setPhase('typing');
             }
         }
-    }, [displayed, phase, textIndex, texts]);
+    }, [displayed, phase, textIndex, texts, isMobile]);
 
     return (
         <span className={`font-mono ${className}`}>
@@ -225,22 +239,27 @@ const TypewriterLoopText = ({ texts, className = '' }) => {
 /**
  * PulseGlowText — text that breathes with a golden glow pulsing forever.
  */
-const PulseGlowText = ({ children, className = '' }) => (
-    <motion.span
-        className={`inline-block ${className}`}
-        animate={{
-            textShadow: [
-                '0 0 0px rgba(212,175,55,0)',
-                '0 0 20px rgba(212,175,55,0.9), 0 0 40px rgba(212,175,55,0.4)',
-                '0 0 0px rgba(212,175,55,0)',
-            ],
-            color: ['#d4af37', '#f5d060', '#d4af37'],
-        }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-    >
-        {children}
-    </motion.span>
-);
+const PulseGlowText = ({ children, className = '' }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.span
+            className={`inline-block ${className}`}
+            animate={isMobile ? {
+                color: ['#d4af37', '#f5d060', '#d4af37'],
+            } : {
+                textShadow: [
+                    '0 0 0px rgba(212,175,55,0)',
+                    '0 0 20px rgba(212,175,55,0.9), 0 0 40px rgba(212,175,55,0.4)',
+                    '0 0 0px rgba(212,175,55,0)',
+                ],
+                color: ['#d4af37', '#f5d060', '#d4af37'],
+            }}
+            transition={{ duration: isMobile ? 3.5 : 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+            {children}
+        </motion.span>
+    );
+};
 
 /**
  * MarqueeText — horizontal infinite scroll ticker.
@@ -310,11 +329,12 @@ const HeroSection = () => {
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
     const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
     const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+    const isMobile = useMediaQuery('(max-width: 1024px)');
 
-    const particles = Array.from({ length: 18 }, () => ({
+    const particles = useMemo(() => Array.from({ length: isMobile ? 6 : 18 }, () => ({
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
-    }));
+    })), [isMobile]);
 
     return (
         <section ref={ref} className="py-32 bg-[#064e3b] relative overflow-hidden min-h-[60vh] flex items-center">

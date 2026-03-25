@@ -1,30 +1,44 @@
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Services, CTA } from './Homepage';
-import { Check, Sparkles, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { useMediaQuery } from '../hooks/useMediaQuery';
+import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { Services } from './Homepage';
+import { Check } from 'lucide-react';
+import { CTA } from './Homepage';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
-const Particle = ({ delay, x, size, color }) => (
-    <motion.div
-        className="absolute rounded-full pointer-events-none"
-        style={{ left: `${x}%`, bottom: '-10px', width: size, height: size, background: color, opacity: 0.18 }}
-        animate={{ y: [0, -700], opacity: [0, 0.35, 0] }}
-        transition={{ duration: 6 + Math.random() * 4, delay, repeat: Infinity, ease: 'linear' }}
-    />
-);
+const Particle = ({ delay, x, size, color }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <motion.div
+            className="absolute rounded-full pointer-events-none"
+            style={{ left: `${x}%`, bottom: '-10px', width: size, height: size, background: color, opacity: 0.18 }}
+            animate={isMobile ? { y: [0, -350], opacity: [0, 0.35, 0] } : { y: [0, -700], opacity: [0, 0.35, 0] }}
+            transition={{ duration: isMobile ? 8 : 6 + Math.random() * 4, delay, repeat: Infinity, ease: 'linear' }}
+        />
+    );
+};
 
 /* ─── Looping shimmer word ──────────────────────────────────────── */
-const ShimmerText = ({ children, className }) => (
-    <span className={`relative inline-block overflow-hidden ${className}`}>
-        <span className="relative z-10">{children}</span>
-        <motion.span
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
-            style={{ mixBlendMode: 'overlay' }}
-            animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: 'easeInOut' }}
-        />
-    </span>
-);
+const ShimmerText = ({ children, className }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span className={`relative inline-block overflow-hidden ${className}`}>
+            <span className="relative z-10">{children}</span>
+            <motion.span
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
+                style={{ mixBlendMode: 'overlay' }}
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{
+                    duration: isMobile ? 3.5 : 2.5,
+                    repeat: Infinity,
+                    repeatDelay: isMobile ? 3 : 2,
+                    ease: 'easeInOut'
+                }}
+            />
+        </span>
+    );
+};
 
 /* ─── Typewriter with cursor blink (loops forever) ──────────────── */
 const Typewriter = ({ phrases, className }) => {
@@ -33,23 +47,28 @@ const Typewriter = ({ phrases, className }) => {
     const [deleting, setDeleting] = useState(false);
     const [blink, setBlink] = useState(true);
 
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+
     useEffect(() => {
         const current = phrases[phraseIdx];
         let timeout;
 
+        const typeSpeed = isMobile ? 120 : 80;
+        const deleteSpeed = isMobile ? 60 : 40;
+
         if (!deleting && displayed.length < current.length) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
         } else if (!deleting && displayed.length === current.length) {
-            timeout = setTimeout(() => setDeleting(true), 1800);
+            timeout = setTimeout(() => setDeleting(true), 2400);
         } else if (deleting && displayed.length > 0) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), deleteSpeed);
         } else if (deleting && displayed.length === 0) {
             setDeleting(false);
             setPhraseIdx((phraseIdx + 1) % phrases.length);
         }
 
         return () => clearTimeout(timeout);
-    }, [displayed, deleting, phraseIdx, phrases]);
+    }, [displayed, deleting, phraseIdx, phrases, isMobile]);
 
     useEffect(() => {
         const interval = setInterval(() => setBlink(b => !b), 530);
@@ -101,15 +120,19 @@ const floatVariants = (index) => ({
 });
 
 // Looping glow pulse on the check icon circle
-const glowVariants = (index) => ({
+const glowVariants = (index, isMobile) => ({
     animate: {
-        boxShadow: [
+        boxShadow: isMobile ? [
+            "0 0 0px 0px rgba(234,179,8,0)",
+            "0 0 8px 2px rgba(234,179,8,0.25)",
+            "0 0 0px 0px rgba(234,179,8,0)",
+        ] : [
             "0 0 0px 0px rgba(234,179,8,0)",
             "0 0 14px 4px rgba(234,179,8,0.35)",
             "0 0 0px 0px rgba(234,179,8,0)",
         ],
         transition: {
-            duration: 3.5,
+            duration: isMobile ? 4.5 : 3.5,
             ease: "easeInOut",
             repeat: Infinity,
             repeatType: "loop",
@@ -138,13 +161,15 @@ const ServicesPage = () => {
     const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
     const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-    const particles = Array.from({ length: 18 }, (_, i) => ({
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+
+    const particles = useMemo(() => Array.from({ length: isMobile ? 6 : 18 }, (_, i) => ({
         id: i,
         delay: i * 0.4,
         x: Math.random() * 100,
         size: 3 + Math.random() * 5,
         color: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ffffff' : '#042d22',
-    }));
+    })), [isMobile]);
 
     const title = "Our Services";
     const letters = title.split('');
@@ -281,20 +306,22 @@ const ServicesPage = () => {
                         key={i}
                         className="absolute rounded-full pointer-events-none"
                         style={{
-                            width: 320,
-                            height: 320,
+                            width: isMobile ? 240 : 320,
+                            height: isMobile ? 240 : 320,
                             left: i % 2 === 0 ? "10%" : "55%",
                             top: i < 2 ? "10%" : "55%",
                             background:
                                 "radial-gradient(circle, rgba(234,179,8,0.06) 0%, transparent 70%)",
                             filter: "blur(40px)",
                         }}
-                        animate={{
+                        animate={isMobile ? {
+                            opacity: [0.3, 0.7, 0.3],
+                        } : {
                             opacity: [0.4, 1, 0.4],
                             scale: [0.9, 1.1, 0.9],
                         }}
                         transition={{
-                            duration: 3.5,
+                            duration: isMobile ? 5 : 3.5,
                             ease: "easeInOut",
                             repeat: Infinity,
                             delay: i * 0.6,
@@ -325,7 +352,7 @@ const ServicesPage = () => {
                                 {/* Icon */}
                                 <div className="flex-shrink-0">
                                     <motion.div
-                                        variants={glowVariants(index)}
+                                        variants={glowVariants(index, isMobile)}
                                         animate="animate"
                                         className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-yellow-500"
                                     >

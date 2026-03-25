@@ -1,18 +1,22 @@
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Portfolio, CTA } from './Homepage';
 import { ChevronDown } from 'lucide-react';
+import {motion } from 'framer-motion';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position, className = '' }) {
-    const paths = Array.from({ length: 45 }, (_, i) => ({
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const pathCount = isMobile ? 12 : 45;
+
+    const paths = useMemo(() => Array.from({ length: pathCount }, (_, i) => ({
         id: i,
         d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position
             } -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position
             } ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position
             } ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
         width: 0.5 + i * 0.03,
-    }));
+    })), [pathCount, position]);
 
     return (
         <div className={`absolute inset-0 pointer-events-none ${className}`}>
@@ -30,7 +34,9 @@ function FloatingPaths({ position, className = '' }) {
                         stroke={`rgba(212,175,55,${0.06 + path.id * 0.015})`}
                         strokeWidth={path.width}
                         initial={{ pathLength: 0.3, opacity: 0.5 }}
-                        animate={{
+                        animate={isMobile ? {
+                            opacity: [0.15, 0.45, 0.15],
+                        } : {
                             pathLength: 1,
                             opacity: [0.15, 0.45, 0.15],
                         }}
@@ -51,24 +57,28 @@ const Typewriter = ({ phrases, className }) => {
     const [displayed, setDisplayed] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [blink, setBlink] = useState(true);
+    const isMobile = useMediaQuery('(max-width: 1024px)');
 
     useEffect(() => {
         const current = phrases[phraseIdx];
         let timeout;
 
+        const typeSpeed = isMobile ? 120 : 80;
+        const deleteSpeed = isMobile ? 60 : 40;
+
         if (!deleting && displayed.length < current.length) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
         } else if (!deleting && displayed.length === current.length) {
-            timeout = setTimeout(() => setDeleting(true), 1800);
+            timeout = setTimeout(() => setDeleting(true), 2400);
         } else if (deleting && displayed.length > 0) {
-            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40);
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), deleteSpeed);
         } else if (deleting && displayed.length === 0) {
             setDeleting(false);
             setPhraseIdx((phraseIdx + 1) % phrases.length);
         }
 
         return () => clearTimeout(timeout);
-    }, [displayed, deleting, phraseIdx, phrases]);
+    }, [displayed, deleting, phraseIdx, phrases, isMobile]);
 
     useEffect(() => {
         const interval = setInterval(() => setBlink(b => !b), 530);
