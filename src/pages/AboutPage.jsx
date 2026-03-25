@@ -183,54 +183,65 @@ const WaveText = ({ children, className = '', charClassName = 'text-white' }) =>
     );
 };
 
-/**
- * TypewriterLoopText — types out text, pauses, erases it, then repeats forever.
- */
-const TypewriterLoopText = ({ texts, className = '' }) => {
-    const [textIndex, setTextIndex] = useState(0);
+/* ─── Typewriter with cursor blink (loops forever) ──────────────── */
+const Typewriter = ({ phrases, className }) => {
+    const [phraseIdx, setPhraseIdx] = useState(0);
     const [displayed, setDisplayed] = useState('');
-    const [phase, setPhase] = useState('typing'); // 'typing' | 'pause' | 'erasing'
+    const [deleting, setDeleting] = useState(false);
+    const [blink, setBlink] = useState(true);
+
     const isMobile = useMediaQuery('(max-width: 1024px)');
 
     useEffect(() => {
-        const current = texts[textIndex];
-        const typeSpeed = isMobile ? 85 : 55;
-        const eraseSpeed = isMobile ? 50 : 32;
+        const current = phrases[phraseIdx];
+        let timeout;
 
-        if (phase === 'typing') {
-            if (displayed.length < current.length) {
-                const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
-                return () => clearTimeout(t);
-            } else {
-                const t = setTimeout(() => setPhase('pause'), 1800);
-                return () => clearTimeout(t);
-            }
+        const typeSpeed = isMobile ? 120 : 80;
+        const deleteSpeed = isMobile ? 60 : 40;
+
+        if (!deleting && displayed.length < current.length) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
+        } else if (!deleting && displayed.length === current.length) {
+            timeout = setTimeout(() => setDeleting(true), 2400);
+        } else if (deleting && displayed.length > 0) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), deleteSpeed);
+        } else if (deleting && displayed.length === 0) {
+            setDeleting(false);
+            setPhraseIdx((phraseIdx + 1) % phrases.length);
         }
 
-        if (phase === 'pause') {
-            const t = setTimeout(() => setPhase('erasing'), 1000);
-            return () => clearTimeout(t);
-        }
+        return () => clearTimeout(timeout);
+    }, [displayed, deleting, phraseIdx, phrases, isMobile]);
 
-        if (phase === 'erasing') {
-            if (displayed.length > 0) {
-                const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), eraseSpeed);
-                return () => clearTimeout(t);
-            } else {
-                setTextIndex((prev) => (prev + 1) % texts.length);
-                setPhase('typing');
-            }
-        }
-    }, [displayed, phase, textIndex, texts, isMobile]);
+    useEffect(() => {
+        const interval = setInterval(() => setBlink(b => !b), 530);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <span className={`font-mono ${className}`}>
+        <span className={className}>
             {displayed}
-            {/* blinking cursor */}
+            <span style={{ opacity: blink ? 1 : 0, color: '#d4af37' }}>|</span>
+        </span>
+    );
+};
+
+/* ─── Looping shimmer word ──────────────────────────────────────── */
+const ShimmerText = ({ children, className }) => {
+    const isMobile = useMediaQuery('(max-width: 1024px)');
+    return (
+        <span className={`relative inline-block overflow-hidden ${className}`}>
+            <span className="relative z-10">{children}</span>
             <motion.span
-                className="inline-block w-0.5 h-[1em] bg-[#d4af37] ml-0.5 align-middle"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 0.9, repeat: Infinity, ease: 'steps(1)' }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/50 to-transparent"
+                style={{ mixBlendMode: 'overlay' }}
+                animate={{ x: ['-100%', '200%'] }}
+                transition={{
+                    duration: isMobile ? 3.5 : 2.5,
+                    repeat: Infinity,
+                    repeatDelay: isMobile ? 3 : 2,
+                    ease: 'easeInOut'
+                }}
             />
         </span>
     );
@@ -332,9 +343,14 @@ const HeroSection = () => {
     const isMobile = useMediaQuery('(max-width: 1024px)');
 
     const particles = useMemo(() => Array.from({ length: isMobile ? 6 : 18 }, () => ({
+        id: Math.random(),
+        delay: Math.random() * 2,
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
     })), [isMobile]);
+
+    const title = "Our Story";
+    const letters = title.split('');
 
     return (
         <section ref={ref} className="py-32 bg-[#064e3b] relative overflow-hidden min-h-[60vh] flex items-center">
@@ -379,25 +395,58 @@ const HeroSection = () => {
                 style={{ y, opacity }}
                 className="max-w-7xl mx-auto px-6 relative z-10 text-center w-full"
             >
-                {/* Eyebrow label */}
-
-
-                {/* Title — ✨ Wave animation loops forever */}
-                <div className="overflow-hidden mb-6">
+                {/* Looping eyebrow label */}
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="montserrat flex items-center justify-center gap-3 mb-8"
+                >
                     <motion.div
-                        initial={{ y: '100%', opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
-                    >
-                        <WaveText
-                            className="text-6xl md:text-8xl font-bold leading-none tracking-tight justify-center"
-                            charClassName="text-white"
-                            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                        className="h-px bg-[#d4af37]/50"
+                        animate={{ width: ['0px', '48px', '0px'] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <ShimmerText className="cormorant text-[#d4af37]/70 text-sm tracking-[0.4em] uppercase">
+                        About Us
+                    </ShimmerText>
+                    <motion.div
+                        className="h-px bg-[#d4af37]/50"
+                        animate={{ width: ['0px', '48px', '0px'] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                    />
+                </motion.div>
+
+                {/* Title — entrance stagger → then each letter continuously floats */}
+                <h1 className="cormorant text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.9] mb-8 flex flex-wrap justify-center">
+                    {letters.map((letter, i) => (
+                        <motion.span
+                            key={i}
+                            /* entrance */
+                            initial={{ opacity: 0, y: 60, rotateX: -90 }}
+                            animate={{
+                                opacity: 1,
+                                y: [0, -6, 0],            // ← loops forever after entrance
+                                rotateX: 0,
+                            }}
+                            transition={{
+                                /* entrance part */
+                                opacity: { delay: 0.05 * i, duration: 0.5 },
+                                rotateX: { delay: 0.05 * i, duration: 0.5 },
+                                /* continuous float */
+                                y: {
+                                    delay: i * 0.07,
+                                    duration: 2.2,
+                                    repeat: Infinity,
+                                    ease: 'easeInOut',
+                                },
+                            }}
+                            style={{ display: 'inline-block', transformOrigin: 'bottom' }}
                         >
-                            Our Story
-                        </WaveText>
-                    </motion.div>
-                </div>
+                            {letter === ' ' ? '\u00A0' : letter}
+                        </motion.span>
+                    ))}
+                </h1>
 
                 <motion.div
                     initial={{ scaleX: 0 }}
@@ -407,22 +456,17 @@ const HeroSection = () => {
                 />
 
                 {/* ✨ Typewriter loop on subtitle */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.9 }}
-                    className="text-xl max-w-2xl mx-auto font-light tracking-wide"
-                >
-                    <TypewriterLoopText
-                        className="text-white/70"
-                        texts={[
+                <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed min-h-[2rem]">
+                    <Typewriter
+                        className="montserrat text-white/50 text-base"
+                        phrases={[
                             'A legacy built on discipline.',
                             'Honesty and respect for the craft.',
                             'Every drawing is a promise.',
                             'Building trust, one project at a time.',
                         ]}
                     />
-                </motion.div>
+                </div>
 
                 {/* Stats row */}
                 <motion.div

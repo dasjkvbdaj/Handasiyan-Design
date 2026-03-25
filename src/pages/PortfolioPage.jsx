@@ -7,7 +7,7 @@ import {motion } from 'framer-motion';
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position, className = '' }) {
     const isMobile = useMediaQuery('(max-width: 1024px)');
-    const pathCount = isMobile ? 12 : 45;
+    const pathCount = isMobile ? 8 : 45;
 
     const paths = useMemo(() => Array.from({ length: pathCount }, (_, i) => ({
         id: i,
