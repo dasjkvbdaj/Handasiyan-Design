@@ -46,48 +46,39 @@ function FloatingPaths({ position, className = '' }) {
     );
 }
 
-const TypewriterLoopText = ({ texts, className = '' }) => {
-    const [textIndex, setTextIndex] = useState(0);
+const Typewriter = ({ phrases, className }) => {
+    const [phraseIdx, setPhraseIdx] = useState(0);
     const [displayed, setDisplayed] = useState('');
-    const [phase, setPhase] = useState('typing');
+    const [deleting, setDeleting] = useState(false);
+    const [blink, setBlink] = useState(true);
 
     useEffect(() => {
-        const current = texts[textIndex];
+        const current = phrases[phraseIdx];
+        let timeout;
 
-        if (phase === 'typing') {
-            if (displayed.length < current.length) {
-                const t = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 55);
-                return () => clearTimeout(t);
-            } else {
-                const t = setTimeout(() => setPhase('pause'), 1400);
-                return () => clearTimeout(t);
-            }
+        if (!deleting && displayed.length < current.length) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
+        } else if (!deleting && displayed.length === current.length) {
+            timeout = setTimeout(() => setDeleting(true), 1800);
+        } else if (deleting && displayed.length > 0) {
+            timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40);
+        } else if (deleting && displayed.length === 0) {
+            setDeleting(false);
+            setPhraseIdx((phraseIdx + 1) % phrases.length);
         }
 
-        if (phase === 'pause') {
-            const t = setTimeout(() => setPhase('erasing'), 600);
-            return () => clearTimeout(t);
-        }
+        return () => clearTimeout(timeout);
+    }, [displayed, deleting, phraseIdx, phrases]);
 
-        if (phase === 'erasing') {
-            if (displayed.length > 0) {
-                const t = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 32);
-                return () => clearTimeout(t);
-            } else {
-                setTextIndex((prev) => (prev + 1) % texts.length);
-                setPhase('typing');
-            }
-        }
-    }, [displayed, phase, textIndex, texts]);
+    useEffect(() => {
+        const interval = setInterval(() => setBlink(b => !b), 530);
+        return () => clearInterval(interval);
+    }, []);
 
     return (
-        <span className={`font-mono ${className}`}>
+        <span className={className}>
             {displayed}
-            <motion.span
-                className="inline-block w-0.5 h-[1em] bg-[#d4af37] ml-0.5 align-middle"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 0.9, repeat: Infinity, ease: 'steps(1)' }}
-            />
+            <span style={{ opacity: blink ? 1 : 0, color: '#d4af37' }}>|</span>
         </span>
     );
 };
@@ -96,7 +87,7 @@ function PortfolioHero() {
     const title = 'Portfolio';
 
     return (
-        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[90vh] lg:min-h-screen flex items-center justify-center">
+        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[55vh] flex items-center justify-center">
             <div className="absolute inset-0">
                 <FloatingPaths position={-2} className="opacity-80" />
                 <FloatingPaths position={2} className="opacity-40 rotate-180 scale-125" />
@@ -118,7 +109,7 @@ function PortfolioHero() {
                     transition={{ duration: 1.2 }}
                     className="flex flex-col items-center gap-4"
                 >
-                    <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter flex flex-wrap justify-center">
+                    <h1 className="cormorant text-6xl md:text-8xl lg:text-9xl font-bold text-white tracking-tighter leading-[0.9] mb-8 flex flex-wrap justify-center">
                         {title.split(' ').map((word, wordIndex) => (
                             <span key={wordIndex} className="inline-block mr-4 last:mr-0">
                                 {word.split('').map((letter, letterIndex) => (
@@ -155,38 +146,33 @@ function PortfolioHero() {
                         ))}
                     </h1>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.9 }}
-                        className="text-2xl md:text-3xl max-w-2xl font-light tracking-wide"
-                    >
-                        <TypewriterLoopText
-                            className="text-white/70"
-                            texts={[
+                    <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed min-h-[2rem]">
+                        <Typewriter
+                            phrases={[
                                 'Crafting spaces with precision.',
                                 'Every design tells a unique story.',
                                 'Elevating living experiences.',
                             ]}
+                            className="montserrat text-white/50 text-base md:text-lg"
                         />
-                    </motion.div>
-                </motion.div>
+                    </div>
 
-                {/* Scroll indicator */}
-                <motion.div
-                    className="absolute top-47 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1, delay: 1.8 }}
-                >
-                    <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll Down</span>
+                    {/* Scroll indicator - integrated into content flow like Contact page */}
                     <motion.div
-                        animate={{ y: [0, 8, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                        className="flex flex-col items-center gap-1"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, delay: 1.2 }}
+                        className="mt-16 flex flex-col items-center gap-2 z-20"
                     >
-                        <div className="w-px h-12 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
-                        <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                        <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll Down</span>
+                        <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                            className="flex flex-col items-center gap-1"
+                        >
+                            <div className="w-px h-16 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
+                            <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                        </motion.div>
                     </motion.div>
                 </motion.div>
             </div>
@@ -196,7 +182,14 @@ function PortfolioHero() {
 
 const PortfolioPage = () => {
     return (
-        <div className="pt-20 bg-black">
+        <div className="pt-20 bg-black overflow-x-hidden">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+                * { box-sizing: border-box; }
+                ::selection { background: #d4af37; color: #000; }
+                .cormorant { font-family: 'Cormorant Garamond', serif; }
+                .montserrat { font-family: 'Montserrat', sans-serif; }
+            `}</style>
             <PortfolioHero />
             <Portfolio isPreview={false} />
             <CTA />
