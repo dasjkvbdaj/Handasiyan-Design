@@ -65,7 +65,7 @@ const Navbar = () => {
               className={`text-sm font-medium transition-all duration-300 ${
                 isActive(link.path)
                   ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[1px] hover:blur-none hover:text-white"
+                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white"
               }`}
             >
               {link.name}

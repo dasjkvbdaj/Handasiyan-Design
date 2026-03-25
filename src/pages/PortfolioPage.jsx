@@ -4,7 +4,7 @@ import { Portfolio, CTA } from './Homepage';
 import { ChevronDown } from 'lucide-react';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
-function FloatingPaths({ position }) {
+function FloatingPaths({ position, className = '' }) {
     const paths = Array.from({ length: 45 }, (_, i) => ({
         id: i,
         d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position
@@ -15,26 +15,27 @@ function FloatingPaths({ position }) {
     }));
 
     return (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className={`absolute inset-0 pointer-events-none ${className}`}>
             <svg
                 className="w-full h-full"
-                viewBox="0 0 696 316"
+                viewBox="-200 -200 1100 800"
                 fill="none"
                 aria-hidden="true"
+                preserveAspectRatio="xMidYMid slice"
             >
                 {paths.map((path) => (
                     <motion.path
                         key={path.id}
                         d={path.d}
-                        stroke={`rgba(184,134,11,${0.08 + path.id * 0.018})`}
+                        stroke={`rgba(212,175,55,${0.06 + path.id * 0.015})`}
                         strokeWidth={path.width}
                         initial={{ pathLength: 0.3, opacity: 0.5 }}
                         animate={{
                             pathLength: 1,
-                            opacity: [0.2, 0.5, 0.2],
+                            opacity: [0.15, 0.45, 0.15],
                         }}
                         transition={{
-                            duration: 8 + Math.random() * 5,
+                            duration: 10 + Math.random() * 8,
                             repeat: Infinity,
                             ease: 'linear',
                         }}
@@ -95,17 +96,18 @@ function PortfolioHero() {
     const title = 'Portfolio';
 
     return (
-        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[90vh] flex items-center justify-center">
+        <section className="relative py-36 bg-black overflow-hidden text-center min-h-[90vh] lg:min-h-screen flex items-center justify-center">
             <div className="absolute inset-0">
-                <FloatingPaths position={-2} />
-                <FloatingPaths position={-4} />
+                <FloatingPaths position={-2} className="opacity-80" />
+                <FloatingPaths position={2} className="opacity-40 rotate-180 scale-125" />
+                <FloatingPaths position={-4} className="opacity-60 translate-y-20 scale-150" />
             </div>
 
             <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
                     background:
-                        'radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, rgba(0,0,0,0.65) 100%)',
+                        'radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, rgba(0,0,0,0.8) 100%)',
                 }}
             />
 
@@ -116,7 +118,7 @@ function PortfolioHero() {
                     transition={{ duration: 1.2 }}
                     className="flex flex-col items-center gap-4"
                 >
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-tighter flex flex-wrap justify-center">
+                    <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold tracking-tighter flex flex-wrap justify-center">
                         {title.split(' ').map((word, wordIndex) => (
                             <span key={wordIndex} className="inline-block mr-4 last:mr-0">
                                 {word.split('').map((letter, letterIndex) => (
@@ -157,7 +159,7 @@ function PortfolioHero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.9 }}
-                        className="text-xl max-w-2xl font-light tracking-wide"
+                        className="text-2xl md:text-3xl max-w-2xl font-light tracking-wide"
                     >
                         <TypewriterLoopText
                             className="text-white/70"

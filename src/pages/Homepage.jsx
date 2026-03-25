@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform, } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Palette, ArrowRight, Home, Layout, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
-/* ─── LOOPING TEXT COMPONENTS ────────────────────────────────────────────── */
 
 /**
  * GoldShimmer — continuous gold shimmer sweep, loops forever.
@@ -209,8 +208,8 @@ export const Hero = () => {
                 <video autoPlay muted loop playsInline className="absolute min-w-full min-h-full object-cover">
                     <source src="/video.mp4" type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/95 z-10" />
-                <div className="absolute inset-0 bg-black/25 z-[5]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/80 z-10" />
+                <div className="absolute inset-0 bg-black/15 z-[5]" />
             </motion.div>
 
             {/* Grain */}
@@ -222,14 +221,24 @@ export const Hero = () => {
                 }}
             />
 
-            
 
-            {/* Scrolling Indicator Cue */}
+            {/* Content Overlay */}
+            <div className="relative z-10 flex flex-col items-center gap-8 px-6 mt-[-10vh]">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative"
+                >
+                    
+                </motion.div>
+
+            </div>
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 2 }}
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
             >
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
@@ -782,19 +791,19 @@ export const Portfolio = ({ isPreview = false }) => {
     const [lightbox, setLightbox] = useState(null); // { project, startIndex }
     const [searchParams, setSearchParams] = useSearchParams();
     const categoryFilter = searchParams.get('category');
-    
+
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
     const [hoveredCategory, setHoveredCategory] = useState(null);
 
     const CATEGORIES_DATA = [
-        { 
-            id: 'Full Design', 
+        {
+            id: 'Full Design',
         },
-        { 
-            id: 'Architectural Design', 
+        {
+            id: 'Architectural Design',
         },
-        { 
-            id: 'Interior Design', 
+        {
+            id: 'Interior Design',
         }
     ];
 
@@ -811,8 +820,8 @@ export const Portfolio = ({ isPreview = false }) => {
     }, [lightbox]);
 
     const allProjects = [...projects].reverse();
-    const filteredProjects = activeCategory === 'Full Design' 
-        ? allProjects 
+    const filteredProjects = activeCategory === 'Full Design'
+        ? allProjects
         : allProjects.filter(p => p.category === activeCategory);
 
     const displayProjects = isPreview ? filteredProjects.slice(0, 1) : filteredProjects;
@@ -857,11 +866,11 @@ export const Portfolio = ({ isPreview = false }) => {
                         <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="w-full mb-10">
                             {/* Thin Divider above categories as requested by design */}
                             <div className="w-full h-px bg-white/10 mb-6" />
-                            
+
                             <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4">
                                 {CATEGORIES_DATA.map((cat) => (
-                                    <div 
-                                        key={cat.id} 
+                                    <div
+                                        key={cat.id}
                                         className="relative transition-all duration-500"
                                         onMouseEnter={() => setHoveredCategory(cat.id)}
                                         onMouseLeave={() => setHoveredCategory(null)}
@@ -871,15 +880,14 @@ export const Portfolio = ({ isPreview = false }) => {
                                                 setActiveCategory(cat.id);
                                                 setSearchParams({ category: cat.id });
                                             }}
-                                            className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${
-                                                activeCategory === cat.id
+                                            className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                     ? 'text-white blur-0 opacity-100'
-                                                    : (hoveredCategory === cat.id ? 'text-white/90 blur-0 opacity-90 cursor-pointer' : 'text-white/20 blur-[1px] opacity-40 cursor-pointer')
-                                            }`}
+                                                    : (hoveredCategory === cat.id ? 'text-white blur-0 opacity-90 cursor-pointer' : 'text-white blur-[.7px] opacity-40 cursor-pointer')
+                                                }`}
                                         >
                                             {cat.id}
                                         </button>
-                                        
+
                                         <AnimatePresence mode="wait">
                                             {activeCategory === cat.id && cat.desc && (
                                                 <motion.p
