@@ -1,6 +1,6 @@
 import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useRef, useState, useEffect , useCallback} from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 
@@ -228,11 +228,11 @@ export const Hero = () => {
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
-                <video 
-                    autoPlay 
-                    muted 
-                    loop 
-                    playsInline 
+                <video
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
                     poster="/src/assets/hero-bg.avif"
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
@@ -261,7 +261,7 @@ export const Hero = () => {
                     transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                     className="relative"
                 >
-                    
+
                 </motion.div>
 
             </div>
@@ -762,7 +762,7 @@ function Lightbox({ project, startIndex, onClose }) {
     );
 }
 
-function ProjectCard({ project, index, onOpen }) {
+export function ProjectCard({ project, index, onOpen }) {
     const [hovered, setHovered] = useState(false);
     const coverImage = `${project.folder}/image-1.avif`;
 
@@ -795,7 +795,7 @@ function ProjectCard({ project, index, onOpen }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: hovered ? 1 : 0 }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col items-start justify-end p-6"
+                className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6"
             >
                 <p className="text-[#d4af37] text-xs font-semibold tracking-widest uppercase mb-1">
                     View Project
@@ -818,6 +818,7 @@ function ProjectCard({ project, index, onOpen }) {
     );
 }
 
+
 export const Portfolio = ({ isPreview = false }) => {
     const [lightbox, setLightbox] = useState(null); // { project, startIndex }
     const [searchParams, setSearchParams] = useSearchParams();
@@ -826,16 +827,13 @@ export const Portfolio = ({ isPreview = false }) => {
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
     const [hoveredCategory, setHoveredCategory] = useState(null);
 
+    // Create a reference for the scrollable container
+    const scrollContainerRef = useRef(null);
+
     const CATEGORIES_DATA = [
-        {
-            id: 'Full Design',
-        },
-        {
-            id: 'Architectural Design',
-        },
-        {
-            id: 'Interior Design',
-        }
+        { id: 'Full Design', desc: 'Complete end-to-end design solutions.' },
+        { id: 'Architectural Design', desc: 'Structural and exterior architectural planning.' },
+        { id: 'Interior Design', desc: 'Curated interior spaces and furnishings.' }
     ];
 
     useEffect(() => {
@@ -843,6 +841,16 @@ export const Portfolio = ({ isPreview = false }) => {
             setActiveCategory(categoryFilter);
         }
     }, [categoryFilter]);
+
+    // Add an effect that resets the scroll position when the category changes
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({
+                left: 0,
+                behavior: 'smooth'
+            });
+        }
+    }, [activeCategory]);
 
     // Lock scroll when lightbox is open
     useEffect(() => {
@@ -895,7 +903,7 @@ export const Portfolio = ({ isPreview = false }) => {
 
                     {!isPreview && (
                         <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="w-full mb-10">
-                            {/* Thin Divider above categories as requested by design */}
+                            {/* Thin Divider above categories */}
                             <div className="w-full h-px bg-white/10 mb-6" />
 
                             <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4">
@@ -912,8 +920,8 @@ export const Portfolio = ({ isPreview = false }) => {
                                                 setSearchParams({ category: cat.id });
                                             }}
                                             className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
-                                                    ? 'text-white blur-0 opacity-100'
-                                                    : (hoveredCategory === cat.id ? 'text-white blur-0 opacity-90 cursor-pointer' : 'text-white blur-[.7px] opacity-40 cursor-pointer')
+                                                ? 'text-white blur-0 opacity-100'
+                                                : (hoveredCategory === cat.id ? 'text-white blur-0 opacity-90 cursor-pointer' : 'text-white blur-[.7px] opacity-40 cursor-pointer')
                                                 }`}
                                         >
                                             {cat.id}
@@ -927,7 +935,7 @@ export const Portfolio = ({ isPreview = false }) => {
                                                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                                                     exit={{ opacity: 0, y: -5, filter: 'blur(5px)' }}
                                                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                                                    className="text-white/40 text-sm leading-relaxed max-w-xs font-light"
+                                                    className="text-white/40 text-sm leading-relaxed max-w-xs font-light absolute top-full left-0 pt-2"
                                                 >
                                                     {cat.desc}
                                                 </motion.p>
@@ -939,21 +947,46 @@ export const Portfolio = ({ isPreview = false }) => {
                         </motion.div>
                     )}
 
-                    {/* Project grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Project grid with fully responsive custom scrollbar */}
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex overflow-x-auto gap-6 md:gap-8 pb-8 pt-4 snap-x snap-mandatory scroll-smooth w-full 
+                        /* Firefox native scrollbar support */
+                        [scrollbar-width:thin] 
+                        [scrollbar-color:rgba(212,175,55,0.5)_rgba(255,255,255,0.05)]
+                        /* WebKit (Chrome, Safari, iOS/Android) support */
+                        [&::-webkit-scrollbar]:h-[6px] md:[&::-webkit-scrollbar]:h-2 
+                        [&::-webkit-scrollbar]:[-webkit-appearance:none]
+                        [&::-webkit-scrollbar-track]:bg-white/5 
+                        [&::-webkit-scrollbar-track]:rounded-full 
+                        [&::-webkit-scrollbar-thumb]:bg-[#d4af37]/60 
+                        hover:[&::-webkit-scrollbar-thumb]:bg-[#d4af37] 
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        transition-colors"
+                    >
                         {displayProjects.map((project, index) => (
-                            <ProjectCard
+                            <div
                                 key={project.name}
-                                project={project}
-                                index={index}
-                                onOpen={openLightbox}
-                            />
+                                className="flex-none w-[85vw] md:w-[45vw] lg:w-[30vw] snap-start"
+                            >
+                                <ProjectCard
+                                    project={project}
+                                    index={index}
+                                    onOpen={openLightbox}
+                                />
+                            </div>
                         ))}
+                    </div>
+
+                    {/* Visual cue: Visible on ALL screens (changes text based on device) */}
+                    <div className="flex justify-end pr-2 opacity-60 text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#d4af37] mt-3">
+                        <span className="md:hidden">← Swipe to explore →</span>
+                        <span className="hidden md:inline">← Scroll to explore →</span>
                     </div>
 
                     {isPreview && (
                         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                            className="mt-12 text-center md:hidden">
+                            className="mt-10 text-center md:hidden">
                             <Link to="/portfolio"
                                 className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c49f27] transition-all">
                                 View all projects
@@ -976,7 +1009,6 @@ export const Portfolio = ({ isPreview = false }) => {
         </>
     );
 };
-
 
 /* ─── HOME PAGE ───────────────────────────────────────────────────────────── */
 const HomePage = () => {
