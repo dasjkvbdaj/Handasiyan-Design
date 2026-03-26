@@ -775,7 +775,7 @@ export function ProjectCard({ project, index, onOpen }) {
             viewport={{ once: true, margin: '-50px' }}
             custom={index % 6}
             className={`group relative rounded-xl overflow-hidden cursor-pointer border border-white/5
-                ${index === 0 ? 'lg:col-span-1 aspect-[4/3]' : 'aspect-square'}
+                ${index === 0 ? 'lg:col-span-1 aspect-[4/4]' : 'aspect-square'}
             `}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
@@ -832,9 +832,9 @@ export const Portfolio = ({ isPreview = false }) => {
     const scrollContainerRef = useRef(null);
 
     const CATEGORIES_DATA = [
-        { id: 'Full Design'},
-        { id: 'Architectural Design'},
-        { id: 'Interior Design'}
+        { id: 'Full Design' },
+        { id: 'Architectural Design' },
+        { id: 'Interior Design' }
     ];
 
     useEffect(() => {
@@ -860,9 +860,7 @@ export const Portfolio = ({ isPreview = false }) => {
     }, [lightbox]);
 
     const allProjects = [...projects].reverse();
-    const filteredProjects = activeCategory === 'Full Design'
-        ? allProjects
-        : allProjects.filter(p => p.category === activeCategory);
+    const filteredProjects = allProjects.filter(p => p.category === activeCategory);
 
     const displayProjects = isPreview ? filteredProjects.slice(0, 1) : filteredProjects;
 
