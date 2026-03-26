@@ -32,15 +32,12 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path;
   const isHomePage = location.pathname === "/";
-  const shouldHide = isHomePage && !scrolled;
+  const shouldHide = false; // Never hide the navbar
 
   return (
     <nav
-      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${shouldHide
-          ? "opacity-0 -translate-y-full pointer-events-none"
-          : "opacity-100 translate-y-0"
-        } ${scrolled
-          ? "bg-black/90 backdrop-blur-md border-b border-white/10 shadow-lg"
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
+          ? "bg-[#0c0b0a] border-b border-white/10 shadow-lg"
           : "bg-transparent"
         }`}
     >
