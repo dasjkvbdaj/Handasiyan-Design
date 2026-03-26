@@ -831,9 +831,9 @@ export const Portfolio = ({ isPreview = false }) => {
     const scrollContainerRef = useRef(null);
 
     const CATEGORIES_DATA = [
-        { id: 'Full Design', desc: 'Complete end-to-end design solutions.' },
-        { id: 'Architectural Design', desc: 'Structural and exterior architectural planning.' },
-        { id: 'Interior Design', desc: 'Curated interior spaces and furnishings.' }
+        { id: 'Full Design'},
+        { id: 'Architectural Design'},
+        { id: 'Interior Design'}
     ];
 
     useEffect(() => {
