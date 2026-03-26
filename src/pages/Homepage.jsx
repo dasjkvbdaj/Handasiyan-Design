@@ -228,7 +228,15 @@ export const Hero = () => {
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
-                <video autoPlay muted loop playsInline className="absolute min-w-full min-h-full object-cover">
+                <video 
+                    autoPlay 
+                    muted 
+                    loop 
+                    playsInline 
+                    poster="/src/assets/hero-bg.png"
+                    preload="auto"
+                    className="absolute min-w-full min-h-full object-cover"
+                >
                     <source src="/video.mp4" type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/80 z-10" />

@@ -96,15 +96,15 @@ const AnimatedCounter = ({ target, suffix = '', duration = 2 }) => {
 /* ─────────────────────────────────────────────
    Floating Particle
 ───────────────────────────────────────────── */
-const FloatingParticle = ({ style }) => (
+const FloatingParticle = ({ style, isMobile }) => (
     <motion.div
         className="absolute w-1 h-1 rounded-full bg-[#d4af37]/30"
         style={style}
-        animate={{
+        animate={isMobile ? {} : {
             y: [0, -30, 0],
             opacity: [0.2, 0.7, 0.2],
         }}
-        transition={{
+        transition={isMobile ? {} : {
             duration: Math.random() * 3 + 3,
             repeat: Infinity,
             ease: 'easeInOut',
@@ -167,13 +167,13 @@ const WaveText = ({ children, className = '', charClassName = 'text-white' }) =>
                     key={i}
                     className={charClassName}
                     style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : 'normal' }}
-                    animate={isMobile ? { y: [0, -4, 0] } : { y: [0, -8, 0] }}
-                    transition={{
-                        duration: isMobile ? 2.4 : 1.6,
+                    animate={isMobile ? {} : { y: [0, -8, 0] }}
+                    transition={isMobile ? {} : {
+                        duration: 1.6,
                         repeat: Infinity,
                         ease: 'easeInOut',
-                        delay: i * (isMobile ? 0.1 : 0.06),
-                        repeatDelay: isMobile ? 0.8 : 0.4,
+                        delay: i * 0.06,
+                        repeatDelay: 0.4,
                     }}
                 >
                     {char}
@@ -370,7 +370,7 @@ const HeroSection = () => {
 
             {/* Floating particles */}
             {particles.map((p, i) => (
-                <FloatingParticle key={i} style={p} />
+                <FloatingParticle key={i} style={p} isMobile={isMobile} />
             ))}
 
             {/* Grid pattern overlay */}
@@ -383,13 +383,15 @@ const HeroSection = () => {
             />
 
             {/* Rotating badge — decorative top-right */}
-            <div className="absolute top-10 right-10 opacity-60 hidden md:block">
-                <div className="relative flex items-center justify-center">
-                    <RotatingBadgeText text="HANDASIYAN · ARCHITECTURE · DESIGN · " size={130} />
-                    {/* center dot */}
-                    <div className="absolute w-2 h-2 rounded-full bg-[#d4af37]/50" />
+            {!isMobile && (
+                <div className="absolute top-10 right-10 opacity-60">
+                    <div className="relative flex items-center justify-center">
+                        <RotatingBadgeText text="HANDASIYAN · ARCHITECTURE · DESIGN · " size={130} />
+                        {/* center dot */}
+                        <div className="absolute w-2 h-2 rounded-full bg-[#d4af37]/50" />
+                    </div>
                 </div>
-            </div>
+            )}
 
             <motion.div
                 style={{ y, opacity }}
@@ -417,7 +419,7 @@ const HeroSection = () => {
                     />
                 </motion.div>
 
-                {/* Title — entrance stagger → then each letter continuously floats */}
+                {/* Title — entrance stagger → then each letter continuously floats (disabled on mobile) */}
                 <h1 className="cormorant text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.9] mb-8 flex flex-wrap justify-center">
                     {letters.map((letter, i) => (
                         <motion.span
@@ -426,20 +428,22 @@ const HeroSection = () => {
                             initial={{ opacity: 0, y: 60, rotateX: -90 }}
                             animate={{
                                 opacity: 1,
-                                y: [0, -6, 0],            // ← loops forever after entrance
+                                y: isMobile ? 0 : [0, -6, 0],            // ← loops forever after entrance (disabled on mobile)
                                 rotateX: 0,
                             }}
                             transition={{
                                 /* entrance part */
                                 opacity: { delay: 0.05 * i, duration: 0.5 },
                                 rotateX: { delay: 0.05 * i, duration: 0.5 },
-                                /* continuous float */
-                                y: {
-                                    delay: i * 0.07,
-                                    duration: 2.2,
-                                    repeat: Infinity,
-                                    ease: 'easeInOut',
-                                },
+                                /* continuous float (disabled on mobile) */
+                                ...(isMobile ? {} : {
+                                    y: {
+                                        delay: i * 0.07,
+                                        duration: 2.2,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                    }
+                                }),
                             }}
                             style={{ display: 'inline-block', transformOrigin: 'bottom' }}
                         >
