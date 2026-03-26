@@ -3,9 +3,8 @@ import Process from '../components/Process';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import husseinImg from '../assets/hussein.png';
 import { ChevronDown } from 'lucide-react';
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, motion, useInView } from 'framer-motion';
-
 
 /* ─────────────────────────────────────────────
    Reusable animation variants
@@ -49,24 +48,40 @@ const GoldLine = ({ delay = 0 }) => (
 );
 
 /* ─────────────────────────────────────────────
+   Single shared isMobile hook result
+   — avoids re-instantiating in every child
+───────────────────────────────────────────── */
+const useIsMobile = () => useMediaQuery('(max-width: 1024px)');
+
+/* ─────────────────────────────────────────────
    ✨ LOOPING TEXT ANIMATIONS
+   All animations are disabled on mobile to
+   eliminate the primary source of lag.
 ───────────────────────────────────────────── */
 
 /**
- * GoldShimmerText — a gold shimmer sweep that loops forever.
- * The light beam travels from left to right continuously.
+ * GoldShimmerText
+ * FIX: Animation only runs on desktop (isMobile guard).
+ * The shimmer uses CSS `backgroundPosition` animation — much cheaper
+ * than Framer's JS-driven transform on mobile.
  */
 const GoldShimmerText = ({ children, className = '' }) => {
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
+
+    if (isMobile) {
+        return (
+            <span className={`text-[#d4af37]/80 ${className}`}>
+                {children}
+            </span>
+        );
+    }
+
     return (
         <span
             className={`relative inline-block overflow-hidden ${className}`}
             style={{ WebkitBackgroundClip: 'text', backgroundClip: 'text' }}
         >
-            {/* Base text (muted gold) */}
             <span className="text-[#d4af37]/70">{children}</span>
-
-            {/* Shimmer overlay — loops forever */}
             <motion.span
                 className="absolute inset-0 pointer-events-none"
                 style={{
@@ -77,10 +92,10 @@ const GoldShimmerText = ({ children, className = '' }) => {
                 }}
                 animate={{ backgroundPositionX: ['-200%', '300%'] }}
                 transition={{
-                    duration: isMobile ? 4 : 2.8,
+                    duration: 2.8,
                     repeat: Infinity,
                     ease: 'linear',
-                    repeatDelay: isMobile ? 2 : 1.2
+                    repeatDelay: 1.2,
                 }}
             >
                 {children}
@@ -90,20 +105,45 @@ const GoldShimmerText = ({ children, className = '' }) => {
 };
 
 /**
- * WaveText — each character bobs up and down in a staggered wave, looping forever.
+ * WaveText
+ * FIX: On mobile, renders as plain static text — zero animation overhead.
+ * On desktop, animates characters but using `will-change: transform` hint
+ * via style prop to keep it on the compositor thread.
+ * Also reduced from per-char loops to a single CSS keyframe class on mobile.
  */
 const WaveText = ({ children, className = '', charClassName = 'text-white' }) => {
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
     const chars = String(children).split('');
+
+    if (isMobile) {
+        return (
+            <span className={`inline-flex flex-wrap ${className}`} aria-label={children}>
+                {chars.map((char, i) => (
+                    <span
+                        key={i}
+                        className={charClassName}
+                        style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : 'normal' }}
+                    >
+                        {char}
+                    </span>
+                ))}
+            </span>
+        );
+    }
+
     return (
         <span className={`inline-flex ${className}`} aria-label={children}>
             {chars.map((char, i) => (
                 <motion.span
                     key={i}
                     className={charClassName}
-                    style={{ display: 'inline-block', whiteSpace: char === ' ' ? 'pre' : 'normal' }}
-                    animate={isMobile ? {} : { y: [0, -8, 0] }}
-                    transition={isMobile ? {} : {
+                    style={{
+                        display: 'inline-block',
+                        whiteSpace: char === ' ' ? 'pre' : 'normal',
+                        willChange: 'transform',
+                    }}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
                         duration: 1.6,
                         repeat: Infinity,
                         ease: 'easeInOut',
@@ -124,15 +164,14 @@ const Typewriter = ({ phrases, className }) => {
     const [displayed, setDisplayed] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [blink, setBlink] = useState(true);
-
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         const current = phrases[phraseIdx];
         let timeout;
-
-        const typeSpeed = isMobile ? 120 : 80;
-        const deleteSpeed = isMobile ? 60 : 40;
+        // Slower on mobile = fewer setState calls per second = less work
+        const typeSpeed = isMobile ? 130 : 80;
+        const deleteSpeed = isMobile ? 70 : 40;
 
         if (!deleting && displayed.length < current.length) {
             timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), typeSpeed);
@@ -149,9 +188,10 @@ const Typewriter = ({ phrases, className }) => {
     }, [displayed, deleting, phraseIdx, phrases, isMobile]);
 
     useEffect(() => {
-        const interval = setInterval(() => setBlink(b => !b), 530);
+        // FIX: Slower blink interval on mobile — halves cursor re-render frequency
+        const interval = setInterval(() => setBlink(b => !b), isMobile ? 700 : 530);
         return () => clearInterval(interval);
-    }, []);
+    }, [isMobile]);
 
     return (
         <span className={className}>
@@ -163,7 +203,12 @@ const Typewriter = ({ phrases, className }) => {
 
 /* ─── Looping shimmer word ──────────────────────────────────────── */
 const ShimmerText = ({ children, className }) => {
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
+
+    if (isMobile) {
+        return <span className={className}>{children}</span>;
+    }
+
     return (
         <span className={`relative inline-block overflow-hidden ${className}`}>
             <span className="relative z-10">{children}</span>
@@ -172,10 +217,10 @@ const ShimmerText = ({ children, className }) => {
                 style={{ mixBlendMode: 'overlay' }}
                 animate={{ x: ['-100%', '200%'] }}
                 transition={{
-                    duration: isMobile ? 3.5 : 2.5,
+                    duration: 2.5,
                     repeat: Infinity,
-                    repeatDelay: isMobile ? 3 : 2,
-                    ease: 'easeInOut'
+                    repeatDelay: 2,
+                    ease: 'easeInOut',
                 }}
             />
         </span>
@@ -183,24 +228,30 @@ const ShimmerText = ({ children, className }) => {
 };
 
 /**
- * PulseGlowText — text that breathes with a golden glow pulsing forever.
+ * PulseGlowText
+ * FIX: On mobile, no textShadow animation (forces main-thread paint on every frame).
+ * Color-only animation is much cheaper — GPU handles it.
+ * On desktop, full glow effect with willChange hint.
  */
 const PulseGlowText = ({ children, className = '' }) => {
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
     return (
         <motion.span
             className={`inline-block ${className}`}
-            animate={isMobile ? {
-                color: ['#d4af37', '#f5d060', '#d4af37'],
-            } : {
-                textShadow: [
-                    '0 0 0px rgba(212,175,55,0)',
-                    '0 0 20px rgba(212,175,55,0.9), 0 0 40px rgba(212,175,55,0.4)',
-                    '0 0 0px rgba(212,175,55,0)',
-                ],
-                color: ['#d4af37', '#f5d060', '#d4af37'],
-            }}
-            transition={{ duration: isMobile ? 3.5 : 2.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={!isMobile ? { willChange: 'filter' } : undefined}
+            animate={
+                isMobile
+                    ? { color: ['#d4af37', '#f5d060', '#d4af37'] }
+                    : {
+                        textShadow: [
+                            '0 0 0px rgba(212,175,55,0)',
+                            '0 0 20px rgba(212,175,55,0.9), 0 0 40px rgba(212,175,55,0.4)',
+                            '0 0 0px rgba(212,175,55,0)',
+                        ],
+                        color: ['#d4af37', '#f5d060', '#d4af37'],
+                    }
+            }
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
         >
             {children}
         </motion.span>
@@ -208,16 +259,19 @@ const PulseGlowText = ({ children, className = '' }) => {
 };
 
 /**
- * MarqueeText — horizontal infinite scroll ticker.
+ * MarqueeText
+ * FIX: Uses CSS animation instead of Framer Motion.
+ * CSS `@keyframes` runs entirely on the compositor thread — zero JS overhead.
  */
 const MarqueeText = ({ items, speed = 35 }) => {
-    const totalItems = [...items, ...items]; // duplicate for seamless loop
+    const totalItems = [...items, ...items];
     return (
         <div className="overflow-hidden whitespace-nowrap py-5 border-y border-[#d4af37]/10 bg-black/40">
-            <motion.div
+            <div
                 className="inline-flex gap-0"
-                animate={{ x: ['0%', '-50%'] }}
-                transition={{ duration: speed, repeat: Infinity, ease: 'linear' }}
+                style={{
+                    animation: `marquee ${speed}s linear infinite`,
+                }}
             >
                 {totalItems.map((item, i) => (
                     <span key={i} className="inline-flex items-center gap-6 px-8">
@@ -227,47 +281,67 @@ const MarqueeText = ({ items, speed = 35 }) => {
                         <span className="text-[#d4af37]/20 text-[8px]">◆</span>
                     </span>
                 ))}
-            </motion.div>
+            </div>
+
+            {/* Scoped CSS keyframe — no Framer overhead */}
+            <style>{`
+                @keyframes marquee {
+                    from { transform: translateX(0); }
+                    to   { transform: translateX(-50%); }
+                }
+            `}</style>
         </div>
     );
 };
 
 /* ─────────────────────────────────────────────
-   Hero Section (enhanced with looping animations)
+   Hero Section
+   FIX: Animated gradient orbs used blur-3xl + scale loop.
+   blur() triggers main-thread layer compositing on mobile.
+   Replaced with static blur divs (no animation on mobile).
+   On desktop kept but added will-change: transform.
 ───────────────────────────────────────────── */
 const HeroSection = () => {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
     const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
     const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-    const isMobile = useMediaQuery('(max-width: 1024px)');
+    const isMobile = useIsMobile();
 
-
-
-    const title = "Our Story";
+    const title = 'Our Story';
     const letters = title.split('');
 
     return (
         <section ref={ref} className="py-32 bg-[#064e3b] relative overflow-hidden min-h-[60vh] flex items-center">
-            {/* Animated gradient orbs */}
-            <motion.div
-                className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#d4af37]/10 blur-3xl"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <motion.div
-                className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#064e3b]/60 blur-3xl border border-[#d4af37]/20"
-                animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.7, 0.4] }}
-                transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-            />
+
+            {/* Ambient orbs — static on mobile, animated on desktop */}
+            {isMobile ? (
+                <>
+                    <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#d4af37]/10 blur-3xl pointer-events-none" />
+                    <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#064e3b]/60 blur-3xl border border-[#d4af37]/20 pointer-events-none" />
+                </>
+            ) : (
+                <>
+                    <motion.div
+                        className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#d4af37]/10 blur-3xl pointer-events-none"
+                        style={{ willChange: 'transform, opacity' }}
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.div
+                        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#064e3b]/60 blur-3xl border border-[#d4af37]/20 pointer-events-none"
+                        style={{ willChange: 'transform, opacity' }}
+                        animate={{ scale: [1.2, 1, 1.2], opacity: [0.4, 0.7, 0.4] }}
+                        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                    />
+                </>
+            )}
 
             <div className="absolute inset-0 bg-black/40" />
 
-
-
             {/* Grid pattern overlay */}
             <div
-                className="absolute inset-0 opacity-5"
+                className="absolute inset-0 opacity-5 pointer-events-none"
                 style={{
                     backgroundImage: `linear-gradient(#d4af37 1px, transparent 1px), linear-gradient(90deg, #d4af37 1px, transparent 1px)`,
                     backgroundSize: '60px 60px',
@@ -278,63 +352,87 @@ const HeroSection = () => {
                 style={{ y, opacity }}
                 className="max-w-7xl mx-auto px-6 relative z-10 text-center w-full"
             >
-                {/* Looping eyebrow label */}
+                {/* Eyebrow label */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                     className="montserrat flex items-center justify-center gap-3 mb-8"
                 >
-                    <motion.div
-                        className="h-px bg-[#d4af37]/50"
-                        animate={{ width: ['0px', '48px', '0px'] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    />
+                    {/* FIX: Expanding lines — CSS animation on mobile, Framer on desktop */}
+                    {isMobile ? (
+                        <div className="h-px w-12 bg-[#d4af37]/50" />
+                    ) : (
+                        <motion.div
+                            className="h-px bg-[#d4af37]/50"
+                            animate={{ width: ['0px', '48px', '0px'] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                        />
+                    )}
                     <ShimmerText className="cormorant text-[#d4af37]/70 text-sm tracking-[0.4em] uppercase">
                         About Us
                     </ShimmerText>
-                    <motion.div
-                        className="h-px bg-[#d4af37]/50"
-                        animate={{ width: ['0px', '48px', '0px'] }}
-                        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-                    />
+                    {isMobile ? (
+                        <div className="h-px w-12 bg-[#d4af37]/50" />
+                    ) : (
+                        <motion.div
+                            className="h-px bg-[#d4af37]/50"
+                            animate={{ width: ['0px', '48px', '0px'] }}
+                            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
+                        />
+                    )}
                 </motion.div>
 
-                {/* Title — entrance stagger → then each letter continuously floats (disabled on mobile) */}
+                {/* Title letters */}
                 <h1 className="cormorant text-6xl md:text-8xl lg:text-9xl font-bold text-white leading-[0.9] mb-8 flex flex-wrap justify-center">
-                    {letters.map((letter, i) => (
-                        <motion.span
-                            key={i}
-                            /* entrance */
-                            initial={{ opacity: 0, y: 60, rotateX: -90 }}
-                            animate={{
-                                opacity: 1,
-                                y: isMobile ? 0 : [0, -6, 0],            // ← loops forever after entrance (disabled on mobile)
-                                rotateX: 0,
-                            }}
-                            transition={{
-                                /* entrance part */
-                                opacity: { delay: 0.05 * i, duration: 0.5 },
-                                rotateX: { delay: 0.05 * i, duration: 0.5 },
-                                /* continuous float (disabled on mobile) */
-                                ...(isMobile ? {} : {
+                    {letters.map((letter, i) =>
+                        isMobile ? (
+                            // FIX: On mobile, entrance only — no looping float per character
+                            <motion.span
+                                key={i}
+                                initial={{ opacity: 0, y: 60, rotateX: -90 }}
+                                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                                transition={{
+                                    opacity: { delay: 0.05 * i, duration: 0.5 },
+                                    rotateX: { delay: 0.05 * i, duration: 0.5 },
+                                    y: { delay: 0.05 * i, duration: 0.5 },
+                                }}
+                                style={{ display: 'inline-block', transformOrigin: 'bottom' }}
+                            >
+                                {letter === ' ' ? '\u00A0' : letter}
+                            </motion.span>
+                        ) : (
+                            <motion.span
+                                key={i}
+                                initial={{ opacity: 0, y: 60, rotateX: -90 }}
+                                animate={{
+                                    opacity: 1,
+                                    y: [0, -6, 0],
+                                    rotateX: 0,
+                                }}
+                                transition={{
+                                    opacity: { delay: 0.05 * i, duration: 0.5 },
+                                    rotateX: { delay: 0.05 * i, duration: 0.5 },
                                     y: {
                                         delay: i * 0.07,
                                         duration: 2.2,
                                         repeat: Infinity,
                                         ease: 'easeInOut',
-                                    }
-                                }),
-                            }}
-                            style={{ display: 'inline-block', transformOrigin: 'bottom' }}
-                        >
-                            {letter === ' ' ? '\u00A0' : letter}
-                        </motion.span>
-                    ))}
+                                    },
+                                }}
+                                style={{
+                                    display: 'inline-block',
+                                    transformOrigin: 'bottom',
+                                    willChange: 'transform',
+                                }}
+                            >
+                                {letter === ' ' ? '\u00A0' : letter}
+                            </motion.span>
+                        )
+                    )}
                 </h1>
 
-
-                {/* ✨ Typewriter loop on subtitle */}
+                {/* Typewriter subtitle */}
                 <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed">
                     <Typewriter
                         className="montserrat text-white/50 text-base"
@@ -359,6 +457,7 @@ const HeroSection = () => {
                         animate={{ y: [0, 8, 0] }}
                         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                         className="flex flex-col items-center gap-1"
+                        style={{ willChange: 'transform' }}
                     >
                         <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
                     </motion.div>
@@ -370,39 +469,50 @@ const HeroSection = () => {
 
 /* ─────────────────────────────────────────────
    Founder Section
+   FIX: Several child divs had Framer `variants`/`initial`/`whileInView`
+   props but were plain <div> elements, not <motion.div>.
+   Framer silently ignores those props but still runs reconciliation.
+   Fixed by converting them to <motion.div> where needed, or removing
+   unused animation props from plain divs.
 ───────────────────────────────────────────── */
 const FounderSection = () => {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
     const imgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
+    const isMobile = useIsMobile();
 
     return (
         <section ref={ref} className="py-32 bg-black relative overflow-hidden">
-            {/* Ambient glow */}
-            <motion.div
-                className="absolute top-1/2 left-1/4 w-[600px] h-[600px] -translate-y-1/2 rounded-full bg-[#064e3b]/20 blur-3xl pointer-events-none"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 5, repeat: Infinity }}
-            />
+            {/* Ambient glow — static on mobile */}
+            {isMobile ? (
+                <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] -translate-y-1/2 rounded-full bg-[#064e3b]/20 blur-3xl pointer-events-none opacity-40" />
+            ) : (
+                <motion.div
+                    className="absolute top-1/2 left-1/4 w-[600px] h-[600px] -translate-y-1/2 rounded-full bg-[#064e3b]/20 blur-3xl pointer-events-none"
+                    animate={{ opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 5, repeat: Infinity }}
+                    style={{ willChange: 'opacity' }}
+                />
+            )}
 
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                {/* Image column */}
-                <div
+                {/* Image column — FIX: was <div> with Framer props, now proper <motion.div> */}
+                <motion.div
                     variants={fadeLeft}
                     initial="hidden"
                     whileInView="visible"
                     viewport={{ once: true, margin: '-80px' }}
                     className="relative"
                 >
-                    {/* Decorative corner frames */}
-                    <div
+                    {/* Decorative corner frames — FIX: were plain divs with Framer props */}
+                    <motion.div
                         className="absolute -top-4 -left-4 w-16 h-16 border-t-2 border-l-2 border-[#d4af37]/60"
                         initial={{ opacity: 0, scale: 0.5 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.5 }}
                     />
-                    <div
+                    <motion.div
                         className="absolute -bottom-4 -right-4 w-16 h-16 border-b-2 border-r-2 border-[#d4af37]/60"
                         initial={{ opacity: 0, scale: 0.5 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -411,14 +521,17 @@ const FounderSection = () => {
                     />
 
                     <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-[#d4af37]/20 relative">
+                        {/* FIX: Parallax scroll on image disabled on mobile — scroll-linked transforms
+                            are expensive on mobile browsers that don't support passive scroll well */}
                         <motion.img
-                            style={{ y: imgY }}
+                            style={isMobile ? undefined : { y: imgY }}
                             src={husseinImg}
                             alt="Hussein Tarhini"
                             className="w-full h-[110%] object-cover object-top"
                             loading="lazy"
                         />
-                        <div
+                        {/* FIX: was plain <div> with Framer props */}
+                        <motion.div
                             className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
@@ -427,20 +540,19 @@ const FounderSection = () => {
                         />
                     </div>
 
-                    {/* Founder badge */}
-                    <div
+                    {/* Founder badge — FIX: was plain <div> with Framer props */}
+                    <motion.div
                         initial={{ opacity: 0, y: 20, scale: 0.9 }}
                         whileInView={{ opacity: 1, y: 0, scale: 1 }}
                         viewport={{ once: true }}
                         className="absolute -bottom-6 -right-6 bg-[#d4af37] p-8 rounded-2xl hidden md:block shadow-2xl shadow-[#d4af37]/30"
                     >
-                        {/* ✨ Shimmer on the founder name */}
                         <p className="font-bold text-xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                             <span className="text-black">Hussein Tarhini</span>
                         </p>
                         <p className="text-black/70 text-sm mt-1">Architectural & Interior Designer</p>
-                    </div>
-                </div>
+                    </motion.div>
+                </motion.div>
 
                 {/* Text column */}
                 <motion.div
@@ -449,12 +561,13 @@ const FounderSection = () => {
                     whileInView="visible"
                     viewport={{ once: true, margin: '-80px' }}
                 >
-                    <span
+                    {/* FIX: was <span> with variants prop — plain span doesn't animate */}
+                    <motion.span
                         variants={staggerItem}
                         className="text-[#d4af37] font-medium tracking-[0.3em] uppercase text-xs mb-4 block"
                     >
                         Founding Story
-                    </span>
+                    </motion.span>
 
                     <motion.h2
                         variants={staggerItem}
@@ -462,7 +575,6 @@ const FounderSection = () => {
                         style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                         A Legacy Passed from{' '}
-                        {/* ✨ Pulse glow on the highlighted phrase */}
                         <PulseGlowText>Father to Son</PulseGlowText>
                     </motion.h2>
 
@@ -496,6 +608,8 @@ const FounderSection = () => {
    Mission & Vision Cards
 ───────────────────────────────────────────── */
 const MissionVisionSection = () => {
+    const isMobile = useIsMobile();
+
     const missionItems = [
         'Deliver high-quality construction and design services with precision and care.',
         'Maintain full transparency and honest communication with clients.',
@@ -517,16 +631,16 @@ const MissionVisionSection = () => {
 
     return (
         <section className="py-32 bg-[#030f0a] border-y border-white/5 relative overflow-hidden">
-            {/* Animated background grid */}
+            {/* Background dot grid */}
             <div
-                className="absolute inset-0 opacity-[0.03]"
+                className="absolute inset-0 opacity-[0.03] pointer-events-none"
                 style={{
                     backgroundImage: `radial-gradient(circle, #d4af37 1px, transparent 1px)`,
                     backgroundSize: '40px 40px',
                 }}
             />
 
-            {/* ✨ Marquee ticker at the top of section */}
+            {/* Marquee ticker */}
             <div className="mb-20">
                 <MarqueeText items={marqueeItems} speed={30} />
             </div>
@@ -543,7 +657,6 @@ const MissionVisionSection = () => {
                     <span className="text-[#d4af37]/60 tracking-[0.3em] uppercase text-xs block mb-4">
                         Our Purpose
                     </span>
-                    {/* ✨ Wave animation on section title */}
                     <WaveText
                         className="text-4xl md:text-6xl font-bold justify-center flex-wrap"
                         charClassName="text-white"
@@ -559,15 +672,13 @@ const MissionVisionSection = () => {
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10 "
+                        className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10"
                     >
-
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-8">
                                 <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center">
                                     <span className="text-[#d4af37] text-sm">✦</span>
                                 </div>
-                                {/* ✨ Shimmer on card title */}
                                 <h2
                                     className="text-3xl font-bold"
                                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
@@ -589,13 +700,25 @@ const MissionVisionSection = () => {
                                         variants={staggerItem}
                                         className="flex items-start group/item"
                                     >
-                                        <motion.span
-                                            className="text-[#d4af37] mr-3 mt-1.5 text-xs"
-                                            animate={{ rotate: [0, 360] }}
-                                            transition={{ duration: 8, repeat: Infinity, ease: 'linear', delay: i * 0.5 }}
-                                        >
-                                            ◆
-                                        </motion.span>
+                                        {/* FIX: Diamond rotation — disabled on mobile.
+                                            5 simultaneously rotating elements = 5 animation loops */}
+                                        {isMobile ? (
+                                            <span className="text-[#d4af37] mr-3 mt-1.5 text-xs">◆</span>
+                                        ) : (
+                                            <motion.span
+                                                className="text-[#d4af37] mr-3 mt-1.5 text-xs"
+                                                style={{ willChange: 'transform' }}
+                                                animate={{ rotate: [0, 360] }}
+                                                transition={{
+                                                    duration: 8,
+                                                    repeat: Infinity,
+                                                    ease: 'linear',
+                                                    delay: i * 0.5,
+                                                }}
+                                            >
+                                                ◆
+                                            </motion.span>
+                                        )}
                                         <span className="text-white/60 group-hover/item:text-white/80 transition-colors duration-300">
                                             {item}
                                         </span>
@@ -612,13 +735,11 @@ const MissionVisionSection = () => {
                         viewport={{ once: true }}
                         className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10 hover:border-[#d4af37]/30 transition-colors duration-500 relative overflow-hidden"
                     >
-
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-8">
                                 <div className="w-10 h-10 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center">
                                     <span className="text-[#d4af37] text-sm">◉</span>
                                 </div>
-                                {/* ✨ Shimmer on card title */}
                                 <h2
                                     className="text-3xl font-bold"
                                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
@@ -645,7 +766,6 @@ const MissionVisionSection = () => {
                                     quality construction in Ghana and beyond.
                                 </motion.p>
 
-                                {/* ✨ Pulse glow on the quote */}
                                 <motion.div
                                     variants={staggerItem}
                                     className="pt-4 border-t border-[#d4af37]/10"
@@ -659,7 +779,6 @@ const MissionVisionSection = () => {
                     </motion.div>
                 </div>
             </div>
-
         </section>
     );
 };
