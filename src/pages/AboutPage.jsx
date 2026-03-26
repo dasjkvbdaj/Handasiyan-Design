@@ -4,7 +4,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import husseinImg from '../assets/hussein.png';
 import { ChevronDown } from 'lucide-react';
 import { useRef, useState, useEffect, useMemo } from 'react';
-import { useScroll, useTransform, motion, useInView} from 'framer-motion';
+import { useScroll, useTransform, motion, useInView } from 'framer-motion';
 
 
 /* ─────────────────────────────────────────────
@@ -452,56 +452,23 @@ const HeroSection = () => {
                     ))}
                 </h1>
 
-                <motion.div
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 1, delay: 0.8, ease: 'easeOut' }}
-                    className="w-24 h-0.5 bg-gradient-to-r from-[#d4af37] to-[#f0d060] mx-auto mb-8"
-                />
 
                 {/* ✨ Typewriter loop on subtitle */}
-                <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed min-h-[2rem]">
+                <div className="montserrat text-white/50 text-base md:text-lg max-w-xl mx-auto font-light tracking-wide leading-relaxed">
                     <Typewriter
                         className="montserrat text-white/50 text-base"
                         phrases={[
                             'A legacy built on discipline.',
                             'Honesty and respect for the craft.',
                             'Every drawing is a promise.',
-                            'Building trust, one project at a time.',
+                            'Building trust',
                         ]}
                     />
                 </div>
 
-                {/* Stats row */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 1.2 }}
-                    className="flex justify-center gap-16 mt-16"
-                >
-                    {[
-                        { value: 5, suffix: '+', label: 'Years Experience' },
-                        { value: 50, suffix: '+', label: 'Projects Delivered' },
-
-                    ].map(({ value, suffix, label }) => (
-                        <div key={label} className="text-center">
-                            {/* ✨ Pulse glow on stat numbers */}
-                            <div
-                                className="text-3xl md:text-4xl font-bold"
-                                style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                            >
-                                <PulseGlowText>
-                                    <AnimatedCounter target={value} suffix={suffix} />
-                                </PulseGlowText>
-                            </div>
-                            <div className="text-white/40 text-xs tracking-widest uppercase mt-1">{label}</div>
-                        </div>
-                    ))}
-                </motion.div>
-
                 {/* Scroll indicator */}
                 <motion.div
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
+                    className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 mt-10"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 1.8 }}
@@ -512,7 +479,6 @@ const HeroSection = () => {
                         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                         className="flex flex-col items-center gap-1"
                     >
-                        <div className="w-px h-12 bg-gradient-to-b from-[#d4af37]/60 to-transparent" />
                         <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
                     </motion.div>
                 </motion.div>
@@ -540,7 +506,7 @@ const FounderSection = () => {
 
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                 {/* Image column */}
-                <motion.div
+                <div
                     variants={fadeLeft}
                     initial="hidden"
                     whileInView="visible"
@@ -548,14 +514,14 @@ const FounderSection = () => {
                     className="relative"
                 >
                     {/* Decorative corner frames */}
-                    <motion.div
+                    <div
                         className="absolute -top-4 -left-4 w-16 h-16 border-t-2 border-l-2 border-[#d4af37]/60"
                         initial={{ opacity: 0, scale: 0.5 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6, delay: 0.5 }}
                     />
-                    <motion.div
+                    <div
                         className="absolute -bottom-4 -right-4 w-16 h-16 border-b-2 border-r-2 border-[#d4af37]/60"
                         initial={{ opacity: 0, scale: 0.5 }}
                         whileInView={{ opacity: 1, scale: 1 }}
@@ -570,7 +536,7 @@ const FounderSection = () => {
                             alt="Hussein Tarhini"
                             className="w-full h-[110%] object-cover object-top"
                         />
-                        <motion.div
+                        <div
                             className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
                             initial={{ opacity: 0 }}
                             whileInView={{ opacity: 1 }}
@@ -580,12 +546,10 @@ const FounderSection = () => {
                     </div>
 
                     {/* Founder badge */}
-                    <motion.div
+                    <div
                         initial={{ opacity: 0, y: 20, scale: 0.9 }}
                         whileInView={{ opacity: 1, y: 0, scale: 1 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.8 }}
-                        whileHover={{ scale: 1.03 }}
                         className="absolute -bottom-6 -right-6 bg-[#d4af37] p-8 rounded-2xl hidden md:block shadow-2xl shadow-[#d4af37]/30"
                     >
                         {/* ✨ Shimmer on the founder name */}
@@ -593,8 +557,8 @@ const FounderSection = () => {
                             <span className="text-black">Hussein Tarhini</span>
                         </p>
                         <p className="text-black/70 text-sm mt-1">Architectural & Interior Designer</p>
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
 
                 {/* Text column */}
                 <motion.div
@@ -603,12 +567,12 @@ const FounderSection = () => {
                     whileInView="visible"
                     viewport={{ once: true, margin: '-80px' }}
                 >
-                    <motion.span
+                    <span
                         variants={staggerItem}
                         className="text-[#d4af37] font-medium tracking-[0.3em] uppercase text-xs mb-4 block"
                     >
                         Founding Story
-                    </motion.span>
+                    </span>
 
                     <motion.h2
                         variants={staggerItem}
@@ -713,13 +677,8 @@ const MissionVisionSection = () => {
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.7 }}
-                        whileHover={{ y: -6 }}
-                        className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10 hover:border-[#d4af37]/30 transition-colors duration-500 relative overflow-hidden"
+                        className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10 "
                     >
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"
-                        />
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-8">
@@ -769,13 +728,8 @@ const MissionVisionSection = () => {
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.7, delay: 0.2 }}
-                        whileHover={{ y: -6 }}
                         className="group bg-black/60 p-10 rounded-3xl border border-[#d4af37]/10 hover:border-[#d4af37]/30 transition-colors duration-500 relative overflow-hidden"
                     >
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-br from-[#064e3b]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl"
-                        />
 
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-8">
@@ -824,25 +778,6 @@ const MissionVisionSection = () => {
                 </div>
             </div>
 
-            {/* ✨ Second marquee at the bottom — reversed direction */}
-            <div className="mt-20">
-                <div className="overflow-hidden whitespace-nowrap py-5 border-y border-[#d4af37]/10 bg-black/40">
-                    <motion.div
-                        className="inline-flex gap-0"
-                        animate={{ x: ['-50%', '0%'] }}
-                        transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                    >
-                        {[...marqueeItems, ...marqueeItems].map((item, i) => (
-                            <span key={i} className="inline-flex items-center gap-6 px-8">
-                                <span className="text-[#064e3b]/80 text-xs tracking-[0.3em] uppercase font-medium">
-                                    {item}
-                                </span>
-                                <span className="text-[#064e3b]/40 text-[8px]">◆</span>
-                            </span>
-                        ))}
-                    </motion.div>
-                </div>
-            </div>
         </section>
     );
 };
