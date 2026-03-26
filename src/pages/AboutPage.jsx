@@ -416,6 +416,7 @@ const FounderSection = () => {
                             src={husseinImg}
                             alt="Hussein Tarhini"
                             className="w-full h-[110%] object-cover object-top"
+                            loading="lazy"
                         />
                         <div
                             className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"
