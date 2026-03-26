@@ -728,6 +728,7 @@ function Lightbox({ project, startIndex, onClose }) {
                     alt={`${project.name} — image ${currentIndex + 1}`}
                     className="max-w-[85vw] max-h-[75vh] object-contain rounded-lg shadow-2xl relative z-40"
                     onClick={(e) => e.stopPropagation()}
+                    loading='lazy'
                 />
             </AnimatePresence>
 
