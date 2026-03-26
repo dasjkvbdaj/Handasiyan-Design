@@ -1,7 +1,7 @@
 import { About } from './Homepage';
 import Process from '../components/Process';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import husseinImg from '../assets/hussein.png';
+import husseinImg from '../assets/hussein.avif';
 import { ChevronDown } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, motion, useInView } from 'framer-motion';

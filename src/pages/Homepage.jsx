@@ -1,6 +1,6 @@
 import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect , useCallback} from 'react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 
@@ -233,7 +233,7 @@ export const Hero = () => {
                     muted 
                     loop 
                     playsInline 
-                    poster="/src/assets/hero-bg.png"
+                    poster="/src/assets/hero-bg.avif"
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
                 >
