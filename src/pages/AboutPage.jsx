@@ -10,26 +10,8 @@ import { useScroll, useTransform, motion, useInView } from 'framer-motion';
 /* ─────────────────────────────────────────────
    Reusable animation variants
 ───────────────────────────────────────────── */
-const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: (delay = 0) => ({
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94], delay },
-    }),
-};
-
 const fadeLeft = {
     hidden: { opacity: 0, x: -60 },
-    visible: {
-        opacity: 1,
-        x: 0,
-        transition: { duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] },
-    },
-};
-
-const fadeRight = {
-    hidden: { opacity: 0, x: 60 },
     visible: {
         opacity: 1,
         x: 0,
@@ -63,53 +45,6 @@ const GoldLine = ({ delay = 0 }) => (
         whileInView={{ scaleX: 1, opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1.2, ease: 'easeInOut', delay }}
-    />
-);
-
-/* ─────────────────────────────────────────────
-   Animated Counter
-───────────────────────────────────────────── */
-const AnimatedCounter = ({ target, suffix = '', duration = 2 }) => {
-    const [count, setCount] = useState(0);
-    const ref = useRef(null);
-    const inView = useInView(ref, { once: true });
-
-    useEffect(() => {
-        if (!inView) return;
-        let start = 0;
-        const step = target / (duration * 60);
-        const timer = setInterval(() => {
-            start += step;
-            if (start >= target) {
-                setCount(target);
-                clearInterval(timer);
-            } else {
-                setCount(Math.floor(start));
-            }
-        }, 1000 / 60);
-        return () => clearInterval(timer);
-    }, [inView, target, duration]);
-
-    return <span ref={ref}>{count}{suffix}</span>;
-};
-
-/* ─────────────────────────────────────────────
-   Floating Particle
-───────────────────────────────────────────── */
-const FloatingParticle = ({ style, isMobile }) => (
-    <motion.div
-        className="absolute w-1 h-1 rounded-full bg-[#d4af37]/30"
-        style={style}
-        animate={isMobile ? {} : {
-            y: [0, -30, 0],
-            opacity: [0.2, 0.7, 0.2],
-        }}
-        transition={isMobile ? {} : {
-            duration: Math.random() * 3 + 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            delay: Math.random() * 2,
-        }}
     />
 );
 
@@ -297,41 +232,6 @@ const MarqueeText = ({ items, speed = 35 }) => {
     );
 };
 
-/**
- * RotatingBadgeText — text that orbits / rotates around a central point (used decoratively).
- */
-const RotatingBadgeText = ({ text, size = 120 }) => {
-    const chars = text.split('');
-    const radius = size / 2 - 12;
-    return (
-        <motion.div
-            className="relative"
-            style={{ width: size, height: size }}
-            animate={{ rotate: 360 }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
-        >
-            {chars.map((char, i) => {
-                const angle = (i / chars.length) * 2 * Math.PI - Math.PI / 2;
-                const x = radius * Math.cos(angle) + size / 2 - 6;
-                const y = radius * Math.sin(angle) + size / 2 - 6;
-                return (
-                    <span
-                        key={i}
-                        className="absolute text-[#d4af37]/60 text-[9px] tracking-widest font-medium"
-                        style={{
-                            left: x,
-                            top: y,
-                            transform: `rotate(${(i / chars.length) * 360 + 90}deg)`,
-                        }}
-                    >
-                        {char}
-                    </span>
-                );
-            })}
-        </motion.div>
-    );
-};
-
 /* ─────────────────────────────────────────────
    Hero Section (enhanced with looping animations)
 ───────────────────────────────────────────── */
@@ -342,12 +242,7 @@ const HeroSection = () => {
     const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
     const isMobile = useMediaQuery('(max-width: 1024px)');
 
-    const particles = useMemo(() => Array.from({ length: isMobile ? 6 : 18 }, () => ({
-        id: Math.random(),
-        delay: Math.random() * 2,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
-    })), [isMobile]);
+
 
     const title = "Our Story";
     const letters = title.split('');
@@ -368,10 +263,7 @@ const HeroSection = () => {
 
             <div className="absolute inset-0 bg-black/40" />
 
-            {/* Floating particles */}
-            {particles.map((p, i) => (
-                <FloatingParticle key={i} style={p} isMobile={isMobile} />
-            ))}
+
 
             {/* Grid pattern overlay */}
             <div
@@ -381,17 +273,6 @@ const HeroSection = () => {
                     backgroundSize: '60px 60px',
                 }}
             />
-
-            {/* Rotating badge — decorative top-right */}
-            {!isMobile && (
-                <div className="absolute top-10 right-10 opacity-60">
-                    <div className="relative flex items-center justify-center">
-                        <RotatingBadgeText text="HANDASIYAN · ARCHITECTURE · DESIGN · " size={130} />
-                        {/* center dot */}
-                        <div className="absolute w-2 h-2 rounded-full bg-[#d4af37]/50" />
-                    </div>
-                </div>
-            )}
 
             <motion.div
                 style={{ y, opacity }}
