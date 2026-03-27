@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Portfolio, CTA } from './Homepage';
+import { projects } from '../data/projects';
 import { ChevronDown } from 'lucide-react';
 import {motion } from 'framer-motion';
 
