@@ -1,50 +1,89 @@
 export const projects = [
     {
-        name: 'Classic Style Villa Design',
-        folder: '/portfolio_images/Classic Style Villa design',
+        name: 'Project 1',
+        folder: '/portfolio_images/Project-1',
         imageCount: 3,
-        category: 'Architectural Design'
+        category: 'Architectural Design',
+        style: "Classic Style"
     },
-    
+
     {
-        name: 'Colourful Style Apartment',
-        folder: '/portfolio_images/Colourful Style Apartment',
+        name: 'Project 2',
+        folder: '/portfolio_images/Project-2',
+        imageCount: 6,
+        category: 'Interior Design',
+        style: "Colourful Style"
+    },
+
+    {
+        name: 'Project 3',
+        folder: '/portfolio_images/Project-3',
         imageCount: 5,
-        category: 'Interior Design'
+        category: 'Architectural Design',
+        style: "Tropical Modern Style"
     },
 
     {
-        name: 'Tropical Modern Style',
-        folder: '/portfolio_images/Tropical Modern Style',
+        name: 'Project 4',
+        folder: '/portfolio_images/Project-4',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Minimalist Contemporary West African style"
+    },
+
+    {
+        name: 'Project 5',
+        folder: '/portfolio_images/Project-5',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Scandinavian African style"
+    },
+
+    {
+        name: 'Project 6',
+        folder: '/portfolio_images/Project-6',
+        imageCount: 10,
+        category: 'Full Design',
+        style: "Industrial Style"
+    },
+
+    {
+        name: 'Project 7',
+        folder: '/portfolio_images/Project-7',
+        imageCount: 10,
+        category: 'Full Design',
+        style: "Minimalist Style"
+    },
+
+    {
+        name: 'Project 8',
+        folder: '/portfolio_images/Project-8',
+        imageCount: 4,
+        category: 'Interior Design',
+        style: "Classic Style"
+    },
+
+    {
+        name: 'Project 9',
+        folder: '/portfolio_images/Project-9',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Modern Contemporary Style"
+    },
+
+    {
+        name: 'Project 10',
+        folder: '/portfolio_images/Project-10',
+        imageCount: 21,
+        category: 'Full Design',
+        style: "Minimalist Style"
+    },
+
+    {
+        name: 'Project 11',
+        folder: '/portfolio_images/Project-11',
         imageCount: 5,
-        category: 'Architectural Design'
-    },
-
-    {
-        name: 'Minimalist Contemporary West African style',
-        folder: '/portfolio_images/Minimalist Contemporary West African style',
-        imageCount: 3,
-        category: 'Architectural Design'
-    },
-
-    {
-        name: 'Scandinavian African style',
-        folder: '/portfolio_images/Scandinavian African style',
-        imageCount: 3,
-        category: 'Architectural Design'
-    },
-
-    {
-        name: 'Industrial Style',
-        folder: '/portfolio_images/industrial style',
-        imageCount: 10,
-        category: 'Full Design'
-    },
-
-    {
-        name: 'Residential House Minimalist Style',
-        folder: '/portfolio_images/residential house minimalist style',
-        imageCount: 10,
-        category: 'Full Design'
+        category: 'Interior Design',
+        style: "Modern Style"
     },
 ];

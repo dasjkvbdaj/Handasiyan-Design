@@ -663,7 +663,7 @@ function Lightbox({ project, startIndex, onClose }) {
             {/* Project name + counter */}
             <div className="absolute top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-50">
                 <span className="text-[#d4af37] font-semibold tracking-widest uppercase text-xs">
-                    {project.name}
+                    {project.style}
                 </span>
                 <span className="text-white/40 text-xs">
                     {currentIndex + 1} / {images.length}
@@ -768,7 +768,7 @@ export function ProjectCard({ project, index, onOpen }) {
                     View Project
                 </p>
                 <h3 className="text-white text-lg font-bold leading-tight">
-                    {project.name}
+                    {project.style}
                 </h3>
                 <div className="flex items-center gap-2 mt-2 text-white/60 text-xs">
                     <span>{project.imageCount} images</span>
@@ -946,7 +946,7 @@ export const Portfolio = ({ isPreview = false }) => {
                     {/* Visual cue: Visible on ALL screens (changes text based on device) */}
                     <div className="flex justify-end pr-2 opacity-60 text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#d4af37] mt-3">
                         <span className="md:hidden">← Swipe to explore →</span>
-                        <span className="hidden md:inline">← Scroll to explore →</span>
+                        <span className="hidden md:inline">← Swipe to explore →</span>
                     </div>
 
                     {isPreview && (
