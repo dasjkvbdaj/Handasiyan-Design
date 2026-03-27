@@ -610,6 +610,7 @@ const projects = [
         imageCount: 3,
         category: 'Architectural Design'
     },
+    
     {
         name: 'Colourful Style Apartment',
         folder: '/portfolio_images/Colourful Style Apartment',
@@ -637,15 +638,29 @@ const projects = [
         imageCount: 3,
         category: 'Architectural Design'
     },
-];
 
+    {
+        name: 'Industrial Style',
+        folder: '/portfolio_images/industrial style',
+        imageCount: 10,
+        category: 'Full Design'
+    },
+
+    {
+        name: 'Residential House Minimalist Style',
+        folder: '/portfolio_images/residential house minimalist style',
+        imageCount: 10,
+        category: 'Full Design'
+    },
+
+];
 
 
 
 function getProjectImages(project) {
     return Array.from(
         { length: project.imageCount },
-        (_, i) => `${project.folder}/image-${i + 1}.avif`
+        (_, i) => `${project.folder}/image-${i + 1}.webp`
     );
 }
 
@@ -765,7 +780,7 @@ function Lightbox({ project, startIndex, onClose }) {
 
 export function ProjectCard({ project, index, onOpen }) {
     const [hovered, setHovered] = useState(false);
-    const coverImage = `${project.folder}/image-1.avif`;
+    const coverImage = `${project.folder}/image-1.webp`;
 
     return (
         <motion.div
@@ -783,7 +798,7 @@ export function ProjectCard({ project, index, onOpen }) {
             whileHover={{ scale: 1.01 }}
             transition={{ duration: 0.4 }}
         >
-            {/* Cover image — always image-1.avif */}
+            {/* Cover image — always image-1.webp */}
             <img
                 src={coverImage}
                 alt={project.name}
