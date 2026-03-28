@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 /**
  * Reusable animation variants
@@ -26,10 +27,14 @@ const Signup = () => {
 
   const { signup, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const canvasRef = useRef(null);
 
   useEffect(() => {
+    // Optimization: Skip heavy particle logic on mobile
+    if (isMobile) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
@@ -109,7 +114,7 @@ const Signup = () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isMobile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -151,19 +156,33 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-[#030f0a] flex items-center justify-center relative overflow-hidden px-6 py-20">
-      <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-auto" />
+      {/* Background Layer (Canvas skip on mobile) */}
+      {!isMobile && (
+        <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-auto" />
+      )}
 
       {/* Background Orbs */}
-      <motion.div
-        className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/20 blur-3xl"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl"
-        animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-      />
+      {isMobile ? (
+        <>
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/15 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl pointer-events-none" />
+        </>
+      ) : (
+        <>
+          <motion.div
+            className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/20 blur-3xl"
+            style={{ willChange: "transform, opacity" }}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl"
+            style={{ willChange: "transform, opacity" }}
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          />
+        </>
+      )}
 
       <motion.div
         initial="hidden"

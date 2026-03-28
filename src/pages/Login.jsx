@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 
 // ─────────────────────────────────────────────
 // Canvas Reveal Effect (ported from 21st.dev)
@@ -231,6 +232,7 @@ const Login = () => {
 
   const { login, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width: 1024px)");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -272,54 +274,76 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-[#030f0a] flex items-center justify-center relative overflow-hidden px-6 py-20">
 
-      {/* ── Canvas Reveal Background ── */}
+      {/* ── Background Layer ── */}
       <div className="absolute inset-0 z-0">
-        {initialCanvasVisible && (
-          <div className="absolute inset-0">
-            <CanvasRevealEffect
-              animationSpeed={3}
-              // Handasiyan gold + deep green as dual-color dot palette
-              colors={[
-                [212, 175, 55],   // #d4af37 gold
-                [6, 78, 75],      // #064e4b deep teal
-              ]}
-              dotSize={5}
-              reverse={false}
-              showGradient={true}
-            />
-          </div>
-        )}
+        {!isMobile ? (
+          <>
+            {initialCanvasVisible && (
+              <div className="absolute inset-0">
+                <CanvasRevealEffect
+                  animationSpeed={3}
+                  colors={[
+                    [212, 175, 55],   // #d4af37 gold
+                    [6, 78, 75],      // #064e4b deep teal
+                  ]}
+                  dotSize={5}
+                  reverse={false}
+                  showGradient={true}
+                />
+              </div>
+            )}
 
-        {reverseCanvasVisible && (
-          <div className="absolute inset-0">
-            <CanvasRevealEffect
-              animationSpeed={4}
-              colors={[
-                [212, 175, 55],
-                [6, 78, 75],
-              ]}
-              dotSize={5}
-              reverse={true}
-              showGradient={true}
-            />
-          </div>
+            {reverseCanvasVisible && (
+              <div className="absolute inset-0">
+                <CanvasRevealEffect
+                  animationSpeed={4}
+                  colors={[
+                    [212, 175, 55],
+                    [6, 78, 75],
+                  ]}
+                  dotSize={5}
+                  reverse={true}
+                  showGradient={true}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          /* High-performance CSS gradient for mobile */
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(circle at center, #064e4b 0%, #030f0a 100%)`,
+            }}
+          />
         )}
 
         {/* Radial vignette to keep card readable */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(3,15,10,0.55)_0%,_rgba(3,15,10,0.85)_70%,_rgba(3,15,10,1)_100%)]" />
       </div>
 
-      {/* ── Ambient orbs (original design, kept) ── */}
-      <motion.div
-        className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/20 blur-3xl z-0"
-        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl z-0"
-        animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      />
+      {/* ── Ambient orbs ── */}
+      {isMobile ? (
+        <>
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/15 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl pointer-events-none" />
+        </>
+      ) : (
+        <>
+          <motion.div
+            className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-[#064e4b]/20 blur-3xl z-0"
+            style={{ willChange: "transform, opacity" }}
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-[#d4af37]/5 blur-3xl z-0"
+            style={{ willChange: "transform, opacity" }}
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
+        </>
+      )}
 
       {/* ── Form Card ── */}
       <motion.div
