@@ -239,7 +239,7 @@ export const Hero = () => {
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
                 >
-                    <source src="/video-1.mp4" type="video/mp4" />
+                    <source src="/video.mp4" type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black/80 z-10" />
                 <div className="absolute inset-0 bg-black/15 z-[5]" />
