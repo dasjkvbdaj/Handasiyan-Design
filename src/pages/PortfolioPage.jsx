@@ -3,7 +3,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Portfolio, CTA } from './Homepage';
 import { projects } from '../data/projects';
 import { ChevronDown } from 'lucide-react';
-import {motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position, className = '' }) {

@@ -27,6 +27,7 @@ const Navbar = () => {
     { name: "Portfolio", path: "/portfolio" },
     { name: "About", path: "/about" },
     { name: "AI Design", path: "/ai-design" },
+    { name: "Digital Card", path: "/digitalCard" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -37,8 +38,8 @@ const Navbar = () => {
   return (
     <nav
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrolled
-          ? "bg-[#0c0b0a] border-b border-white/10 shadow-lg"
-          : "bg-transparent"
+        ? "bg-[#0c0b0a] border-b border-white/10 shadow-lg"
+        : "bg-transparent"
         }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -58,8 +59,8 @@ const Navbar = () => {
               key={link.name}
               to={link.path}
               className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                  ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                ? "text-[#d4af37] scale-105 blur-none"
+                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}
             >
               {link.name}
@@ -110,14 +111,14 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/login" className={`text-sm font-medium transition-all duration-300 ${isActive("/login")
-                  ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                ? "text-[#d4af37] scale-105 blur-none"
+                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}>
                 Login
               </Link>
               <Link to="/signup" className={`text-sm font-medium transition-all duration-300 ${isActive("/signup")
-                  ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                ? "text-[#d4af37] scale-105 blur-none"
+                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}>
                 Signup
               </Link>
@@ -144,8 +145,8 @@ const Navbar = () => {
                 to={link.path}
                 onClick={() => setIsOpen(false)}
                 className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                    ? "text-[#d4af37] scale-105 blur-none"
-                    : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
                   }`}
               >
                 {link.name}
@@ -170,14 +171,14 @@ const Navbar = () => {
             ) : (
               <>
                 <Link to="/login" onClick={() => setIsOpen(false)} className={`text-sm font-medium transition-all duration-300 ${isActive("/login")
-                    ? "text-[#d4af37] scale-105 blur-none"
-                    : "text-white/60 blur-[.5px] hover:blur-none hover: text-white transition-all duration-400"
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.5px] hover:blur-none hover: text-white transition-all duration-400"
                   }`}>
                   Login
                 </Link>
                 <Link to="/signup" onClick={() => setIsOpen(false)} className={`text-sm font-medium transition-all duration-300 ${isActive("/signup")
-                    ? "text-[#d4af37] scale-105 blur-none"
-                    : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
                   }`}>
                   Signup
                 </Link>

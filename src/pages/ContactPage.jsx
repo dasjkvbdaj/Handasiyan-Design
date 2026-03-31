@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { Phone, Mail, Instagram, Linkedin, Send, MapPin, ArrowUpRight, Sparkles, ChevronDown, Facebook } from 'lucide-react';
+import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook } from 'lucide-react';
 import { useScroll, useTransform, motion, AnimatePresence} from 'framer-motion';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */

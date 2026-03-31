@@ -12,12 +12,20 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
+import DigitalCard from './pages/DigitalCard'
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (hash) {
+      const element = document.getElementById(hash.replace('#', ''));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
   return null;
 };
 
@@ -38,6 +46,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<ResetPassword/>} />
           <Route path="/profile" element={<Profile/>} />
+          <Route path="/digitalCard" element={<DigitalCard/>} />
         </Routes>
       </Layout>
     </Router>

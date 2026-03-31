@@ -1,6 +1,6 @@
 import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects } from '../data/projects';
@@ -256,14 +256,22 @@ export const Hero = () => {
 
 
             {/* Content Overlay */}
-            <div className="relative z-10 flex flex-col items-center gap-8 px-6 mt-[-10vh]">
+            <div className="relative z-20 flex flex-col items-center gap-8 px-6">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative"
+                    className="relative flex items-center justify-center pointer-events-none"
                 >
-
+                    <video
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-[90vw] max-w-[1200px] h-auto object-contain drop-shadow-2xl"
+                    >
+                        <source src="/Handasiyan-Logo-Animated.mp4" type="video/webm" />
+                    </video>
                 </motion.div>
 
             </div>
@@ -278,6 +286,7 @@ export const Hero = () => {
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                     className="flex flex-col items-center gap-1"
                 >
+                    <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll to Explore</span>
                     <div className="w-px h-12 bg-gradient-to-b from-[#d4af37] to-transparent" />
                     <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
                 </motion.div>
@@ -411,7 +420,7 @@ export const Services = ({ isPreview = false }) => {
                             whileTap={{ scale: 0.98 }}
                             className={`group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer ${!isPreview && i === 6 ? 'md:col-span-2' : ''}`}
                         >
-                            <Link to={`/portfolio?category=${encodeURIComponent(service.category)}`} className="block w-full h-full p-8 focus:outline-none">
+                            <Link to={`/portfolio?category=${encodeURIComponent(service.category)}#projects-section`} className="block w-full h-full p-8 focus:outline-none">
                                 <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none pointer-events-none"
                                     style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                                     {service.number}
@@ -605,181 +614,163 @@ export const CTA = () => {
     );
 };
 
+export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
+    const [hovered, setHovered] = useState(false);
+    const [[page, direction], setPage] = useState([0, 0]);
+    const cardRef = useRef(null);
 
+    // Parallax scroll effect on the inner image
+    const { scrollYProgress } = useScroll({
+        target: cardRef,
+        offset: ['start end', 'end start'],
+    });
+    const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
 
-
-function getProjectImages(project) {
-    return Array.from(
-        { length: project.imageCount },
-        (_, i) => `${project.folder}/image-${i + 1}.webp`
+    const images = useMemo(
+        () =>
+            Array.from(
+                { length: project.imageCount },
+                (_, i) => `${project.folder}/image-${i + 1}.webp`
+            ),
+        [project]
     );
-}
 
-function Lightbox({ project, startIndex, onClose }) {
-    const images = getProjectImages(project);
-    const [currentIndex, setCurrentIndex] = useState(startIndex);
+    const imageIndex = Math.abs(page % images.length);
 
-    const goPrev = useCallback((e) => {
-        e?.stopPropagation();
-        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    }, [images.length]);
+    const paginate = useCallback(
+        (newDirection) => setPage([page + newDirection, newDirection]),
+        [page]
+    );
 
-    const goNext = useCallback((e) => {
-        e?.stopPropagation();
-        setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, [images.length]);
-
-    // Keyboard navigation
+    // Auto-swipe every 5 s
     useEffect(() => {
-        const handleKey = (e) => {
-            if (e.key === 'ArrowLeft') goPrev();
-            if (e.key === 'ArrowRight') goNext();
-            if (e.key === 'Escape') onClose();
+        if (images.length <= 1) return;
+        const id = setInterval(() => paginate(1), 5000);
+        return () => clearInterval(id);
+    }, [images.length, paginate]);
+
+    // Keyboard navigation when hovered
+    useEffect(() => {
+        if (!hovered || images.length <= 1) return;
+        const handleKeys = (e) => {
+            if (e.key === 'ArrowRight') { e.preventDefault(); paginate(1); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); paginate(-1); }
         };
-        window.addEventListener('keydown', handleKey);
-        return () => window.removeEventListener('keydown', handleKey);
-    }, [goPrev, goNext, onClose]);
+        window.addEventListener('keydown', handleKeys);
+        return () => window.removeEventListener('keydown', handleKeys);
+    }, [hovered, images.length, paginate]);
+
+    // Slide variants
+    const swipeVariants = {
+        enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
+        center: { zIndex: 1, x: 0, opacity: 1 },
+        exit: (dir) => ({ zIndex: 0, x: dir < 0 ? '100%' : '-100%', opacity: 0 }),
+    };
+
+    const paddedIndex = String(index + 1).padStart(2, '0');
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={onClose}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/98 backdrop-blur-md"
+            ref={cardRef}
+            variants={scaleIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            custom={index % 4}
+            className="group relative w-full overflow-hidden rounded-2xl"
+            style={{ aspectRatio: '16 / 6.5' }}   /* wide cinematic banner */
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        //onClick={() => onOpen(project)}
         >
-            {/* Close button */}
-            <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                onClick={(e) => { e.stopPropagation(); onClose(); }}
-                className="absolute top-6 right-6 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 hover:rotate-90 duration-300"
-            >
-                <X className="w-6 h-6" />
-            </motion.button>
-
-            {/* Project name + counter */}
-            <div className="absolute top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-50">
-                <span className="text-[#d4af37] font-semibold tracking-widest uppercase text-xs">
-                    {project.style}
-                </span>
-                <span className="text-white/40 text-xs">
-                    {currentIndex + 1} / {images.length}
-                </span>
+            {/* ── Full-bleed image with subtle parallax ── */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden">
+                <AnimatePresence initial={false} custom={direction}>
+                    <motion.div
+                        key={page}
+                        custom={direction}
+                        variants={swipeVariants}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                            x: { type: 'spring', stiffness: 280, damping: 28 },
+                            opacity: { duration: 0.35 },
+                        }}
+                        className="absolute inset-0 w-full h-full"
+                    >
+                        <motion.img
+                            src={images[imageIndex]}
+                            alt={project.style}
+                            loading="lazy"
+                            style={{ y: imageY }}
+                            className="w-full h-[115%] object-cover object-center -translate-y-[7.5%]"
+                        />
+                    </motion.div>
+                </AnimatePresence>
             </div>
 
-            {/* Left arrow */}
-            {images.length > 1 && (
-                <motion.button
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    onClick={goPrev}
-                    className="absolute left-4 md:left-8 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 duration-200"
+            {/* ── Scale overlay on hover ── */}
+            <motion.div
+                //className="absolute inset-0 bg-black/20 z-[2]"
+                animate={{ opacity: hovered ? 1 : 0 }}
+                transition={{ duration: 0.4 }}
+            />
+
+            {/* ── Permanent bottom gradient scrim ── */}
+            <div className="absolute inset-0 z-[3] pointer-events-none"
+                style={{
+                    background:
+                        'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 45%, transparent 100%)',
+                }}
+            />
+
+            {/* ── Top-left: project index badge ── */}
+            <div className="absolute top-6 left-7 z-10 flex items-center gap-2.5">
+                <span
+                    className="text-[11px] font-bold tracking-[0.25em] uppercase"
+                    style={{ color: '#d4af37' }}
                 >
-                    <ChevronLeft className="w-7 h-7" />
-                </motion.button>
-            )}
+                    {paddedIndex}
+                </span>
 
-            {/* Image */}
-            <AnimatePresence mode="wait">
-                <motion.img
-                    key={currentIndex}
-                    initial={{ opacity: 0, scale: 0.95, x: 30 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, x: -30 }}
-                    transition={{ duration: 0.25, ease: 'easeInOut' }}
-                    src={images[currentIndex]}
-                    alt={`${project.name} — image ${currentIndex + 1}`}
-                    className="max-w-[85vw] max-h-[75vh] object-contain rounded-lg shadow-2xl relative z-40"
-                    onClick={(e) => e.stopPropagation()}
-                    loading='lazy'
-                />
-            </AnimatePresence>
+            </div>
 
-            {/* Right arrow */}
+            {/* ── Top-right: image counter dots ── */}
             {images.length > 1 && (
-                <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    onClick={goNext}
-                    className="absolute right-4 md:right-8 p-3 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all z-50 duration-200"
-                >
-                    <ChevronRight className="w-7 h-7" />
-                </motion.button>
-            )}
-
-            {/* Dot indicators */}
-            {images.length > 1 && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+                <div className="absolute top-6 right-7 z-10 flex items-center gap-1.5">
                     {images.map((_, i) => (
                         <button
                             key={i}
-                            onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
-                            className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === currentIndex
-                                ? 'bg-[#d4af37] w-4'
-                                : 'bg-white/30 hover:bg-white/60'
-                                }`}
+                            onClick={(e) => { e.stopPropagation(); setPage([i, i > imageIndex ? 1 : -1]); }}
+                            className="rounded-full transition-all duration-300 focus:outline-none"
+                            style={{
+                                width: i === imageIndex ? '20px' : '6px',
+                                height: '6px',
+                                background: i === imageIndex ? '#d4af37' : 'rgba(255,255,255,0.35)',
+                            }}
                         />
                     ))}
                 </div>
             )}
-        </motion.div>
-    );
-}
 
-export function ProjectCard({ project, index, onOpen }) {
-    const [hovered, setHovered] = useState(false);
-    const coverImage = `${project.folder}/image-1.webp`;
+            {/* ── Bottom content ── */}
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-8 pb-8 pt-14 flex items-end justify-between">
+                {/* Title + subtitle */}
+                <div className="flex flex-col gap-1">
+                    <motion.h3
+                        className="text-white font-bold leading-tight"
+                        style={{
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                        }}
+                        animate={{ y: hovered ? -4 : 0 }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                        {project.style}
+                    </motion.h3>
 
-    return (
-        <motion.div
-            variants={scaleIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            custom={index % 6}
-            className={`group relative rounded-xl overflow-hidden cursor-pointer border border-white/5
-                ${index === 0 ? 'lg:col-span-1 aspect-[4/4]' : 'aspect-square'}
-            `}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={() => onOpen(project)}
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.4 }}
-        >
-            {/* Cover image — always image-1.webp */}
-            <img
-                src={coverImage}
-                alt={project.name}
-                loading="lazy"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            />
-
-            {/* Hover overlay with project name */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: hovered ? 1 : 0 }}
-                transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6"
-            >
-                <p className="text-[#d4af37] text-xs font-semibold tracking-widest uppercase mb-1">
-                    View Project
-                </p>
-                <h3 className="text-white text-lg font-bold leading-tight">
-                    {project.style}
-                </h3>
-                <div className="flex items-center gap-2 mt-2 text-white/60 text-xs">
-                    <span>{project.imageCount} images</span>
-                    <ArrowRight className="w-3 h-3" />
                 </div>
-            </motion.div>
-
-            {/* Gold corner accent */}
-            <div className="absolute top-3 right-3 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute top-0 right-0 w-full h-0.5 bg-[#d4af37]" />
-                <div className="absolute top-0 right-0 w-0.5 h-full bg-[#d4af37]" />
             </div>
         </motion.div>
     );
@@ -787,39 +778,29 @@ export function ProjectCard({ project, index, onOpen }) {
 
 
 export const Portfolio = ({ isPreview = false }) => {
-    const [lightbox, setLightbox] = useState(null); // { project, startIndex }
+    const [lightbox, setLightbox] = useState(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const categoryFilter = searchParams.get('category');
 
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
     const [hoveredCategory, setHoveredCategory] = useState(null);
 
-    // Create a reference for the scrollable container
     const scrollContainerRef = useRef(null);
 
     const CATEGORIES_DATA = [
         { id: 'Full Design' },
         { id: 'Architectural Design' },
-        { id: 'Interior Design' }
+        { id: 'Interior Design' },
     ];
 
     useEffect(() => {
-        if (categoryFilter) {
-            setActiveCategory(categoryFilter);
-        }
+        if (categoryFilter) setActiveCategory(categoryFilter);
     }, [categoryFilter]);
 
-    // Add an effect that resets the scroll position when the category changes
     useEffect(() => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTo({
-                left: 0,
-                behavior: 'smooth'
-            });
-        }
+        scrollContainerRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
     }, [activeCategory]);
 
-    // Lock scroll when lightbox is open
     useEffect(() => {
         document.body.style.overflow = lightbox ? 'hidden' : 'unset';
         return () => { document.body.style.overflow = 'unset'; };
@@ -827,50 +808,58 @@ export const Portfolio = ({ isPreview = false }) => {
 
     const allProjects = [...projects].reverse();
     const filteredProjects = allProjects.filter(p => p.category === activeCategory);
-
-    const displayProjects = isPreview ? filteredProjects.slice(0, 1) : filteredProjects;
-
-    const openLightbox = (project) => {
-        setLightbox({ project, startIndex: 0 });
-    };
-
-    const closeLightbox = () => setLightbox(null);
+    const displayProjects = isPreview ? filteredProjects.slice(0, 3) : filteredProjects;
 
     return (
         <>
-            <section className={`py-28 ${isPreview ? 'bg-neutral-950' : 'bg-black'} relative overflow-hidden`}>
+            <section
+                id="projects-section"
+                className={`py-28 ${isPreview ? 'bg-neutral-950' : 'bg-black'} relative overflow-hidden`}
+            >
+                {/* Ambient glow */}
                 <div className="absolute right-0 bottom-0 w-[600px] h-[400px] bg-[#064e3b]/10 blur-[120px] pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
+                    {/* ── Header ── */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
                         <div>
-                            <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                                className="inline-flex items-center gap-3 mb-4">
+                            <motion.div
+                                variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                className="inline-flex items-center gap-3 mb-4"
+                            >
                                 <span className="h-px w-12 bg-[#d4af37]/50" />
-                                <span className="text-[#d4af37] font-semibold tracking-widest uppercase text-xs">Our Work</span>
+                                <span className="text-[#d4af37] font-semibold tracking-widest uppercase text-xs">
+                                    Our Work
+                                </span>
                             </motion.div>
-                            <motion.h2 variants={slideLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                            <motion.h2
+                                variants={slideLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
                                 className="text-4xl md:text-6xl font-bold text-white"
-                                style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                                style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                            >
                                 Featured <span className="text-[#d4af37] italic">Projects</span>
                             </motion.h2>
                         </div>
 
                         {isPreview && (
                             <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                                <Link to="/portfolio"
-                                    className="hidden md:flex items-center gap-2 text-[#d4af37] text-sm font-medium hover:gap-4 transition-all duration-300">
+                                <Link
+                                    to="/portfolio"
+                                    className="hidden md:flex items-center gap-2 text-[#d4af37] text-sm font-medium hover:gap-4 transition-all duration-300"
+                                >
                                     View all projects <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </motion.div>
                         )}
                     </div>
 
+                    {/* ── Category Filter (full page only) ── */}
                     {!isPreview && (
-                        <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="w-full mb-10">
-                            {/* Thin Divider above categories */}
+                        <motion.div
+                            variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                            className="w-full mb-14"
+                        >
                             <div className="w-full h-px bg-white/10 mb-6" />
-
                             <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4">
                                 {CATEGORIES_DATA.map((cat) => (
                                     <div
@@ -886,7 +875,9 @@ export const Portfolio = ({ isPreview = false }) => {
                                             }}
                                             className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
-                                                : (hoveredCategory === cat.id ? 'text-white blur-0 opacity-90 cursor-pointer' : 'text-white blur-[.7px] opacity-40 cursor-pointer')
+                                                : hoveredCategory === cat.id
+                                                    ? 'text-white blur-0 opacity-90 cursor-pointer'
+                                                    : 'text-white blur-[.7px] opacity-40 cursor-pointer'
                                                 }`}
                                         >
                                             {cat.id}
@@ -912,65 +903,23 @@ export const Portfolio = ({ isPreview = false }) => {
                         </motion.div>
                     )}
 
-                    {/* Project grid with fully responsive custom scrollbar */}
+                    {/* ── Project List — always stacked vertically ── */}
                     <div
                         ref={scrollContainerRef}
-                        className="flex overflow-x-auto gap-6 md:gap-8 pb-8 pt-4 snap-x snap-mandatory scroll-smooth w-full 
-                        /* Firefox native scrollbar support */
-                        [scrollbar-width:thin] 
-                        [scrollbar-color:rgba(212,175,55,0.5)_rgba(255,255,255,0.05)]
-                        /* WebKit (Chrome, Safari, iOS/Android) support */
-                        [&::-webkit-scrollbar]:h-[6px] md:[&::-webkit-scrollbar]:h-2 
-                        [&::-webkit-scrollbar]:[-webkit-appearance:none]
-                        [&::-webkit-scrollbar-track]:bg-white/5 
-                        [&::-webkit-scrollbar-track]:rounded-full 
-                        [&::-webkit-scrollbar-thumb]:bg-[#d4af37]/60 
-                        hover:[&::-webkit-scrollbar-thumb]:bg-[#d4af37] 
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                        transition-colors"
+                        className="flex flex-col gap-6 w-full pt-2"
                     >
                         {displayProjects.map((project, index) => (
-                            <div
+                            <ProjectCard
                                 key={project.name}
-                                className="flex-none w-[85vw] md:w-[45vw] lg:w-[30vw] snap-start"
-                            >
-                                <ProjectCard
-                                    project={project}
-                                    index={index}
-                                    onOpen={openLightbox}
-                                />
-                            </div>
+                                project={project}
+                                index={index}
+                                onOpen={setLightbox}
+                                layout="list"
+                            />
                         ))}
                     </div>
-
-                    {/* Visual cue: Visible on ALL screens (changes text based on device) */}
-                    <div className="flex justify-end pr-2 opacity-60 text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-[#d4af37] mt-3">
-                        <span className="md:hidden">← Swipe to explore →</span>
-                        <span className="hidden md:inline">← Swipe to explore →</span>
-                    </div>
-
-                    {isPreview && (
-                        <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                            className="mt-10 text-center md:hidden">
-                            <Link to="/portfolio"
-                                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#d4af37] text-black font-bold rounded-full hover:bg-[#c49f27] transition-all">
-                                View all projects
-                            </Link>
-                        </motion.div>
-                    )}
                 </div>
             </section>
-
-            {/* Lightbox */}
-            <AnimatePresence>
-                {lightbox && (
-                    <Lightbox
-                        project={lightbox.project}
-                        startIndex={lightbox.startIndex}
-                        onClose={closeLightbox}
-                    />
-                )}
-            </AnimatePresence>
         </>
     );
 };
