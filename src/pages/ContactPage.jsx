@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook } from 'lucide-react';
-import { useScroll, useTransform, motion, AnimatePresence} from 'framer-motion';
+import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
 const Particle = ({ delay, x, size, color }) => {
@@ -183,12 +183,14 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
         <div className="relative group">
             {as === 'select' ? (
                 <Tag
-                    className={`${baseClass} ${borderClass} appearance-none`}
+                    className={`${baseClass} ${borderClass} appearance-none cursor-pointer`}
                     style={{ background: 'transparent' }}
                     onFocus={() => setFocused(true)}
                     onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
                     onChange={(e) => setFilled(!!e.target.value)}
+                    defaultValue=""
                 >
+                    <option value="" disabled hidden></option>
                     {options?.map((o) => (
                         <option key={o} value={o} style={{ background: '#0a0a0a', color: '#fff' }}>{o}</option>
                     ))}
@@ -203,6 +205,12 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
                     onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
                     onChange={(e) => setFilled(!!e.target.value)}
                 />
+            )}
+
+            {as === 'select' && (
+                <div className="absolute right-0 bottom-3 pointer-events-none text-white/20 group-hover:text-[#d4af37] transition-colors">
+                    <ChevronDown className="w-4 h-4" />
+                </div>
             )}
 
             <label

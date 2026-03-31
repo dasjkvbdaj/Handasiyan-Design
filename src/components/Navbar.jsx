@@ -53,7 +53,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-8">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -129,7 +129,7 @@ const Navbar = () => {
         {/* Mobile Toggle */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden text-white"
+          className="lg:hidden text-white"
         >
           {isOpen ? <X /> : <Menu />}
         </button>
@@ -137,7 +137,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-black/95 backdrop-blur-xl absolute top-20 left-0 w-full p-6 border-b border-white/10">
+        <div className="lg:hidden bg-black/95 backdrop-blur-xl absolute top-20 left-0 w-full p-6 border-b border-white/10">
           <div className="flex flex-col space-y-4">
             {navLinks.map((link) => (
               <Link

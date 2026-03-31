@@ -256,7 +256,7 @@ export const Hero = () => {
 
 
             {/* Content Overlay */}
-            <div className="relative z-20 flex flex-col items-center gap-8 px-6">
+            <div className="relative z-20 flex flex-col items-center gap-0 px-6 mt-[-5vh] sm:mt-0">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -268,27 +268,26 @@ export const Hero = () => {
                         muted
                         loop
                         playsInline
-                        className="w-[90vw] max-w-[1200px] h-auto object-contain drop-shadow-2xl"
+                        className="w-[120vw] sm:w-[100vw] md:w-[95vw] lg:w-[90vw] max-w-[1200px] h-auto object-contain drop-shadow-[0_0_80px_rgba(212,175,55,0.2)]"
                     >
                         <source src="/Handasiyan-Logo-Animated.mp4" type="video/webm" />
                     </video>
                 </motion.div>
-
             </div>
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 2 }}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
+                className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 md:gap-2 scale-90 md:scale-100"
             >
                 <motion.div
                     animate={{ y: [0, 8, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
                     className="flex flex-col items-center gap-1"
                 >
-                    <span className="text-white/40 text-[10px] tracking-[0.3em] font-medium uppercase">Scroll to Explore</span>
-                    <div className="w-px h-12 bg-gradient-to-b from-[#d4af37] to-transparent" />
-                    <ChevronDown className="w-4 h-4 text-[#d4af37]/60" />
+                    <span className="text-white/40 text-[9px] md:text-[10px] tracking-[0.3em] font-medium uppercase">Scroll to Explore</span>
+                    <div className="w-px h-10 md:h-12 bg-gradient-to-b from-[#d4af37] to-transparent" />
+                    <ChevronDown className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#d4af37]/60" />
                 </motion.div>
             </motion.div>
         </section>
@@ -617,6 +616,8 @@ export const CTA = () => {
 export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const [hovered, setHovered] = useState(false);
     const [[page, direction], setPage] = useState([0, 0]);
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
 
     // Parallax scroll effect on the inner image
@@ -667,6 +668,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         exit: (dir) => ({ zIndex: 0, x: dir < 0 ? '100%' : '-100%', opacity: 0 }),
     };
 
+    const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
+    const swipeConfidenceThreshold = 10000;
+
     const paddedIndex = String(index + 1).padStart(2, '0');
 
     return (
@@ -678,13 +682,16 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             viewport={{ once: true, margin: '-60px' }}
             custom={index % 4}
             className="group relative w-full overflow-hidden rounded-2xl"
-            style={{ aspectRatio: '16 / 6.5' }}   /* wide cinematic banner */
+            style={{
+                aspectRatio: isMobile ? '1 / 1.15' : (isTablet ? '16 / 9' : '16 / 6.5'),
+                boxShadow: isMobile ? '0 10px 30px rgba(0,0,0,0.5)' : 'none'
+            }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         //onClick={() => onOpen(project)}
         >
             {/* ── Full-bleed image with subtle parallax ── */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <div className="absolute inset-0 w-full h-full overflow-hidden touch-pan-y">
                 <AnimatePresence initial={false} custom={direction}>
                     <motion.div
                         key={page}
@@ -693,11 +700,22 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{
-                            x: { type: 'spring', stiffness: 280, damping: 28 },
-                            opacity: { duration: 0.35 },
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={1}
+                        onDragEnd={(e, { offset, velocity }) => {
+                            const swipe = swipePower(offset.x, velocity.x);
+                            if (swipe < -swipeConfidenceThreshold) {
+                                paginate(1);
+                            } else if (swipe > swipeConfidenceThreshold) {
+                                paginate(-1);
+                            }
                         }}
-                        className="absolute inset-0 w-full h-full"
+                        transition={{
+                            x: { type: 'spring', stiffness: 300, damping: 30 },
+                            opacity: { duration: 0.3 },
+                        }}
+                        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
                     >
                         <motion.img
                             src={images[imageIndex]}
@@ -755,14 +773,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             )}
 
             {/* ── Bottom content ── */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 px-8 pb-8 pt-14 flex items-end justify-between">
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-8 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-0.5">
                     <motion.h3
                         className="text-white font-bold leading-tight"
                         style={{
                             fontFamily: "'Cormorant Garamond', serif",
-                            fontSize: 'clamp(1.5rem, 3vw, 2.25rem)',
+                            fontSize: isMobile ? '1.85rem' : 'clamp(1.5rem, 3vw, 2.25rem)',
                         }}
                         animate={{ y: hovered ? -4 : 0 }}
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
