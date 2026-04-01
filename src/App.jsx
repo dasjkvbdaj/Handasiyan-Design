@@ -16,16 +16,35 @@ import DigitalCard from './pages/DigitalCard'
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
+  
   useEffect(() => {
     if (hash) {
-      const element = document.getElementById(hash.replace('#', ''));
+      const id = hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        // Delay slightly to ensure content is rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+      }
+    } else {
+      // Only scroll to top if the pathname itself has changed
+      // (not just search params or hash removal on the same page)
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]); // Only trigger on pathname change
+
+  // Separate effect for hash changes to allow jumping to sections within the same page
+  useEffect(() => {
+    if (hash) {
+      const id = hash.replace('#', '');
+      const element = document.getElementById(id);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
       }
-    } else {
-      window.scrollTo(0, 0);
     }
-  }, [pathname, hash]);
+  }, [hash]);
+
   return null;
 };
 

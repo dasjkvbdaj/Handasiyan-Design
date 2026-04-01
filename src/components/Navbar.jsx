@@ -60,7 +60,7 @@ const Navbar = () => {
               to={link.path}
               className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
                 ? "text-[#d4af37] scale-105 blur-none"
-                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}
             >
               {link.name}
@@ -69,7 +69,7 @@ const Navbar = () => {
 
           {/* 🔥 AUTH PART */}
           {currentUser ? (
-            <div className="relative flex items-center gap-4 transition-all duration-300 blur-[.5px] hover:blur-none transition-all duration-400">
+            <div className="relative flex items-center gap-4 transition-all duration-300 blur-[.7px] hover:blur-none transition-all duration-400">
               {/* Avatar */}
               <button onClick={() => setOpenMenu(!openMenu)}>
                 <img
@@ -112,13 +112,13 @@ const Navbar = () => {
             <>
               <Link to="/login" className={`text-sm font-medium transition-all duration-300 ${isActive("/login")
                 ? "text-[#d4af37] scale-105 blur-none"
-                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}>
                 Login
               </Link>
               <Link to="/signup" className={`text-sm font-medium transition-all duration-300 ${isActive("/signup")
                 ? "text-[#d4af37] scale-105 blur-none"
-                : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
                 }`}>
                 Signup
               </Link>
@@ -172,13 +172,13 @@ const Navbar = () => {
               <>
                 <Link to="/login" onClick={() => setIsOpen(false)} className={`text-sm font-medium transition-all duration-300 ${isActive("/login")
                   ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover: text-white transition-all duration-400"
+                  : "text-white/60 blur-[.7px] hover:blur-none hover: text-white transition-all duration-400"
                   }`}>
                   Login
                 </Link>
                 <Link to="/signup" onClick={() => setIsOpen(false)} className={`text-sm font-medium transition-all duration-300 ${isActive("/signup")
                   ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                  : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
                   }`}>
                   Signup
                 </Link>

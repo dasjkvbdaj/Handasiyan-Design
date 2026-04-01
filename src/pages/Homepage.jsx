@@ -1,7 +1,7 @@
 import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
+import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects } from '../data/projects';
 
@@ -222,9 +222,12 @@ const scaleIn = {
 export const Hero = () => {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-    const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+    const y = useTransform(scrollYProgress, [0, 1], ['-4%', '2%']); // Reduced parallax range and shifted up initially to avoid overlap
     const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-    const scale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
+    const scale = useTransform(scrollYProgress, [0, 1], [1.1, 1.15]); // Slightly increased scale to cover the y-shift
+
+    // Fade out scroll indicator almost immediately on scroll
+    const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
     return (
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
@@ -263,33 +266,31 @@ export const Hero = () => {
                     transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
                     className="relative flex items-center justify-center pointer-events-none"
                 >
-                    <video
-                        autoPlay
-                        muted
-                        loop
-                        playsInline
-                        className="w-[120vw] sm:w-[100vw] md:w-[95vw] lg:w-[90vw] max-w-[1200px] h-auto object-contain drop-shadow-[0_0_80px_rgba(212,175,55,0.2)]"
-                    >
-                        <source src="/Handasiyan-Logo-Animated.mp4" type="video/webm" />
-                    </video>
                 </motion.div>
             </div>
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 2 }}
-                className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 md:gap-2 scale-90 md:scale-100"
+                className="absolute bottom-20 sm:bottom-24 lg:bottom-8 left-1/2 -translate-x-1/2 z-20 scale-90 md:scale-100"
             >
                 <motion.div
-                    animate={{ y: [0, 8, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="flex flex-col items-center gap-1"
+                    style={{ opacity: indicatorOpacity }}
+                    className="flex flex-col items-center gap-1 md:gap-2"
                 >
-                    <span className="text-white/40 text-[9px] md:text-[10px] tracking-[0.3em] font-medium uppercase">Scroll to Explore</span>
-                    <div className="w-px h-10 md:h-12 bg-gradient-to-b from-[#d4af37] to-transparent" />
-                    <ChevronDown className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#d4af37]/60" />
+                    <motion.div
+                        animate={{ y: [0, 8, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                        className="flex flex-col items-center gap-1"
+                    >
+                        <span className="text-white/40 text-[9px] md:text-[10px] tracking-[0.3em] font-medium uppercase">Scroll to Explore</span>
+                        <div className="w-px h-8 md:h-10 bg-gradient-to-b from-[#d4af37] to-transparent" />
+                        <ChevronDown className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#d4af37]/60" />
+                    </motion.div>
                 </motion.div>
             </motion.div>
+
+
         </section>
     );
 };
@@ -619,6 +620,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
+    const isInView = useInView(cardRef, { margin: "-10%", once: false });
 
     // Parallax scroll effect on the inner image
     const { scrollYProgress } = useScroll({
@@ -643,12 +645,19 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         [page]
     );
 
-    // Auto-swipe every 5 s
+    // Auto-swipe every 3 s, only if hovered (desktop only)
     useEffect(() => {
         if (images.length <= 1) return;
-        const id = setInterval(() => paginate(1), 5000);
+
+        // On mobile/tablet, we disable auto-swipe to prevent multiple cards swiping at once.
+        // We only enable it on desktop when the user hovers over a card.
+        const shouldAutoSwipe = !isMobile && !isTablet && hovered;
+
+        if (!shouldAutoSwipe) return;
+
+        const id = setInterval(() => paginate(1), 3000);
         return () => clearInterval(id);
-    }, [images.length, paginate]);
+    }, [hovered, isMobile, isTablet, images.length, paginate]);
 
     // Keyboard navigation when hovered
     useEffect(() => {
@@ -688,7 +697,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-        //onClick={() => onOpen(project)}
+            onClick={() => onOpen(project)}
         >
             {/* ── Full-bleed image with subtle parallax ── */}
             <div className="absolute inset-0 w-full h-full overflow-hidden touch-pan-y">
@@ -895,7 +904,7 @@ export const Portfolio = ({ isPreview = false }) => {
                                                 ? 'text-white blur-0 opacity-100'
                                                 : hoveredCategory === cat.id
                                                     ? 'text-white blur-0 opacity-90 cursor-pointer'
-                                                    : 'text-white blur-[.7px] opacity-40 cursor-pointer'
+                                                    : 'text-white blur-[1px] opacity-40 cursor-pointer'
                                                 }`}
                                         >
                                             {cat.id}
@@ -924,7 +933,7 @@ export const Portfolio = ({ isPreview = false }) => {
                     {/* ── Project List — always stacked vertically ── */}
                     <div
                         ref={scrollContainerRef}
-                        className="flex flex-col gap-6 w-full pt-2"
+                        className="flex flex-col gap-12 w-full pt-2"
                     >
                         {displayProjects.map((project, index) => (
                             <ProjectCard
@@ -936,9 +945,136 @@ export const Portfolio = ({ isPreview = false }) => {
                             />
                         ))}
                     </div>
+
                 </div>
             </section>
+
+            {/* ── Lightbox Modal - Rendered outside section for better stacking ── */}
+            <AnimatePresence>
+                {lightbox && (
+                    <LightboxModal
+                        project={lightbox}
+                        onClose={() => setLightbox(null)}
+                    />
+                )}
+            </AnimatePresence>
         </>
+    );
+};
+
+/**
+ * LightboxModal Component
+ * Extracted for cleaner state management of the image index
+ */
+const LightboxModal = ({ project, onClose }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const images = Array.from(
+        { length: project.imageCount },
+        (_, i) => `${project.folder}/image-${i + 1}.webp`
+    );
+
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isTablet = useMediaQuery('(max-width: 1024px)');
+
+    const handlePrev = (e) => {
+        e.stopPropagation();
+        setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    };
+
+    const handleNext = (e) => {
+        e.stopPropagation();
+        setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100000] flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden"
+            style={{
+                background: 'rgba(0,0,0,0.98)',
+                backdropFilter: 'blur(20px)'
+            }}
+            onClick={onClose}
+        >
+
+            {/* Desktop Navigation Arrows (Side) */}
+            {images.length > 1 && !isMobile && !isTablet && (
+                <>
+                    <button
+                        onClick={handlePrev}
+                        className="fixed left-6 md:left-10 top-1/2 -translate-y-1/2 text-white/30 hover:text-[#d4af37] bg-black/40 hover:bg-black/60 rounded-full p-4 transition-all duration-300 z-[10000] focus:outline-none"
+                    >
+                        <ChevronLeft className="w-8 h-8 cursor-pointer md:w-10 md:h-10" />
+                    </button>
+                    <button
+                        onClick={handleNext}
+                        className="fixed right-6 md:right-10 top-1/2 -translate-y-1/2 text-white/30 hover:text-[#d4af37] bg-black/40 hover:bg-black/60 rounded-full p-4 transition-all duration-300 z-[10000] focus:outline-none"
+                    >
+                        <ChevronRight className="w-8 h-8 cursor-pointer md:w-10 md:h-10" />
+                    </button>
+                </>
+            )}
+
+            <motion.div
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 1.05, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 350, damping: 35 }}
+                className="relative w-full h-full flex flex-col items-center justify-center gap-6"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Main Image Container */}
+                <div className="flex-1 w-full flex items-center justify-center p-4 pointer-events-none min-h-0">
+                    <AnimatePresence mode="wait">
+                        <motion.img
+                            key={activeIndex}
+                            initial={{ opacity: 0, scale: 1.02 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            src={images[activeIndex]}
+                            alt={project.style}
+                            className="mt-20 max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto"
+                        />
+                    </AnimatePresence>
+                </div>
+
+                {/* Mobile/Tablet Navigation Arrows (Under Image) */}
+                {images.length > 1 && (isMobile || isTablet) && (
+                    <div className="flex items-center gap-12 pb-6">
+                        <button
+                            onClick={handlePrev}
+                            className="text-white/40 hover:text-[#d4af37] bg-white/5 hover:bg-white/10 rounded-full p-5 transition-all duration-300 border border-white/5 focus:outline-none"
+                        >
+                            <ChevronLeft className="w-7 h-7" />
+                        </button>
+
+                        {/* Image Counter */}
+                        <span className="text-white/40 text-sm font-medium tracking-widest uppercase">
+                            {activeIndex + 1} / {images.length}
+                        </span>
+
+                        <button
+                            onClick={handleNext}
+                            className="text-white/40 hover:text-[#d4af37] bg-white/5 hover:bg-white/10 rounded-full p-5 transition-all duration-300 border border-white/5 focus:outline-none"
+                        >
+                            <ChevronRight className="w-7 h-7" />
+                        </button>
+                    </div>
+                )}
+            </motion.div>
+
+            {/* Close Button - Positioned absolutely within the fixed inset-0 modal */}
+            <button
+                onClick={onClose}
+                className="cursor-pointer absolute top-5 right-5 md:top-8 md:right-8 text-white/70 hover:text-[#d4af37] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full p-2.5 transition-all duration-300 z-[100010] border border-white/10 focus:outline-none"
+                aria-label="Close modal"
+            >
+                <X className="w-6 h-6" />
+            </button>
+        </motion.div>
     );
 };
 
