@@ -233,6 +233,7 @@ export const Hero = () => {
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
+                {/* Blurred background fill — shows behind letterbox areas on mobile/tablet */}
                 <video
                     autoPlay
                     muted
