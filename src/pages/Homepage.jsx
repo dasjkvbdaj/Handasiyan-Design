@@ -691,14 +691,13 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             whileInView="visible"
             viewport={{ once: true, margin: '-60px' }}
             custom={index % 4}
-            className="group relative w-full overflow-hidden rounded-2xl"
+            className="group relative w-full overflow-hidden bg-transparent"
             style={{
                 aspectRatio: isMobile ? '1 / 1.15' : (isTablet ? '16 / 9' : '16 / 6.5'),
-                boxShadow: isMobile ? '0 10px 30px rgba(0,0,0,0.5)' : 'none'
+                boxShadow: 'none'
             }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            onClick={() => onOpen(project)}
         >
             {/* ── Full-bleed image with subtle parallax ── */}
             <div className="absolute inset-0 w-full h-full overflow-hidden touch-pan-y">
@@ -725,7 +724,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                             x: { type: 'spring', stiffness: 300, damping: 30 },
                             opacity: { duration: 0.3 },
                         }}
-                        className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
+                        className="absolute inset-0 w-full h-full"
                     >
                         <motion.img
                             src={images[imageIndex]}
@@ -771,7 +770,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         <button
                             key={i}
                             onClick={(e) => { e.stopPropagation(); setPage([i, i > imageIndex ? 1 : -1]); }}
-                            className="rounded-full transition-all duration-300 focus:outline-none"
+                            className="rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
                             style={{
                                 width: i === imageIndex ? '20px' : '6px',
                                 height: '6px',
@@ -799,6 +798,16 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     </motion.h3>
 
                 </div>
+
+                {/* New: View Project Button */}
+                <motion.button
+                    onClick={(e) => { e.stopPropagation(); onOpen(project); }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`cursor-pointer flex-shrink-0 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all shadow-[0_4px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_4px_25px_rgba(212,175,55,0.5)] ${isMobile ? 'p-3' : 'px-6 py-3 text-sm'}`}
+                >
+                    {isMobile ? <ArrowRight className="w-5 h-5" /> : 'View Project'}
+                </motion.button>
             </div>
         </motion.div>
     );
@@ -1054,7 +1063,7 @@ const LightboxModal = ({ project, onClose }) => {
                             }}
                             src={images[activeIndex]}
                             alt={project.style}
-                            className="mt-20 max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
                 </div>
