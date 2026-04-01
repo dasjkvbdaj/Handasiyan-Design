@@ -246,7 +246,7 @@ export const Hero = () => {
                     <source src="/video.mp4" type="video/mp4" />
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/5 to-black/80 z-10" />
-                {/* <div className="absolute inset-0 bg-black/15 z-[5]" /> */}
+                <div className="absolute inset-0 bg-black/15 z-[5]" />
             </motion.div>
 
             {/* Grain */}
