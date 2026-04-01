@@ -16,30 +16,6 @@ const Particle = ({ delay, x, size, color }) => {
     );
 };
 
-/* ─── Infinite Marquee Text Strip ───────────────────────────────── */
-const MarqueeStrip = ({ text, speed = 30, gold = false, reverse = false }) => {
-    const isMobile = useMediaQuery('(max-width: 1024px)');
-    const items = Array(isMobile ? 6 : 12).fill(text);
-    return (
-        <div className="overflow-hidden whitespace-nowrap flex" style={{ maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)' }}>
-            <motion.div
-                className="flex gap-0 shrink-0"
-                animate={{ x: reverse ? ['-50%', '0%'] : ['0%', '-50%'] }}
-                transition={{ duration: isMobile ? speed * 1.5 : speed, repeat: Infinity, ease: 'linear' }}
-            >
-                {[...items, ...items].map((t, i) => (
-                    <span
-                        key={i}
-                        className={`cormorant text-sm tracking-[0.3em] uppercase px-6 ${gold ? 'text-[#d4af37]/60' : 'text-white/10'}`}
-                    >
-                        {t} <span className={gold ? 'text-[#d4af37]/30' : 'text-white/5'}>✦</span>
-                    </span>
-                ))}
-            </motion.div>
-        </div>
-    );
-};
-
 /* ─── Typewriter with cursor blink (loops forever) ──────────────── */
 const Typewriter = ({ phrases, className }) => {
     const [phraseIdx, setPhraseIdx] = useState(0);
@@ -271,6 +247,7 @@ const SocialLink = ({ icon, name, href, index }) => (
         whileTap={{ scale: 0.9 }}
         className="relative w-12 h-12 rounded-2xl bg-white/5 border border-white/8 flex items-center justify-center text-[#d4af37] hover:text-black transition-colors duration-300 overflow-hidden"
         aria-label={name}
+        target="_blank"
     >
         <span className="relative z-10">{icon}</span>
         <motion.div
@@ -309,10 +286,19 @@ const ContactPage = () => {
         setTimeout(() => setSubmitted(false), 5000);
     };
 
+
+    const TiktokIcon = ({ size = 20 }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+        </svg>
+    );
+
     const socialLinks = [
-        { icon: <Facebook className="w-5 h-5" />, href: '#', name: 'Facebook' },
-        { icon: <Instagram className="w-5 h-5" />, href: '#', name: 'Instagram' },
-        { icon: <Linkedin className="w-5 h-5" />, href: '#', name: 'LinkedIn' },
+        { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/share/1CAPaHcGzd/?mibextid=wwXIfr', name: 'Facebook' },
+        { icon: <Instagram className="w-5 h-5" />, href: 'https://instagram.com/handasiyan', name: 'Instagram' },
+        { icon: <Linkedin className="w-5 h-5" />, href: 'https://www.linkedin.com/in/hussein-tarhini-805b79195/', name: 'LinkedIn' },
+        { icon: <TiktokIcon className="w-5 h-5" />, href: 'https://tiktok.com/@handasiyan', name: 'Tiktok' },
+
     ];
 
     /* Title — letter stagger on mount, then looping float */
@@ -328,15 +314,6 @@ const ContactPage = () => {
                 .cormorant { font-family: 'Cormorant Garamond', serif; }
                 .montserrat { font-family: 'Montserrat', sans-serif; }
             `}</style>
-
-            {/* ── TOP MARQUEE STRIP (loops forever) ─────────────── */}
-            {/* <div className="bg-[#d4af37]/5 border-b border-[#d4af37]/10 py-2">
-                <MarqueeStrip
-                    text="Interior Design · Architecture · Consultation · Project Management"
-                    speed={35}
-                    gold
-                />
-            </div> */}
 
             {/* ── HERO ─────────────────────────────────────────────── */}
             <section
@@ -454,15 +431,6 @@ const ContactPage = () => {
                     </motion.div>
                 </motion.div>
             </section>
-
-            {/* ── MID MARQUEE (reverse direction) ──────────────────── */}
-            {/* <div className="bg-black border-y border-white/[0.04] py-3">
-                <MarqueeStrip
-                    text="Let's Create · Dream Spaces · Premium Design · Built With Excellence"
-                    speed={40}
-                    reverse
-                />
-            </div> */}
 
             {/* ── CONTENT ─────────────────────────────────────────── */}
             <section className="py-32 bg-black relative">
@@ -698,15 +666,7 @@ const ContactPage = () => {
                 </div>
             </section>
 
-            {/* ── BOTTOM MARQUEE ────────────────────────────────── */}
-            <div className="bg-[#d4af37]/5 border-t border-[#d4af37]/10 py-2">
-                <MarqueeStrip
-                    text="Handasiyan · Est. 2020 · Building Dreams With Excellence · A Legacy of Discipline & Craftsmanship"
-                    speed={30}
-                    gold
-                    reverse
-                />
-            </div>
+
         </div>
     );
 };

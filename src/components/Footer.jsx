@@ -2,6 +2,12 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Twitter, Linkedin } from 'luc
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.avif';
 
+const TiktokIcon = ({ size = 20 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.19 8.19 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z" />
+    </svg>
+);
+
 const Footer = () => {
     return (
         <footer id="contact" className="bg-black border-t border-white/10 pt-16 pb-8">
@@ -53,14 +59,18 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-6">Follow Us</h3>
                         <div className="flex space-x-4">
-                            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.facebook.com/share/1CAPaHcGzd/?mibextid=wwXIfr" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Facebook className="w-5 h-5" />
                             </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://instagram.com/handasiyan" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.linkedin.com/in/hussein-tarhini-805b79195/" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Linkedin className="w-5 h-5" />
+                            </a>
+
+                            <a href="https://tiktok.com/@handasiyan"  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                                <TiktokIcon className="w-5 h-5" />
                             </a>
                         </div>
                     </div>
