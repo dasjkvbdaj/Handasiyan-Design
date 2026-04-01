@@ -103,7 +103,13 @@ const DigitalCard = () => {
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: shimmer 4s linear infinite;
+          animation: shimmer 5s linear infinite;
+        }
+        @media (max-width: 768px) {
+          .shimmer-gold {
+             animation: none;
+             -webkit-text-fill-color: #d4af37;
+          }
         }
 
         /* Grain overlay - Disabled on mobile for performance */
@@ -136,6 +142,9 @@ const DigitalCard = () => {
           background-size: 400% 400%;
           animation: holoMove 8s ease infinite;
         }
+        @media (max-width: 768px) {
+          .holo-border { animation: none; display: none; }
+        }
 
         /* Avatar ring pulse */
         @keyframes ringPulse {
@@ -143,6 +152,9 @@ const DigitalCard = () => {
           50%       { box-shadow: 0 0 0 8px rgba(212,175,55,0), 0 0 50px rgba(212,175,55,0.25); }
         }
         .avatar-ring { animation: ringPulse 3s ease-in-out infinite; }
+        @media (max-width: 768px) {
+          .avatar-ring { animation: none; box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        }
 
         /* Social icon hover */
         .social-icon {
@@ -241,9 +253,9 @@ const DigitalCard = () => {
 
                 {/* Card body */}
                 <motion.div
-                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
                     className="grain relative rounded-3xl overflow-hidden"
                     style={{
                         background: 'linear-gradient(145deg, #0a2a1c 0%, #061e15 40%, #04160f 100%)',
@@ -273,9 +285,9 @@ const DigitalCard = () => {
 
                         {/* ── Avatar ── */}
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.7 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
                             className="relative mb-6"
                         >
                             {/* Outer decorative ring */}

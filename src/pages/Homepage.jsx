@@ -233,19 +233,6 @@ export const Hero = () => {
         <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
-                {/* Blurred background fill — shows behind letterbox areas on mobile/tablet */}
-                <video
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
-                    aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-90 lg:hidden"
-                >
-                    <source src="/video.mp4" type="video/mp4" />
-                </video>
-                {/* Main video — object-contain on mobile/tablet, object-cover on desktop */}
                 <video
                     autoPlay
                     muted
@@ -253,7 +240,7 @@ export const Hero = () => {
                     playsInline
                     poster="/src/assets/hero-bg.avif"
                     preload="auto"
-                    className="absolute inset-0 w-full h-full object-contain lg:object-cover"
+                    className="absolute min-w-full min-h-full object-cover"
                 >
                     <source src="/video.mp4" type="video/mp4" />
                 </video>
