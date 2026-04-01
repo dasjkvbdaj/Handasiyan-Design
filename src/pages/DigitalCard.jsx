@@ -106,15 +106,17 @@ const DigitalCard = () => {
           animation: shimmer 4s linear infinite;
         }
 
-        /* Grain overlay */
-        .grain::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-          pointer-events: none;
-          border-radius: inherit;
-          z-index: 1;
+        /* Grain overlay - Disabled on mobile for performance */
+        @media (min-width: 768px) {
+          .grain::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            border-radius: inherit;
+            z-index: 1;
+          }
         }
 
         /* Card holographic shimmer */
@@ -351,9 +353,8 @@ const DigitalCard = () => {
                                     transition={{ delay: 0.55 + idx * 0.05 }}
                                     className="social-icon w-11 h-11 flex items-center justify-center rounded-xl text-[#d4af37]/70"
                                     style={{
-                                        background: 'rgba(255,255,255,0.03)',
+                                        background: 'rgba(255,255,255,0.06)',
                                         border: '1px solid rgba(212,175,55,0.18)',
-                                        backdropFilter: 'blur(10px)',
                                     }}
                                 >
                                     {item.icon}
@@ -389,9 +390,8 @@ const DigitalCard = () => {
                                     href="mailto:handasiyan.2020@gmail.com"
                                     className="btn-secondary flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-[12px] font-semibold tracking-[0.05em] text-white/80"
                                     style={{
-                                        background: 'rgba(255,255,255,0.04)',
+                                        background: 'rgba(255,255,255,0.08)',
                                         border: '1px solid rgba(212,175,55,0.2)',
-                                        backdropFilter: 'blur(10px)',
                                     }}
                                 >
                                     <Mail size={15} className="text-[#d4af37]" />
@@ -404,9 +404,8 @@ const DigitalCard = () => {
                                     rel="noopener noreferrer"
                                     className="btn-secondary flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-[12px] font-semibold tracking-[0.05em] text-white/80"
                                     style={{
-                                        background: 'rgba(255,255,255,0.04)',
+                                        background: 'rgba(255,255,255,0.08)',
                                         border: '1px solid rgba(212,175,55,0.2)',
-                                        backdropFilter: 'blur(10px)',
                                     }}
                                 >
                                     <WhatsappIcon size={15} />
