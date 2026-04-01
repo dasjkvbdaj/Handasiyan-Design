@@ -3,9 +3,8 @@ import Step1Upload from '../components/AIDesign/Step1Upload';
 import Step2Room from '../components/AIDesign/Step2Room';
 import Step3Style from '../components/AIDesign/Step3Style';
 import Step4Palette from '../components/AIDesign/Step4Palette';
-import Step5Success from '../components/AIDesign/Step5Success';
-import AIGeneration from '../components/AIDesign/AIGeneration';
-import AIResult from '../components/AIDesign/AIResult';
+import Step5Generate from '../components/AIDesign/Step5Generate';
+
 import { ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -71,14 +70,13 @@ const AIDesignPage = () => {
             case 2: return <Step2Room onNext={nextStep} data={designData} updateData={updateData} />;
             case 3: return <Step3Style onNext={nextStep} data={designData} updateData={updateData} />;
             case 4: return <Step4Palette onNext={nextStep} data={designData} updateData={updateData} />;
-            case 5: return (
-                <AIGeneration
-                    onComplete={nextStep}
-                    data={designData}
-                    externalResult={designData.designNarrative}
-                    externalError={error}
-                />
-            );
+           case 5:
+    return (
+        <Step5Generate
+            data={designData}
+            onReset={reset}
+        />
+    );
             case 6: return <AIResult data={designData} onReset={reset} />;
             default: return null;
         }
@@ -89,8 +87,8 @@ const AIDesignPage = () => {
         { id: 2, label: 'Room' },
         { id: 3, label: 'Style' },
         { id: 4, label: 'Palette' },
-        { id: 5, label: 'Processing' },
-        { id: 6, label: 'Result' }
+        { id: 5, label: 'Result' }
+        
     ];
 
     return (
