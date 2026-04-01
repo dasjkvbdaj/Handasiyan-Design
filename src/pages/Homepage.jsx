@@ -679,7 +679,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     };
 
     const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
-    const swipeConfidenceThreshold = 10000;
+    const swipeConfidenceThreshold = 3500; // Lowered from 10000 for better sensitivity
 
     const paddedIndex = String(index + 1).padStart(2, '0');
 
@@ -968,7 +968,7 @@ export const Portfolio = ({ isPreview = false }) => {
  * Extracted for cleaner state management of the image index
  */
 const LightboxModal = ({ project, onClose }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [[page, direction], setPage] = useState([0, 0]);
     const images = Array.from(
         { length: project.imageCount },
         (_, i) => `${project.folder}/image-${i + 1}.webp`
@@ -977,14 +977,20 @@ const LightboxModal = ({ project, onClose }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
 
+    const activeIndex = Math.abs(page % images.length);
+
+    const paginate = (newDirection) => {
+        setPage([page + newDirection, newDirection]);
+    };
+
     const handlePrev = (e) => {
-        e.stopPropagation();
-        setActiveIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+        if (e) e.stopPropagation();
+        paginate(-1);
     };
 
     const handleNext = (e) => {
-        e.stopPropagation();
-        setActiveIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+        if (e) e.stopPropagation();
+        paginate(1);
     };
 
     return (
@@ -1027,17 +1033,28 @@ const LightboxModal = ({ project, onClose }) => {
                 onClick={e => e.stopPropagation()}
             >
                 {/* Main Image Container */}
-                <div className="flex-1 w-full flex items-center justify-center p-4 pointer-events-none min-h-0">
-                    <AnimatePresence mode="wait">
+                <div className="flex-1 w-full flex items-center justify-center p-4 pointer-events-none min-h-0 touch-pan-y">
+                    <AnimatePresence mode="wait" custom={direction}>
                         <motion.img
                             key={activeIndex}
-                            initial={{ opacity: 0, scale: 1.02 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.98 }}
+                            initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
                             transition={{ duration: 0.4, ease: "easeOut" }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={1}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                const swipe = Math.abs(offset.x) * velocity.x;
+                                if (swipe < -3500) {
+                                    handleNext(e);
+                                } else if (swipe > 3500) {
+                                    handlePrev(e);
+                                }
+                            }}
                             src={images[activeIndex]}
                             alt={project.style}
-                            className="mt-20 max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto"
+                            className="mt-20 max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
                 </div>
