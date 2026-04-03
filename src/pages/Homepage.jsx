@@ -711,18 +711,17 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         exit="exit"
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={1}
+                        dragElastic={0.8}
                         onDragEnd={(e, { offset, velocity }) => {
-                            const swipe = swipePower(offset.x, velocity.x);
-                            if (swipe < -swipeConfidenceThreshold) {
+                            if (offset.x < -40 || velocity.x < -400) {
                                 paginate(1);
-                            } else if (swipe > swipeConfidenceThreshold) {
+                            } else if (offset.x > 40 || velocity.x > 400) {
                                 paginate(-1);
                             }
                         }}
                         transition={{
-                            x: { type: 'spring', stiffness: 300, damping: 30 },
-                            opacity: { duration: 0.3 },
+                            x: { type: 'spring', stiffness: 450, damping: 35 },
+                            opacity: { duration: 0.2 },
                         }}
                         className="absolute inset-0 w-full h-full"
                     >
@@ -1049,43 +1048,21 @@ const LightboxModal = ({ project, onClose }) => {
                             initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
-                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
                             drag="x"
                             dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={1}
+                            dragElastic={0.8}
                             onDragEnd={(e, { offset, velocity }) => {
-                                const swipe = Math.abs(offset.x) * velocity.x;
-                                if (swipe < -3500) {
+                                if (offset.x < -40 || velocity.x < -400) {
                                     handleNext(e);
-                                } else if (swipe > 3500) {
+                                } else if (offset.x > 40 || velocity.x > 400) {
                                     handlePrev(e);
                                 }
                             }}
+                            src={images[activeIndex]}
+                            alt={project.style}
+                            className="max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
-
-                        <AnimatePresence mode="wait" custom={direction}>
-                            <motion.img
-                                key={activeIndex}
-                                initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
-                                animate={{ opacity: 1, x: 0, scale: 1 }}
-                                exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
-                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                drag="x"
-                                dragConstraints={{ left: 0, right: 0 }}
-                                dragElastic={1}
-                                onDragEnd={(e, { offset, velocity }) => {
-                                    const swipe = Math.abs(offset.x) * velocity.x;
-                                    if (swipe < -3500) {
-                                        handleNext(e);
-                                    } else if (swipe > 3500) {
-                                        handlePrev(e);
-                                    }
-                                }}
-                                src={images[activeIndex]}
-                                alt={project.style}
-                                className="max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
-                            />
-                        </AnimatePresence>
                     </AnimatePresence>
                 </div>
 
