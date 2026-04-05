@@ -632,10 +632,12 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
     const images = useMemo(
         () =>
-            Array.from(
-                { length: project.imageCount },
-                (_, i) => `${project.folder}/image-${i + 1}.webp`
-            ),
+            project.images
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${id}.png`)
+                : Array.from(
+                    { length: project.imageCount },
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${project.folder}/image-${i + 1}.png`
+                ),
         [project]
     );
 
@@ -977,10 +979,12 @@ export const Portfolio = ({ isPreview = false }) => {
  */
 const LightboxModal = ({ project, onClose }) => {
     const [[page, direction], setPage] = useState([0, 0]);
-    const images = Array.from(
-        { length: project.imageCount },
-        (_, i) => `${project.folder}/image-${i + 1}.webp`
-    );
+    const images = project.images
+        ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${id}.png`)
+        : Array.from(
+            { length: project.imageCount },
+            (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${project.folder}/image-${i + 1}.png`
+        );
 
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');

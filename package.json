@@ -11,9 +11,12 @@
     "optimize": "node optimize-all.cjs"
   },
   "dependencies": {
+    "@cloudinary/react": "^1.14.4",
+    "@cloudinary/url-gen": "^1.22.0",
     "@gsap/react": "^2.1.2",
     "@react-three/fiber": "^9.5.0",
     "axios": "^1.14.0",
+    "cloudinary": "^2.9.0",
     "firebase": "^12.11.0",
     "framer-motion": "^12.38.0",
     "glob": "^13.0.6",
