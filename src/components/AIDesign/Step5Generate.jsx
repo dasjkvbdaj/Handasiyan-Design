@@ -8,63 +8,81 @@ const Step5Generate = ({ data, onReset }) => {
   const [error, setError] = useState(null);
   const [cooldown, setCooldown] = useState(false);
 
-  // ✅ Ensure persistent user ID (VERY IMPORTANT)
+  // ✅ Persistent user ID
   useEffect(() => {
     if (!localStorage.getItem("userId")) {
       localStorage.setItem("userId", crypto.randomUUID());
     }
   }, []);
 
-  const handleGenerate = async () => {
-    if (loading || cooldown) return;
-
-    if (!data.image) {
-      setError("Please upload an image first");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+  // ✅ SAFE DOWNLOAD
+  const handleDownload = () => {
     try {
-      const formData = new FormData();
-      formData.append("file", data.image);
-      formData.append("roomType", data.roomType);
-      formData.append("style", data.style);
-      formData.append("palette", data.palette);
-
-      const res = await axios.post(
-        "http://localhost:8080/api/design/generate",
-        formData,
-        {
-          headers: {
-            "X-User-Id": localStorage.getItem("userId"), // ✅ MATCH BACKEND
-          },
-        }
-      );
-
-      setResult(res.data.imageUrl);
-
-      // ✅ Cooldown only after SUCCESS
-      setCooldown(true);
-      setTimeout(() => setCooldown(false), 10000);
-
-    } catch (err) {
-      console.error(err);
-
-      // ✅ Smart error handling (matches backend)
-      if (err.response?.status === 429) {
-        setError("⚠️ Please wait... generation already in progress or rate limited.");
-      } else if (err.response?.status === 500) {
-        setError("⚠️ AI generation failed. Please try again.");
-      } else {
-        setError("Network error. Check your connection.");
-      }
-
-    } finally {
-      setLoading(false);
+      const link = document.createElement("a");
+      link.href = result;
+      link.download = `design-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error("Download failed", e);
     }
   };
+
+  const handleGenerate = async () => {
+  if (loading || cooldown) return;
+
+  if (!data.image) {
+    setError("Please upload an image first");
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const formData = new FormData();
+    formData.append("file", data.image);
+    formData.append("roomType", data.roomType);
+    formData.append("style", data.style);
+    formData.append("palette", data.palette);
+
+    const res = await axios.post(
+      "http://localhost:8081/api/design/generate",
+      formData,
+      {
+        headers: {
+          "X-User-Id": localStorage.getItem("userId"),
+        }
+      }
+    );
+
+    console.log("IMAGE:", res.data.imageUrl.substring(0, 100));
+
+    setResult(res.data.imageUrl);
+
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 10000);
+
+  } catch (err) {
+
+    console.error("FULL ERROR:", err);
+    console.error("DATA:", err.response?.data);
+
+    const msg = err.response?.data?.error || "";
+
+    if (msg.includes("GEMINI_ERROR")) {
+      setError("AI failed. Try smaller image or different style.");
+    } else if (msg.includes("NO_IMAGE_RETURNED")) {
+      setError("No image generated. Try again.");
+    } else {
+      setError("Something went wrong.");
+    }
+
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 text-center">
@@ -100,22 +118,23 @@ const Step5Generate = ({ data, onReset }) => {
             src={result}
             alt="Generated Design"
             className="rounded-3xl w-full shadow-lg"
+            loading="lazy"
           />
 
           <div className="flex justify-center gap-4 flex-wrap">
 
-            {/* Download */}
-            <a
-              href={result}
-              download="design.png"
+            {/* DOWNLOAD */}
+            <button
+              onClick={handleDownload}
               className="flex items-center gap-2 px-6 py-3 bg-[#d4af37] text-black rounded-full font-semibold hover:scale-105 transition"
             >
               <Download size={18} />
               Download
-            </a>
+            </button>
 
-            {/* Regenerate */}
+            {/* REGENERATE */}
             <button
+              type="button"
               onClick={handleGenerate}
               disabled={loading || cooldown}
               className="flex items-center gap-2 px-6 py-3 border border-white/20 text-white rounded-full hover:bg-white/10 transition disabled:opacity-50"
