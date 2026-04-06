@@ -187,7 +187,7 @@ const ServicesPage = () => {
             {/* Page Hero */}
             <section
                 ref={heroRef}
-                className="relative py-36 bg-[#042d22] overflow-hidden flex items-center justify-center text-center min-h-[55vh]"
+                className="relative py-36 bg-black overflow-hidden flex items-center justify-center text-center min-h-[55vh]"
             >
                 {/* Grain overlay */}
                 <div

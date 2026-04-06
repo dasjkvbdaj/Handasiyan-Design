@@ -230,7 +230,7 @@ export const Hero = () => {
     const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
     return (
-        <section ref={ref} className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center text-center">
+        <section ref={ref} className="relative h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
                 {/* Blurred background fill — shows behind letterbox areas on mobile/tablet */}
@@ -243,11 +243,7 @@ export const Hero = () => {
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
                 >
-                    {/* <source src="/video-1.mp4" type="video/mp4" /> */}
-                    {/* <source src="/video-2.mp4" type="video/mp4" /> */}
-                    {/* <source src="/video-3.mp4" type="video/mp4" /> */}
-                    {/* <source src="/video-4.mp4" type="video/mp4" /> */}
-                    <source src="/video-5.mp4" type="video/mp4" />
+                    <source src="/video.mp4" type="video/mp4" />
 
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/5 to-black/80 z-10" />
@@ -372,19 +368,19 @@ export const About = ({ isPreview = false }) => {
 
 /* ─── SERVICES ────────────────────────────────────────────────────────────── */
 const services = [
-    { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '01', category: 'Architectural Design' },
-    { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '02', category: 'Interior Design' },
-    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '03', category: 'Full Design' },
-    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '04', category: 'Full Design' },
+    { icon: <Globe className="w-6 h-6" />, title: 'Civil Engineering', description: 'Comprehensive civil engineering services for infrastructure and development projects.', number: '01', category: 'Full Design' },
+    { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '02', category: 'Architectural Design' },
+    { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '03', category: 'Interior Design' },
+    { icon: <Zap className="w-6 h-6" />, title: 'Electrical & Mechanical Engineering (MEP)', description: 'Expert MEP solutions ensuring efficient and integrated building systems.', number: '04', category: 'Full Design' },
     { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: 'Full Design' },
-    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06', category: 'Full Design' },
-    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07', category: 'Full Design' },
-    { icon: <Globe className="w-6 h-6" />, title: 'Civil Engineering', description: 'Comprehensive civil engineering services for infrastructure and development projects.', number: '08', category: 'Full Design' },
-    { icon: <Zap className="w-6 h-6" />, title: 'Electrical & Mechanical Engineering (MEP)', description: 'Expert MEP solutions ensuring efficient and integrated building systems.', number: '09', category: 'Full Design' },
+    { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '06', category: 'Full Design' },
+    { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '07', category: 'Full Design' },
+    { icon: <Briefcase className="w-6 h-6" />, title: 'Project Management & Supervision', description: 'Expert coordination and oversight of your project from conception to completion.', number: '08', category: 'Full Design' },
+    { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '09', category: 'Full Design' },
 ];
 
 export const Services = ({ isPreview = false }) => {
-    const displayServices = isPreview ? services.slice(0, 3) : services;
+    const displayServices = isPreview ? services.slice(0, 4) : services;
 
     return (
         <section className={`py-28 ${isPreview ? 'bg-black' : 'bg-neutral-950'} relative overflow-hidden`}>
@@ -416,7 +412,7 @@ export const Services = ({ isPreview = false }) => {
                     </motion.p>
                 </div>
 
-                <div className={`grid grid-cols-1 md:grid-cols-2 ${isPreview ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-px bg-white/5 rounded-2xl overflow-hidden`}>
+                <div className={`grid grid-cols-1 md:grid-cols-2 ${isPreview ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-px bg-white/5 rounded-2xl overflow-hidden`}>
                     {displayServices.map((service, i) => (
                         <motion.div
                             key={i}
@@ -426,7 +422,7 @@ export const Services = ({ isPreview = false }) => {
                             viewport={{ once: true }}
                             custom={i}
                             whileTap={{ scale: 0.98 }}
-                            className={`group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer ${!isPreview && i === 8 ? 'md:col-span-2' : ''}`}
+                            className="group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer"
                         >
                             <Link to={`/portfolio?category=${encodeURIComponent(service.category)}#projects-section`} className="block w-full h-full p-8 focus:outline-none">
                                 <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none pointer-events-none"
@@ -686,9 +682,6 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         exit: (dir) => ({ zIndex: 0, x: dir < 0 ? '100%' : '-100%', opacity: 0 }),
     };
 
-    const swipePower = (offset, velocity) => Math.abs(offset) * velocity;
-    const swipeConfidenceThreshold = 3500; // Lowered from 10000 for better sensitivity
-
     const paddedIndex = String(index + 1).padStart(2, '0');
 
     return (
@@ -701,9 +694,11 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             custom={index % 4}
             className="group relative w-full overflow-hidden bg-transparent"
             style={{
-                aspectRatio: isMobile ? '1 / 1.15' : (isTablet ? '16 / 9' : '16 / 6.5'),
-                boxShadow: 'none'
+                aspectRatio: isMobile ? '16 / 9' : (isTablet ? '16 / 9' : '16 / 6.5'),
+                boxShadow: 'none',
+                width: '100%'
             }}
+
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
@@ -737,8 +732,8 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                             src={images[imageIndex]}
                             alt={project.style}
                             loading="lazy"
-                            style={{ y: imageY }}
-                            className="w-full h-[115%] object-cover object-center -translate-y-[7.5%]"
+                            style={{ y: isMobile ? 0 : imageY }}
+                            className={`w-full ${isMobile ? 'h-full object-contain' : 'h-[115%] object-cover -translate-y-[7.5%]'} object-center`}
                         />
                     </motion.div>
                 </AnimatePresence>
@@ -789,7 +784,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             )}
 
             {/* ── Bottom content ── */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-8 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
                 <div className="flex flex-col gap-0.5">
                     <motion.h3
@@ -811,7 +806,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     onClick={(e) => { e.stopPropagation(); onOpen(project); }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`cursor-pointer flex-shrink-0 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all shadow-[0_4px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_4px_25px_rgba(212,175,55,0.5)] ${isMobile ? 'p-3' : 'px-6 py-3 text-sm'}`}
+                    className={`cursor-pointer flex-shrink-0 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all ${isMobile ? 'p-3' : 'px-6 py-3 text-sm'}`}
                 >
                     {isMobile ? <ArrowRight className="w-5 h-5" /> : 'View Project'}
                 </motion.button>
@@ -864,7 +859,7 @@ export const Portfolio = ({ isPreview = false }) => {
                 {/* Ambient glow */}
                 <div className="absolute right-0 bottom-0 w-[600px] h-[400px] bg-[#064e3b]/10 blur-[120px] pointer-events-none" />
 
-                <div className="max-w-7xl mx-auto px-6 relative z-10">
+                <div className="max-w-[1600px] mx-auto sm:px-2 md:px-2 relative z-10">
                     {/* ── Header ── */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
                         <div>
@@ -905,7 +900,7 @@ export const Portfolio = ({ isPreview = false }) => {
                             className="w-full mb-14"
                         >
                             <div className="w-full h-px bg-white/10 mb-6" />
-                            <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4">
+                            <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4 px-3">
                                 {CATEGORIES_DATA.map((cat) => (
                                     <div
                                         key={cat.id}
