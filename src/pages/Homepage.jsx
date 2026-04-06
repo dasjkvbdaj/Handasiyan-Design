@@ -1070,6 +1070,7 @@ const LightboxModal = ({ project, onClose }) => {
                             exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
                             transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
                             drag="x"
+                            loading='lazy'
                             dragConstraints={{ left: 0, right: 0 }}
                             dragElastic={0.8}
                             onDragEnd={(e, { offset, velocity }) => {
