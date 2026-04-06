@@ -902,7 +902,7 @@ export const Portfolio = ({ isPreview = false }) => {
                             className="w-full mb-14"
                         >
                             <div className="w-full h-px bg-white/10 mb-6" />
-                            <div className="flex flex-nowrap items-start gap-x-10 md:gap-x-14 gap-y-4 px-3 overflow-x-auto no-scrollbar scroll-smooth">
+                            <div className="flex flex-nowrap items-start gap-x-10 md:gap-x-7 gap-y-4 px-3 overflow-x-auto no-scrollbar scroll-smooth">
                                 {CATEGORIES_DATA.map((cat) => (
                                     <div
                                         key={cat.id}
@@ -917,7 +917,7 @@ export const Portfolio = ({ isPreview = false }) => {
                                                     setSearchParams({ category: cat.id }, { replace: true });
                                                 });
                                             }}
-                                            className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
+                                            className={`text-lg md:text-l font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
                                                 : hoveredCategory === cat.id
                                                     ? 'text-white blur-0 opacity-90 cursor-pointer'
