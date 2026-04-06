@@ -1,6 +1,6 @@
-import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer } from 'lucide-react';
+import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer, Zap, Globe } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo, useTransition } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects } from '../data/projects';
@@ -243,7 +243,12 @@ export const Hero = () => {
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
                 >
-                    <source src="/video.mp4" type="video/mp4" />
+                    {/* <source src="/video-1.mp4" type="video/mp4" /> */}
+                    {/* <source src="/video-2.mp4" type="video/mp4" /> */}
+                    {/* <source src="/video-3.mp4" type="video/mp4" /> */}
+                    {/* <source src="/video-4.mp4" type="video/mp4" /> */}
+                    <source src="/video-5.mp4" type="video/mp4" />
+
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/5 to-black/80 z-10" />
                 <div className="absolute inset-0 bg-black/15 z-[5]" />
@@ -374,6 +379,8 @@ const services = [
     { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: 'Full Design' },
     { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '06', category: 'Full Design' },
     { icon: <Hammer className="w-6 h-6" />, title: 'Renovation & Remodeling', description: 'Transforming existing spaces into modern masterpieces through expert renovation.', number: '07', category: 'Full Design' },
+    { icon: <Globe className="w-6 h-6" />, title: 'Civil Engineering', description: 'Comprehensive civil engineering services for infrastructure and development projects.', number: '08', category: 'Full Design' },
+    { icon: <Zap className="w-6 h-6" />, title: 'Electrical & Mechanical Engineering (MEP)', description: 'Expert MEP solutions ensuring efficient and integrated building systems.', number: '09', category: 'Full Design' },
 ];
 
 export const Services = ({ isPreview = false }) => {
@@ -419,7 +426,7 @@ export const Services = ({ isPreview = false }) => {
                             viewport={{ once: true }}
                             custom={i}
                             whileTap={{ scale: 0.98 }}
-                            className={`group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer ${!isPreview && i === 6 ? 'md:col-span-2' : ''}`}
+                            className={`group relative bg-neutral-950 hover:bg-[#0a1f16] active:bg-[#0a1f16] transition-colors duration-500 cursor-pointer ${!isPreview && i === 8 ? 'md:col-span-2' : ''}`}
                         >
                             <Link to={`/portfolio?category=${encodeURIComponent(service.category)}#projects-section`} className="block w-full h-full p-8 focus:outline-none">
                                 <span className="absolute top-6 right-6 text-6xl font-bold text-white/[0.03] select-none pointer-events-none"
@@ -621,7 +628,6 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
-    const isInView = useInView(cardRef, { margin: "-10%", once: false });
 
     // Parallax scroll effect on the inner image
     const { scrollYProgress } = useScroll({
@@ -822,6 +828,7 @@ export const Portfolio = ({ isPreview = false }) => {
 
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
     const [hoveredCategory, setHoveredCategory] = useState(null);
+    const [isPending, startTransition] = useTransition();
 
     const scrollContainerRef = useRef(null);
 
@@ -908,8 +915,10 @@ export const Portfolio = ({ isPreview = false }) => {
                                     >
                                         <button
                                             onClick={() => {
-                                                setActiveCategory(cat.id);
-                                                setSearchParams({ category: cat.id });
+                                                startTransition(() => {
+                                                    setActiveCategory(cat.id);
+                                                    setSearchParams({ category: cat.id }, { replace: true });
+                                                });
                                             }}
                                             className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
@@ -1010,7 +1019,7 @@ const LightboxModal = ({ project, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100000] flex flex-col items-center justify-center p-4 md:p-12 overflow-hidden"
+            className="fixed inset-0 z-[100000] flex flex-col items-center justify-center p-2 md:p-6 overflow-hidden"
             style={{
                 background: 'rgba(0,0,0,0.98)',
                 backdropFilter: 'blur(20px)'
@@ -1041,11 +1050,11 @@ const LightboxModal = ({ project, onClose }) => {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 1.05, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 350, damping: 35 }}
-                className="relative w-full h-full flex flex-col items-center justify-center gap-6"
+                className="relative w-full h-full flex flex-col items-center justify-center gap-4"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Main Image Container */}
-                <div className="flex-1 w-full flex items-center justify-center p-4 pointer-events-none min-h-0 touch-pan-y">
+                <div className="flex-1 w-full h-full flex items-center justify-center p-0 md:p-2 pointer-events-none min-h-0 touch-pan-y">
                     <AnimatePresence mode="wait" custom={direction}>
                         <motion.img
                             key={activeIndex}
@@ -1065,7 +1074,7 @@ const LightboxModal = ({ project, onClose }) => {
                             }}
                             src={images[activeIndex]}
                             alt={project.style}
-                            className="max-w-full max-h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                            className="w-full h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
                 </div>
