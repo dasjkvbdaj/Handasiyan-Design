@@ -368,10 +368,10 @@ export const About = ({ isPreview = false }) => {
 
 /* ─── SERVICES ────────────────────────────────────────────────────────────── */
 const services = [
-    { icon: <Globe className="w-6 h-6" />, title: 'Civil Engineering', description: 'Comprehensive civil engineering services for infrastructure and development projects.', number: '01', category: 'Full Design' },
+    { icon: <Globe className="w-6 h-6" />, title: 'Civil Engineering', description: 'Comprehensive civil engineering services for infrastructure and development projects.', number: '01', category: 'Civil Engineering' },
     { icon: <Building2 className="w-6 h-6" />, title: 'Architectural Design', description: 'Innovative architectural solutions tailored to your vision and functional needs.', number: '02', category: 'Architectural Design' },
     { icon: <Palette className="w-6 h-6" />, title: 'Interior Design', description: 'Creating harmonious and aesthetically pleasing interiors that reflect your personality.', number: '03', category: 'Interior Design' },
-    { icon: <Zap className="w-6 h-6" />, title: 'Electrical & Mechanical Engineering (MEP)', description: 'Expert MEP solutions ensuring efficient and integrated building systems.', number: '04', category: 'Full Design' },
+    { icon: <Zap className="w-6 h-6" />, title: 'Electrical & Mechanical Engineering (MEP)', description: 'Expert MEP solutions ensuring efficient and integrated building systems.', number: '04', category: 'Mechanical and Electrical Engineering' },
     { icon: <Layers className="w-6 h-6" />, title: '3D Visualization & Concept Design', description: 'Stunning 3D renderings and conceptual designs to help you visualize your space.', number: '05', category: 'Full Design' },
     { icon: <HardHat className="w-6 h-6" />, title: 'Construction & Build Management', description: 'Overseeing every aspect of construction to ensure quality and timely delivery.', number: '06', category: 'Full Design' },
     { icon: <Ruler className="w-6 h-6" />, title: 'Custom Furniture & Joinery', description: 'Bespoke furniture and joinery solutions crafted to perfection for your unique space.', number: '07', category: 'Full Design' },
@@ -831,6 +831,8 @@ export const Portfolio = ({ isPreview = false }) => {
         { id: 'Full Design' },
         { id: 'Architectural Design' },
         { id: 'Interior Design' },
+        { id: 'Civil Engineering' },
+        { id: 'Mechanical and Electrical Engineering' },
     ];
 
     useEffect(() => {
@@ -862,7 +864,7 @@ export const Portfolio = ({ isPreview = false }) => {
                 <div className="max-w-[1600px] mx-auto sm:px-2 md:px-2 relative z-10">
                     {/* ── Header ── */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
-                        <div>
+                        <div className='px-5'>
                             <motion.div
                                 variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
                                 className="inline-flex items-center gap-3 mb-4"
@@ -885,7 +887,7 @@ export const Portfolio = ({ isPreview = false }) => {
                             <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                                 <Link
                                     to="/portfolio"
-                                    className="hidden md:flex items-center gap-2 text-[#d4af37] text-sm font-medium hover:gap-4 transition-all duration-300"
+                                    className="hidden md:flex items-center gap-2 text-[#d4af37] text-sm font-medium pr-5 hover:gap-4 transition-all duration-300"
                                 >
                                     View all projects <ArrowRight className="w-4 h-4" />
                                 </Link>
@@ -900,11 +902,11 @@ export const Portfolio = ({ isPreview = false }) => {
                             className="w-full mb-14"
                         >
                             <div className="w-full h-px bg-white/10 mb-6" />
-                            <div className="flex flex-wrap items-start gap-x-10 md:gap-x-14 gap-y-4 px-3">
+                            <div className="flex flex-nowrap items-start gap-x-10 md:gap-x-14 gap-y-4 px-3 overflow-x-auto no-scrollbar scroll-smooth">
                                 {CATEGORIES_DATA.map((cat) => (
                                     <div
                                         key={cat.id}
-                                        className="relative transition-all duration-500"
+                                        className="relative transition-all duration-500 whitespace-nowrap"
                                         onMouseEnter={() => setHoveredCategory(cat.id)}
                                         onMouseLeave={() => setHoveredCategory(null)}
                                     >
@@ -950,15 +952,25 @@ export const Portfolio = ({ isPreview = false }) => {
                         ref={scrollContainerRef}
                         className="flex flex-col gap-12 w-full pt-2"
                     >
-                        {displayProjects.map((project, index) => (
-                            <ProjectCard
-                                key={project.name}
-                                project={project}
-                                index={index}
-                                onOpen={setLightbox}
-                                layout="list"
-                            />
-                        ))}
+                        {displayProjects.length > 0 ? (
+                            displayProjects.map((project, index) => (
+                                <ProjectCard
+                                    key={project.name}
+                                    project={project}
+                                    index={index}
+                                    onOpen={setLightbox}
+                                    layout="list"
+                                />
+                            ))
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="py-20 text-center"
+                            >
+                                <p className="text-white/40 text-lg font-light">Soon... Showcase of our latest projects in this category.</p>
+                            </motion.div>
+                        )}
                     </div>
 
                 </div>
