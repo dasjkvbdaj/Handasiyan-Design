@@ -221,6 +221,7 @@ const scaleIn = {
 /* ─── HERO ────────────────────────────────────────────────────────────────── */
 export const Hero = () => {
     const ref = useRef(null);
+    const videoRef = useRef(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
     const y = useTransform(scrollYProgress, [0, 1], ['-4%', '2%']); // Reduced parallax range and shifted up initially to avoid overlap
     const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
@@ -229,12 +230,40 @@ export const Hero = () => {
     // Fade out scroll indicator almost immediately on scroll
     const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const attemptPlay = () => {
+            if (video.paused) {
+                video.play().catch(error => console.log('Video play interrupted:', error));
+            }
+        };
+
+        // Try playing immediately
+        attemptPlay();
+
+        // Resume if tab becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                attemptPlay();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
     return (
         <section ref={ref} className="relative h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center text-center">
             {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
                 {/* Blurred background fill — shows behind letterbox areas on mobile/tablet */}
                 <video
+                    ref={videoRef}
                     autoPlay
                     muted
                     loop
@@ -242,6 +271,11 @@ export const Hero = () => {
                     poster="/src/assets/hero-bg.avif"
                     preload="auto"
                     className="absolute min-w-full min-h-full object-cover"
+                    onPause={(e) => {
+                        if (!document.hidden) {
+                            e.target.play().catch(() => {});
+                        }
+                    }}
                 >
                     <source src="/video.mp4" type="video/mp4" />
 
