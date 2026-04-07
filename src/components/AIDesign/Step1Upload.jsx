@@ -78,13 +78,12 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                className={`relative group aspect-[16/10] max-w-2xl mx-auto rounded-3xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden ${
-                    dragging
+                className={`relative group aspect-[16/10] max-w-2xl mx-auto rounded-3xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden ${dragging
                         ? 'border-[#d4af37] bg-[#d4af37]/10'
                         : preview
-                        ? 'border-white/20 bg-black/40'
-                        : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-                }`}
+                            ? 'border-white/20 bg-black/40'
+                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                    }`}
             >
                 {preview ? (
                     <>
@@ -129,8 +128,8 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                     </>
                 ) : (
                     <label className="w-full h-full cursor-pointer flex flex-col items-center justify-center p-8 space-y-4">
-                        <div className="p-6 rounded-2xl bg-white/5 text-white/40 group-hover:text-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all">
-                            <Upload size={48} strokeWidth={1.5} />
+                        <div className="p-4 md:p-6 rounded-2xl bg-white/5 text-white/40 group-hover:text-[#d4af37] group-hover:bg-[#d4af37]/10 transition-all">
+                            <Upload className="w-8 h-8 md:w-12 md:h-12" strokeWidth={1.5} />
                         </div>
 
                         <div className="text-center">
@@ -156,11 +155,10 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                 <button
                     disabled={!preview}
                     onClick={onNext}
-                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 ${
-                        preview
+                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 ${preview
                             ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
                             : 'bg-white/5 text-white/40 cursor-not-allowed'
-                    }`}
+                        }`}
                 >
                     Continue
                 </button>

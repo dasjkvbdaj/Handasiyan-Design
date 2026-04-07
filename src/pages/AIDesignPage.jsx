@@ -7,6 +7,7 @@ import Step5Generate from '../components/AIDesign/Step5Generate';
 
 import { ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { saveWizardState, loadWizardState, clearWizardState } from '../lib/storage';
 
 const AIDesignPage = () => {
     const [step, setStep] = useState(1);
@@ -20,7 +21,31 @@ const AIDesignPage = () => {
     });
     const [error, setError] = useState(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isRestoring, setIsRestoring] = useState(true);
     const hasStarted = React.useRef(false);
+
+    // Initial load from IndexedDB
+    React.useEffect(() => {
+        loadWizardState().then(saved => {
+            if (saved) {
+                setStep(saved.step);
+                setDesignData(saved.designData);
+            }
+        }).catch(err => {
+            console.error('Failed to load wizard state:', err);
+        }).finally(() => {
+            setIsRestoring(false);
+        });
+    }, []);
+
+    // Save to IndexedDB whenever state changes
+    React.useEffect(() => {
+        if (!isRestoring) {
+            saveWizardState(step, designData).catch(err => {
+                console.error('Failed to save wizard state:', err);
+            });
+        }
+    }, [step, designData, isRestoring]);
 
     const nextStep = React.useCallback(() => setStep(prev => prev + 1), []);
     const prevStep = React.useCallback(() => setStep(prev => prev - 1), []);
@@ -31,6 +56,7 @@ const AIDesignPage = () => {
         setIsGenerating(false);
         hasStarted.current = false;
         setDesignData({ image: null, roomType: '', style: '', palette: '', generatedImage: null, designNarrative: '' });
+        clearWizardState().catch(console.error);
     }, []);
 
     const handleOnComplete = React.useCallback((narrative) => {
@@ -70,13 +96,13 @@ const AIDesignPage = () => {
             case 2: return <Step2Room onNext={nextStep} data={designData} updateData={updateData} />;
             case 3: return <Step3Style onNext={nextStep} data={designData} updateData={updateData} />;
             case 4: return <Step4Palette onNext={nextStep} data={designData} updateData={updateData} />;
-           case 5:
-    return (
-        <Step5Generate
-            data={designData}
-            onReset={reset}
-        />
-    );
+            case 5:
+                return (
+                    <Step5Generate
+                        data={designData}
+                        onReset={reset}
+                    />
+                );
             case 6: return <AIResult data={designData} onReset={reset} />;
             default: return null;
         }
@@ -88,8 +114,16 @@ const AIDesignPage = () => {
         { id: 3, label: 'Style' },
         { id: 4, label: 'Palette' },
         { id: 5, label: 'Result' }
-        
+
     ];
+
+    if (isRestoring) {
+        return (
+            <div className="pt-24 min-h-screen bg-black flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="pt-24 min-h-screen bg-black relative overflow-hidden">
@@ -119,9 +153,18 @@ const AIDesignPage = () => {
                         </div>
                     </div>
 
-                    <Link to="/" className="p-2 rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/5 transition-all">
-                        <X size={20} />
-                    </Link>
+                    {step > 1 && (
+                        <button
+                            onClick={() => {
+                                setDesignData({ image: null, roomType: '', style: '', palette: '', generatedImage: null, designNarrative: '' });
+                                setStep(1);
+                                clearWizardState().catch(console.error);
+                            }}
+                            className="p-2 cursor-pointer rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Progress Bar */}

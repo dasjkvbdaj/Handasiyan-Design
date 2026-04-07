@@ -30,59 +30,59 @@ const Step5Generate = ({ data, onReset }) => {
   };
 
   const handleGenerate = async () => {
-  if (loading || cooldown) return;
+    if (loading || cooldown) return;
 
-  if (!data.image) {
-    setError("Please upload an image first");
-    return;
-  }
-
-  setLoading(true);
-  setError(null);
-
-  try {
-    const formData = new FormData();
-    formData.append("file", data.image);
-    formData.append("roomType", data.roomType);
-    formData.append("style", data.style);
-    formData.append("palette", data.palette);
-
-    const res = await axios.post(
-      "http://localhost:8081/api/design/generate",
-      formData,
-      {
-        headers: {
-          "X-User-Id": localStorage.getItem("userId"),
-        }
-      }
-    );
-
-    console.log("IMAGE:", res.data.imageUrl.substring(0, 100));
-
-    setResult(res.data.imageUrl);
-
-    setCooldown(true);
-    setTimeout(() => setCooldown(false), 10000);
-
-  } catch (err) {
-
-    console.error("FULL ERROR:", err);
-    console.error("DATA:", err.response?.data);
-
-    const msg = err.response?.data?.error || "";
-
-    if (msg.includes("GEMINI_ERROR")) {
-      setError("AI failed. Try smaller image or different style.");
-    } else if (msg.includes("NO_IMAGE_RETURNED")) {
-      setError("No image generated. Try again.");
-    } else {
-      setError("Something went wrong.");
+    if (!data.image) {
+      setError("Please upload an image first");
+      return;
     }
 
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", data.image);
+      formData.append("roomType", data.roomType);
+      formData.append("style", data.style);
+      formData.append("palette", data.palette);
+
+      const res = await axios.post(
+        "http://localhost:8081/api/design/generate",
+        formData,
+        {
+          headers: {
+            "X-User-Id": localStorage.getItem("userId"),
+          }
+        }
+      );
+
+      console.log("IMAGE:", res.data.imageUrl.substring(0, 100));
+
+      setResult(res.data.imageUrl);
+
+      setCooldown(true);
+      setTimeout(() => setCooldown(false), 10000);
+
+    } catch (err) {
+
+      console.error("FULL ERROR:", err);
+      console.error("DATA:", err.response?.data);
+
+      const msg = err.response?.data?.error || "";
+
+      if (msg.includes("GEMINI_ERROR")) {
+        setError("AI failed. Try smaller image or different style.");
+      } else if (msg.includes("NO_IMAGE_RETURNED")) {
+        setError("No image generated. Try again.");
+      } else {
+        setError("Something went wrong.");
+      }
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 text-center">
@@ -152,18 +152,17 @@ const Step5Generate = ({ data, onReset }) => {
         <button
           onClick={handleGenerate}
           disabled={loading || cooldown}
-          className={`px-12 py-4 rounded-full font-semibold flex items-center gap-2 mx-auto transition ${
-            loading || cooldown
+          className={`px-12 py-4 rounded-full font-semibold flex items-center gap-2 mx-auto transition ${loading || cooldown
               ? "bg-gray-500 cursor-not-allowed"
               : "bg-[#d4af37] text-black hover:scale-105"
-          }`}
+            }`}
         >
           <Sparkles size={20} />
           {loading
             ? "Generating..."
             : cooldown
-            ? "Please wait..."
-            : "Generate Design"}
+              ? "Please wait..."
+              : "Generate Design"}
         </button>
       )}
 
