@@ -1,18 +1,18 @@
 export const projects = [
     {
-        name: 'Project 1',
-        folder: 'project-1',
-        imageCount: 3,
-        category: 'Architectural Design',
-        style: "Classic Style"
-    },
-    {
-        name: 'Project 2',
-        folder: 'project-2',
-        imageCount: 6,
+        name: 'Mohammad & Fatima Kitchen',
+        folder: 'Project-1',
+        imageCount: 4,
         category: 'Interior Design',
-        style: "Colourful Style"
+        style: "Minimalist Style"
     },
+    // {
+    //     name: 'Project 2',
+    //     folder: 'project-2',
+    //     imageCount: 6,
+    //     category: 'Interior Design',
+    //     style: "Colourful Style"
+    // },
     // {
     //     name: 'Project 3',
     //     folder: 'project-3',
