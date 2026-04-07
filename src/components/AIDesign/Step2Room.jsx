@@ -70,21 +70,6 @@ const Step2Room = ({ onNext, data, updateData }) => {
                     );
                 })}
             </div>
-
-            <div className="flex justify-center pt-8">
-                <button
-                    disabled={!data.roomType}
-                    onClick={onNext}
-                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                        data.roomType
-                            ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                            : 'bg-white/5 text-white/40 cursor-not-allowed'
-                    }`}
-                >
-                    Continue
-                    <ArrowRight size={20} />
-                </button>
-            </div>
         </div>
     );
 };

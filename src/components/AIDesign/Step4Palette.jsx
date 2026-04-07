@@ -3,6 +3,13 @@ import { Sparkles } from 'lucide-react';
 
 const palettes = [
     { 
+        id: 'surprise', 
+        name: 'Surprise Me', 
+        prompt: 'random creative color palette for interior design', 
+        colors: [],
+        image: ''
+    },
+    { 
         id: 'abyss', 
         name: 'Abyss', 
         prompt: 'deep sea mystery palette, teal to dark navy', 
@@ -203,21 +210,6 @@ const Step4Palette = ({ onNext, data, updateData }) => {
                         </button>
                     );
                 })}
-            </div>
-
-            <div className="flex justify-center pt-8 pb-12">
-                <button
-                    disabled={!data.palette}
-                    onClick={onNext}
-                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                        data.palette
-                            ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                            : 'bg-white/5 text-white/40 cursor-not-allowed'
-                    }`}
-                >
-                    Generate Design
-                    <Sparkles size={20} />
-                </button>
             </div>
         </div>
     );

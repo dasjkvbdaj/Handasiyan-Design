@@ -5,7 +5,7 @@ import Step3Style from '../components/AIDesign/Step3Style';
 import Step4Palette from '../components/AIDesign/Step4Palette';
 import Step5Generate from '../components/AIDesign/Step5Generate';
 
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { saveWizardState, loadWizardState, clearWizardState } from '../lib/storage';
 
@@ -153,18 +153,43 @@ const AIDesignPage = () => {
                         </div>
                     </div>
 
-                    {step > 1 && (
-                        <button
-                            onClick={() => {
-                                setDesignData({ image: null, roomType: '', style: '', palette: '', generatedImage: null, designNarrative: '' });
-                                setStep(1);
-                                clearWizardState().catch(console.error);
-                            }}
-                            className="p-2 cursor-pointer rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/5 transition-all"
-                        >
-                            <X size={20} />
-                        </button>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {step < 5 && (
+                            <button
+                                disabled={
+                                    (step === 1 && !designData.image) ||
+                                    (step === 2 && !designData.roomType) ||
+                                    (step === 3 && !designData.style) ||
+                                    (step === 4 && !designData.palette)
+                                }
+                                onClick={nextStep}
+                                className={`px-4 sm:px-6 py-2 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 text-sm sm:text-base ${
+                                    ((step === 1 && designData.image) ||
+                                    (step === 2 && designData.roomType) ||
+                                    (step === 3 && designData.style) ||
+                                    (step === 4 && designData.palette))
+                                        ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer'
+                                        : 'bg-white/5 text-white/40 cursor-not-allowed opacity-50'
+                                }`}
+                            >
+                                {step === 4 ? 'Generate Design' : 'Continue'}
+                                {step === 4 ? <Sparkles size={18} /> : <ArrowRight size={18} />}
+                            </button>
+                        )}
+
+                        {step > 1 && (
+                            <button
+                                onClick={() => {
+                                    setDesignData({ image: null, roomType: '', style: '', palette: '', generatedImage: null, designNarrative: '' });
+                                    setStep(1);
+                                    clearWizardState().catch(console.error);
+                                }}
+                                className="p-2 cursor-pointer rounded-full border border-white/10 text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            >
+                                <X size={20} />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {/* Progress Bar */}

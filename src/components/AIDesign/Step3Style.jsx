@@ -12,10 +12,12 @@ const styles = [
         id: 'baroque',
         name: 'Baroque',
         prompt: 'baroque luxury interior design',
-        image: 'https://images.unsplash.com/photo-1763668193378-0c2ea9c83922?q=80&w=800&auto=format&fit=crop'
-    },
+        image: 'https://i.pinimg.com/736x/65/e8/2e/65e82e4f97d00ab2f90d43334e17ef83.jpg'
+        
+    }
+    ,
     { id: 'mediterranean', name: 'Mediterranean', prompt: 'mediterranean interior design', image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=800&auto=format&fit=crop' },
-    { id: 'cyberpunk', name: 'Cyberpunk', prompt: 'cyberpunk futuristic interior neon lighting', image: 'https://images.unsplash.com/photo-1605806616949-1e87b487fc2f?q=80&w=800&auto=format&fit=crop' },
+    { id: 'cyberpunk', name: 'Cyberpunk', prompt: 'cyberpunk futuristic interior neon lighting', image: 'https://i.pinimg.com/736x/89/cd/97/89cd9759af23c0b3506f9282a863c197.jpg' },
     { id: 'biophilic', name: 'Biophilic', prompt: 'biophilic interior design with plants and natural light', image: 'https://plus.unsplash.com/premium_photo-1722048810826-751afbcc98c0?q=80&w=800&auto=format&fit=crop' },
     { id: 'ancient-egyptian', name: 'Ancient Egyptian', prompt: 'ancient egyptian style interior design', image: 'https://i.pinimg.com/736x/31/38/97/313897041499791e544eca4e9438f671.jpg' },
     { id: 'airbnb', name: 'Airbnb', prompt: 'modern airbnb style interior design', image: 'https://plus.unsplash.com/premium_photo-1686167994594-0613a50c9e92?q=80&w=800&auto=format&fit=crop' },
@@ -103,20 +105,6 @@ const Step3Style = ({ onNext, data, updateData }) => {
                         </button>
                     );
                 })}
-            </div>
-
-            <div className="flex justify-center pt-8 pb-12">
-                <button
-                    disabled={!data.style}
-                    onClick={onNext}
-                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${data.style
-                        ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                        : 'bg-white/5 text-white/40 cursor-not-allowed'
-                        }`}
-                >
-                    Continue
-                    <ArrowRight size={20} />
-                </button>
             </div>
         </div>
     );

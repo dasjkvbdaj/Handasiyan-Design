@@ -150,19 +150,6 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                     </label>
                 )}
             </div>
-
-            <div className="flex justify-center">
-                <button
-                    disabled={!preview}
-                    onClick={onNext}
-                    className={`px-12 py-4 rounded-full font-semibold transition-all duration-300 ${preview
-                            ? 'bg-[#d4af37] text-black hover:scale-105 shadow-[0_0_20px_rgba(212,175,55,0.3)]'
-                            : 'bg-white/5 text-white/40 cursor-not-allowed'
-                        }`}
-                >
-                    Continue
-                </button>
-            </div>
         </div>
     );
 };
