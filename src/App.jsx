@@ -13,6 +13,7 @@ import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 import DigitalCard from './pages/DigitalCard'
+import NotFoundPage from './pages/NotFoundPage'
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -53,21 +54,31 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/portfolio" element={<PortfolioPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/ai-design" element={<AIDesignPage />} />
-           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/reset-password" element={<ResetPassword/>} />
-          <Route path="/profile" element={<Profile/>} />
-          <Route path="/digitalCard" element={<DigitalCard/>} />
-        </Routes>
-      </Layout>
+      <Routes>
+        
+        {/* All other routes wrapped in Layout */}
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/services" element={<ServicesPage />} />
+                <Route path="/portfolio" element={<PortfolioPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/ai-design" element={<AIDesignPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/reset-password" element={<ResetPassword/>} />
+                <Route path="/profile" element={<Profile/>} />
+                <Route path="/digitalCard" element={<DigitalCard/>} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Layout>
+          }
+        />
+      </Routes>
     </Router>
   )
 }
