@@ -234,9 +234,16 @@ export const Hero = () => {
         const video = videoRef.current;
         if (!video) return;
 
+        // Explicitly set muted properties to ensure autoplay works on stricter browsers (e.g. Safari)
+        video.defaultMuted = true;
+        video.muted = true;
+
         const attemptPlay = () => {
             if (video.paused) {
-                video.play().catch(error => console.log('Video play interrupted:', error));
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => console.log('Video play interrupted:', error));
+                }
             }
         };
 
