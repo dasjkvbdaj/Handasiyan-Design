@@ -912,7 +912,7 @@ export const Portfolio = ({ isPreview = false }) => {
                 {/* Ambient glow */}
                 <div className="absolute right-0 bottom-0 w-[600px] h-[400px] bg-[#064e3b]/10 blur-[120px] pointer-events-none" />
 
-                <div className="max-w-[1600px] mx-auto sm:px-2 md:px-2 relative z-10">
+                <div className="max-w-[1600px] mx-auto sm:px-2 md:px-12 relative z-10">
                     {/* ── Header ── */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
                         <div className='px-5'>
