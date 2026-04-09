@@ -6,13 +6,13 @@ export const projects = [
         category: 'Interior Design',
         style: "Minimalist Style"
     },
-    // {
-    //     name: 'Project 2',
-    //     folder: 'project-2',
-    //     imageCount: 6,
-    //     category: 'Interior Design',
-    //     style: "Colourful Style"
-    // },
+    {
+        name: 'Mr. Enoch Ose',
+        folder: 'Project-2',
+        imageCount: 8,
+        category: 'Interior Design',
+        style: "Modern Style"
+    },
     // {
     //     name: 'Project 3',
     //     folder: 'project-3',
