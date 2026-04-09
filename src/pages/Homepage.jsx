@@ -674,14 +674,16 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
 
     const images = useMemo(
-        () =>
-            project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${id}.png`)
+        () => {
+            const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
+            return project.images
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${project.folder}/image-${i + 1}.png`
-                ),
-        [project]
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                );
+        },
+        [project, isMobile, isTablet]
     );
 
     const imageIndex = Math.abs(page % images.length);
@@ -852,6 +854,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     {isMobile ? <ArrowRight className="w-5 h-5" /> : 'View Project'}
                 </motion.button>
             </div>
+
+            {/* Preload adjacent images for smooth swiping */}
+            {images.length > 1 && (
+                <div className="hidden">
+                    <img src={images[(imageIndex + 1) % images.length]} rel="preload" alt="preload next" />
+                    <img src={images[(imageIndex - 1 + images.length) % images.length]} rel="preload" alt="preload prev" />
+                </div>
+            )}
         </motion.div>
     );
 }
@@ -1036,15 +1046,18 @@ export const Portfolio = ({ isPreview = false }) => {
  */
 const LightboxModal = ({ project, onClose }) => {
     const [[page, direction], setPage] = useState([0, 0]);
-    const images = project.images
-        ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${id}.png`)
-        : Array.from(
-            { length: project.imageCount },
-            (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/f_auto,q_auto/v1/${project.folder}/image-${i + 1}.png`
-        );
-
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
+
+    const images = useMemo(() => {
+        const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
+        return project.images
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
+            : Array.from(
+                { length: project.imageCount },
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+            );
+    }, [project, isMobile, isTablet]);
 
     const activeIndex = Math.abs(page % images.length);
 
@@ -1123,7 +1136,7 @@ const LightboxModal = ({ project, onClose }) => {
                             }}
                             src={images[activeIndex]}
                             alt={project.style}
-                            className="w-full h-full object-contain rounded-lg shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                            className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
                 </div>
@@ -1149,6 +1162,14 @@ const LightboxModal = ({ project, onClose }) => {
                         >
                             <ChevronRight className="w-7 h-7" />
                         </button>
+                    </div>
+                )}
+                
+                {/* Preload adjacent images for smooth swiping */}
+                {images.length > 1 && (
+                    <div className="hidden">
+                        <img src={images[(activeIndex + 1) % images.length]} rel="preload" alt="preload next" />
+                        <img src={images[(activeIndex - 1 + images.length) % images.length]} rel="preload" alt="preload prev" />
                     </div>
                 )}
             </motion.div>
