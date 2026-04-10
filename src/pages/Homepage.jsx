@@ -5,6 +5,10 @@ import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'fra
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects } from '../data/projects';
 
+// Cache buster evaluated once per module load. Ensures fresh Cloudinary
+// images on page reloads (e.g. after replacing images in Cloudinary),
+// without disabling caching during swiping/hovering.
+const SESSION_CACHE_BUST = Date.now();
 
 /**
  * GoldShimmer — continuous gold shimmer sweep, loops forever.
@@ -677,10 +681,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         () => {
             const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
             return project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
                 );
         },
         [project, isMobile, isTablet]
@@ -1052,10 +1056,10 @@ const LightboxModal = ({ project, onClose }) => {
     const images = useMemo(() => {
         const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
         return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
             );
     }, [project, isMobile, isTablet]);
 

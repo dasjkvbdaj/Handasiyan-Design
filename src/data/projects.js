@@ -13,13 +13,13 @@ export const projects = [
         category: 'Interior Design',
         style: "Modern Style"
     },
-    // {
-    //     name: 'Project 3',
-    //     folder: 'project-3',
-    //     imageCount: 5,
-    //     category: 'Architectural Design',
-    //     style: "Tropical Modern Style"
-    // },
+    {
+        name: 'Madame Fawzia Mohammed',
+        folder: 'Project-3',
+        imageCount: 8,
+        category: 'Interior Design',
+        style: "Contemporary Style"
+    },
     // {
     //     name: 'Project 4',
     //     folder: 'project-4',
