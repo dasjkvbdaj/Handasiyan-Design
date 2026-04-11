@@ -676,8 +676,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
     const images = useMemo(
         () => {
-            // Reduced widths + dpr_auto for faster delivery; 1600 was too heavy
-            const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
+            // Reduced widths + dpr_auto for faster delivery
+            // Mobile width reduced from 600 to 512 for better memory management
+            const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
                 ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
                 : Array.from(
@@ -706,8 +707,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     }, [images]);
 
     // When hovered, preload ALL remaining images so swiping is instant
+    // We disable this on mobile to prevent main-thread jank during touch-start
     useEffect(() => {
-        if (!hovered || imagesLoaded || images.length <= 1) return;
+        if (isMobile || !hovered || imagesLoaded || images.length <= 1) return;
 
         let loadedCount = 0;
         let isCancelled = false;
@@ -735,9 +737,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         return () => {
             isCancelled = true;
         };
-    }, [hovered, images, imagesLoaded]);
+    }, [hovered, images, imagesLoaded, isMobile]);
 
     // Prefetch the NEXT image in the sequence while the current one is displayed
+    // Only prefetch one at a time on mobile to stay efficient
     useEffect(() => {
         if (!hovered || images.length <= 1) return;
         const nextIndex = Math.abs((page + 1) % images.length);
@@ -814,11 +817,11 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         exit="exit"
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={0.8}
+                        dragElastic={isMobile ? 0.45 : 0.8}
                         onDragEnd={(e, { offset, velocity }) => {
-                            if (offset.x < -40 || velocity.x < -400) {
+                            if (offset.x < -30 || velocity.x < -300) {
                                 paginate(1);
-                            } else if (offset.x > 40 || velocity.x > 400) {
+                            } else if (offset.x > 30 || velocity.x > 300) {
                                 paginate(-1);
                             }
                         }}
@@ -827,6 +830,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                             opacity: { duration: 0.2 },
                         }}
                         className="absolute inset-0 w-full h-full"
+                        style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
                     >
                         <motion.img
                             src={images[imageIndex]}
@@ -1104,7 +1108,8 @@ const LightboxModal = ({ project, onClose }) => {
 
     const images = useMemo(() => {
         // Use the same params as ProjectCard so the browser cache is reused — no re-download!
-        const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
+        // Mobile width reduced from 600 to 512 for better memory management
+        const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
             ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
             : Array.from(
@@ -1113,15 +1118,22 @@ const LightboxModal = ({ project, onClose }) => {
             );
     }, [project, isMobile, isTablet]);
 
-    // Preload ALL images as soon as the modal opens so navigation is instant
-    useEffect(() => {
-        images.forEach((src) => {
-            const img = new Image();
-            img.src = src;
-        });
-    }, [images]);
-
     const activeIndex = Math.abs(page % images.length);
+
+    // Preload only current neighbors to stay snappy on mobile
+    useEffect(() => {
+        if (!images.length) return;
+        
+        const indicesToPreload = [
+            Math.abs((page + 1) % images.length),
+            Math.abs((page - 1 + images.length) % images.length)
+        ];
+
+        indicesToPreload.forEach(idx => {
+            const img = new Image();
+            img.src = images[idx];
+        });
+    }, [images, page]);
 
     const paginate = (newDirection) => {
         setPage([page + newDirection, newDirection]);
@@ -1178,7 +1190,7 @@ const LightboxModal = ({ project, onClose }) => {
             >
                 {/* Main Image Container */}
                 <div className="flex-1 w-full h-full flex items-center justify-center p-0 md:p-2 pointer-events-none min-h-0 touch-pan-y">
-                    <AnimatePresence mode="wait" custom={direction}>
+                    <AnimatePresence initial={false} custom={direction}>
                         <motion.img
                             key={activeIndex}
                             initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
@@ -1187,11 +1199,11 @@ const LightboxModal = ({ project, onClose }) => {
                             transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
                             drag="x"
                             dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={0.8}
+                            dragElastic={isMobile ? 0.45 : 0.8}
                             onDragEnd={(e, { offset, velocity }) => {
-                                if (offset.x < -40 || velocity.x < -400) {
+                                if (offset.x < -30 || velocity.x < -300) {
                                     handleNext(e);
-                                } else if (offset.x > 40 || velocity.x > 400) {
+                                } else if (offset.x > 30 || velocity.x > 300) {
                                     handlePrev(e);
                                 }
                             }}
@@ -1200,6 +1212,7 @@ const LightboxModal = ({ project, onClose }) => {
                             // Modal images must never be lazy — user is actively waiting to see them
                             loading="eager"
                             fetchPriority="high"
+                            style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
                             className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
