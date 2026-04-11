@@ -284,7 +284,7 @@ export const Hero = () => {
                     className="absolute min-w-full min-h-full object-cover"
                     onPause={(e) => {
                         if (!document.hidden) {
-                            e.target.play().catch(() => {});
+                            e.target.play().catch(() => { });
                         }
                     }}
                 >
@@ -666,6 +666,7 @@ export const CTA = () => {
 export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const [hovered, setHovered] = useState(false);
     const [[page, direction], setPage] = useState([0, 0]);
+    const [imagesLoaded, setImagesLoaded] = useState(false);
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
@@ -679,18 +680,74 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
     const images = useMemo(
         () => {
-            const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
+            // Reduced widths + dpr_auto for faster delivery; 1600 was too heavy
+            const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
                 ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
                 : Array.from(
                     { length: project.imageCount },
                     (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
                 );
+
+            /*
+            // Local fallback logic
+            return Array.from(
+                { length: project.imageCount },
+                (_, i) => `/portfolio_images/${project.folder}/image-${i + 1}.webp`
+            );
+            */
         },
         [project, isMobile, isTablet]
     );
 
     const imageIndex = Math.abs(page % images.length);
+
+    // Preload the first image of every card on mount so it appears instantly on hover
+    useEffect(() => {
+        if (!images.length) return;
+        const img = new Image();
+        img.src = images[0];
+    }, [images]);
+
+    // When hovered, preload ALL remaining images so swiping is instant
+    useEffect(() => {
+        if (!hovered || imagesLoaded || images.length <= 1) return;
+
+        let loadedCount = 0;
+        let isCancelled = false;
+
+        const checkDone = () => {
+            if (isCancelled) return;
+            loadedCount++;
+            if (loadedCount === images.length) {
+                setImagesLoaded(true);
+            }
+        };
+
+        images.forEach((src) => {
+            const img = new Image();
+            img.onload = checkDone;
+            img.onerror = checkDone;
+            img.src = src;
+            if (img.complete) {
+                img.onload = null;
+                img.onerror = null;
+                checkDone();
+            }
+        });
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [hovered, images, imagesLoaded]);
+
+    // Prefetch the NEXT image in the sequence while the current one is displayed
+    useEffect(() => {
+        if (!hovered || images.length <= 1) return;
+        const nextIndex = Math.abs((page + 1) % images.length);
+        const img = new Image();
+        img.src = images[nextIndex];
+    }, [hovered, page, images]);
 
     const paginate = useCallback(
         (newDirection) => setPage([page + newDirection, newDirection]),
@@ -703,13 +760,13 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
         // On mobile/tablet, we disable auto-swipe to prevent multiple cards swiping at once.
         // We only enable it on desktop when the user hovers over a card.
-        const shouldAutoSwipe = !isMobile && !isTablet && hovered;
+        const shouldAutoSwipe = !isMobile && !isTablet && hovered && imagesLoaded;
 
         if (!shouldAutoSwipe) return;
 
         const id = setInterval(() => paginate(1), 3000);
         return () => clearInterval(id);
-    }, [hovered, isMobile, isTablet, images.length, paginate]);
+    }, [hovered, isMobile, isTablet, images.length, paginate, imagesLoaded]);
 
     // Keyboard navigation when hovered
     useEffect(() => {
@@ -778,7 +835,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         <motion.img
                             src={images[imageIndex]}
                             alt={project.style}
-                            loading="lazy"
+                            // First image loads eagerly so the card appears instantly; rest are lazy
+                            loading={imageIndex === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={imageIndex === 0 && index < 4 ? 'high' : 'auto'}
                             style={{ y: isMobile ? 0 : imageY }}
                             className={`w-full ${isMobile ? 'h-full object-contain' : 'h-[115%] object-cover -translate-y-[7.5%]'} object-center`}
                         />
@@ -859,13 +918,6 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                 </motion.button>
             </div>
 
-            {/* Preload adjacent images for smooth swiping */}
-            {images.length > 1 && (
-                <div className="hidden">
-                    <img src={images[(imageIndex + 1) % images.length]} rel="preload" alt="preload next" />
-                    <img src={images[(imageIndex - 1 + images.length) % images.length]} rel="preload" alt="preload prev" />
-                </div>
-            )}
         </motion.div>
     );
 }
@@ -1054,7 +1106,8 @@ const LightboxModal = ({ project, onClose }) => {
     const isTablet = useMediaQuery('(max-width: 1024px)');
 
     const images = useMemo(() => {
-        const params = isMobile ? 'f_auto,q_auto,w_800' : (isTablet ? 'f_auto,q_auto,w_1200' : 'f_auto,q_auto,w_1600');
+        // Use the same params as ProjectCard so the browser cache is reused — no re-download!
+        const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
             ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
             : Array.from(
@@ -1062,6 +1115,14 @@ const LightboxModal = ({ project, onClose }) => {
                 (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
             );
     }, [project, isMobile, isTablet]);
+
+    // Preload ALL images as soon as the modal opens so navigation is instant
+    useEffect(() => {
+        images.forEach((src) => {
+            const img = new Image();
+            img.src = src;
+        });
+    }, [images]);
 
     const activeIndex = Math.abs(page % images.length);
 
@@ -1128,7 +1189,6 @@ const LightboxModal = ({ project, onClose }) => {
                             exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
                             transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
                             drag="x"
-                            loading='lazy'
                             dragConstraints={{ left: 0, right: 0 }}
                             dragElastic={0.8}
                             onDragEnd={(e, { offset, velocity }) => {
@@ -1140,6 +1200,9 @@ const LightboxModal = ({ project, onClose }) => {
                             }}
                             src={images[activeIndex]}
                             alt={project.style}
+                            // Modal images must never be lazy — user is actively waiting to see them
+                            loading="eager"
+                            fetchPriority="high"
                             className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                         />
                     </AnimatePresence>
@@ -1168,14 +1231,7 @@ const LightboxModal = ({ project, onClose }) => {
                         </button>
                     </div>
                 )}
-                
-                {/* Preload adjacent images for smooth swiping */}
-                {images.length > 1 && (
-                    <div className="hidden">
-                        <img src={images[(activeIndex + 1) % images.length]} rel="preload" alt="preload next" />
-                        <img src={images[(activeIndex - 1 + images.length) % images.length]} rel="preload" alt="preload prev" />
-                    </div>
-                )}
+
             </motion.div>
 
             {/* Close Button - Positioned absolutely within the fixed inset-0 modal */}
