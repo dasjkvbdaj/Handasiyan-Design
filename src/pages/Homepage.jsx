@@ -5,10 +5,6 @@ import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'fra
 import { Link, useSearchParams } from 'react-router-dom';
 import { projects } from '../data/projects';
 
-// Cache buster evaluated once per module load. Ensures fresh Cloudinary
-// images on page reloads (e.g. after replacing images in Cloudinary),
-// without disabling caching during swiping/hovering.
-const SESSION_CACHE_BUST = Date.now();
 
 /**
  * GoldShimmer — continuous gold shimmer sweep, loops forever.
@@ -683,10 +679,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             // Reduced widths + dpr_auto for faster delivery; 1600 was too heavy
             const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
                 );
 
             /*
@@ -947,10 +943,6 @@ export const Portfolio = ({ isPreview = false }) => {
     }, [categoryFilter]);
 
     useEffect(() => {
-        scrollContainerRef.current?.scrollTo({ left: 0, behavior: 'smooth' });
-    }, [activeCategory]);
-
-    useEffect(() => {
         document.body.style.overflow = lightbox ? 'hidden' : 'unset';
         return () => { document.body.style.overflow = 'unset'; };
     }, [lightbox]);
@@ -1023,6 +1015,11 @@ export const Portfolio = ({ isPreview = false }) => {
                                                     setActiveCategory(cat.id);
                                                     setSearchParams({ category: cat.id }, { replace: true });
                                                 });
+                                                // Smooth scroll back to the start of projects when manually switching categories
+                                                const element = document.getElementById('projects-section');
+                                                if (element) {
+                                                    element.scrollIntoView({ behavior: 'smooth' });
+                                                }
                                             }}
                                             className={`text-lg md:text-l font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
@@ -1109,10 +1106,10 @@ const LightboxModal = ({ project, onClose }) => {
         // Use the same params as ProjectCard so the browser cache is reused — no re-download!
         const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_600' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png?cb=${SESSION_CACHE_BUST}`)
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png?cb=${SESSION_CACHE_BUST}`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
             );
     }, [project, isMobile, isTablet]);
 

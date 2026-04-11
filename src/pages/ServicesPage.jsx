@@ -343,75 +343,36 @@ const ServicesPage = () => {
                     {/* Cards Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         {whyChooseUs.map((item, index) => (
-                            <motion.div
+                            <div
                                 key={index}
-                                variants={floatVariants(index)}
-                                animate="animate"
+                                //variants={floatVariants(index)}
                                 className="flex space-x-6"
                             >
                                 {/* Icon */}
                                 <div className="flex-shrink-0">
-                                    <motion.div
-                                        variants={glowVariants(index, isMobile)}
-                                        animate="animate"
+                                    <div
+                                        //variants={glowVariants(index, isMobile)}
                                         className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-yellow-500"
                                     >
                                         <Check className="w-6 h-6" />
-                                    </motion.div>
+                                    </div>
                                 </div>
 
                                 {/* Text */}
                                 <div>
                                     <div className="relative inline-block mb-3">
-                                        <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                                        {/* Animated shimmer underline */}
-                                        <motion.span
-                                            variants={underlineVariants(index)}
-                                            animate="animate"
-                                            style={{ originX: 0 }}
-                                            className="absolute bottom-0 left-0 h-px w-full bg-yellow-500/60 block"
-                                        />
+                                        <h3 className="text-xl font-bold text-white">{item.title}</h3>                                        
                                     </div>
                                     <p className="text-white/60 leading-relaxed">
                                         {item.description}
                                     </p>
                                 </div>
-                            </motion.div>
+                            </div>
                         ))}
                     </div>
                 </div>
             </section>
-            {/* <section className="py-24 bg-black border-t border-white/5">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Why Work With Us</h2>
-                        <p className="text-white/50">The Handasiyan difference is in the details.</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        {whyChooseUs.map((item, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="flex space-x-6"
-                            >
-                                <div className="flex-shrink-0">
-                                    <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-yellow-500">
-                                        <Check className="w-6 h-6" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                                    <p className="text-white/60 leading-relaxed">{item.description}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section> */}
+            
 
             <CTA />
         </div>
