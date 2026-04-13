@@ -666,13 +666,15 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
+    const slideRef = useRef(null);
+    const touchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
-    // Parallax scroll effect on the inner image
+    // Parallax scroll effect on the inner image — SKIP on mobile/tablet to avoid idle scroll listeners
     const { scrollYProgress } = useScroll({
         target: cardRef,
         offset: ['start end', 'end start'],
     });
-    const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+    const imageY = useTransform(scrollYProgress, [0, 1], (isMobile || isTablet) ? ['0%', '0%'] : ['0%', '12%']);
 
     const images = useMemo(
         () => {
@@ -698,13 +700,6 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     );
 
     const imageIndex = Math.abs(page % images.length);
-
-    // Preload the first image of every card on mount so it appears instantly on hover
-    useEffect(() => {
-        if (!images.length) return;
-        const img = new Image();
-        img.src = images[0];
-    }, [images]);
 
     // When hovered, preload ALL remaining images so swiping is instant
     // We disable this on mobile to prevent main-thread jank during touch-start
@@ -742,11 +737,26 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     // Prefetch the NEXT image in the sequence while the current one is displayed
     // Only prefetch one at a time on mobile to stay efficient
     useEffect(() => {
+        if (isMobile) {
+            // On mobile, prefetch neighbors silently via idle callback
+            if (images.length <= 1) return;
+            const prefetch = () => {
+                const nextIdx = Math.abs((page + 1) % images.length);
+                const img = new Image();
+                img.src = images[nextIdx];
+            };
+            const id = typeof requestIdleCallback !== 'undefined'
+                ? requestIdleCallback(prefetch)
+                : setTimeout(prefetch, 100);
+            return () => {
+                typeof cancelIdleCallback !== 'undefined' ? cancelIdleCallback(id) : clearTimeout(id);
+            };
+        }
         if (!hovered || images.length <= 1) return;
         const nextIndex = Math.abs((page + 1) % images.length);
         const img = new Image();
         img.src = images[nextIndex];
-    }, [hovered, page, images]);
+    }, [hovered, page, images, isMobile]);
 
     const paginate = useCallback(
         (newDirection) => setPage([page + newDirection, newDirection]),
@@ -778,7 +788,114 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         return () => window.removeEventListener('keydown', handleKeys);
     }, [hovered, images.length, paginate]);
 
-    // Slide variants
+    /* ── HIGH-PERFORMANCE TOUCH HANDLER (mobile only) ─────────────────────
+     * Bypasses React/Framer-Motion reconciliation during the gesture.
+     * Writes directly to the DOM via translate3d on rAF, giving true 60fps.
+     * Falls back to Framer Motion drag on desktop.
+     */
+    useEffect(() => {
+        if (!isMobile || images.length <= 1) return;
+        const el = slideRef.current;
+        if (!el) return;
+
+        const t = touchRef.current;
+
+        const onTouchStart = (e) => {
+            // Cancel any lingering rAF
+            if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
+            const touch = e.touches[0];
+            t.startX = touch.clientX;
+            t.startY = touch.clientY;
+            t.currentX = 0;
+            t.startTime = Date.now();
+            t.isDragging = true;
+            t.isScrolling = null; // will be decided on first move
+            el.style.transition = 'none'; // kill CSS transition during drag
+        };
+
+        const applyTransform = () => {
+            el.style.transform = `translate3d(${t.currentX}px, 0, 0)`;
+            t.rafId = null;
+        };
+
+        const onTouchMove = (e) => {
+            if (!t.isDragging) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - t.startX;
+            const dy = touch.clientY - t.startY;
+
+            // Determine scroll direction on first significant move
+            if (t.isScrolling === null) {
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 5) {
+                    // Vertical scroll — bail out and let the browser scroll
+                    t.isScrolling = true;
+                    t.isDragging = false;
+                    el.style.transform = 'translate3d(0,0,0)';
+                    el.style.transition = '';
+                    return;
+                } else if (Math.abs(dx) > 5) {
+                    t.isScrolling = false;
+                }
+            }
+
+            if (t.isScrolling) return;
+
+            // Horizontal swipe detected — prevent scroll
+            e.preventDefault();
+
+            // Apply elastic resistance at edges  (0.35 damping)
+            const elasticDx = dx * 0.45;
+            t.currentX = elasticDx;
+            // Batch the DOM write into rAF
+            if (!t.rafId) {
+                t.rafId = requestAnimationFrame(applyTransform);
+            }
+        };
+
+        const onTouchEnd = () => {
+            if (!t.isDragging && t.isScrolling !== false) return;
+            t.isDragging = false;
+            if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
+
+            const dx = t.currentX;
+            const elapsed = Date.now() - t.startTime;
+            const velocity = Math.abs(dx) / (elapsed || 1); // px/ms
+
+            // Snap with a CSS transition for the settle animation
+            el.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
+
+            const swipeThreshold = 30;
+            const velocityThreshold = 0.35; // px/ms
+
+            if (dx < -swipeThreshold || velocity > velocityThreshold && dx < 0) {
+                // Slide out left then paginate
+                el.style.transform = 'translate3d(-100%, 0, 0)';
+                setTimeout(() => { paginate(1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else if (dx > swipeThreshold || velocity > velocityThreshold && dx > 0) {
+                // Slide out right then paginate
+                el.style.transform = 'translate3d(100%, 0, 0)';
+                setTimeout(() => { paginate(-1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else {
+                // Snap back
+                el.style.transform = 'translate3d(0, 0, 0)';
+            }
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        el.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+        return () => {
+            if (t.rafId) cancelAnimationFrame(t.rafId);
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchmove', onTouchMove);
+            el.removeEventListener('touchend', onTouchEnd);
+            el.removeEventListener('touchcancel', onTouchEnd);
+        };
+    }, [isMobile, images.length, paginate]);
+
+    // Slide variants (used only on desktop where drag="x" is active)
     const swipeVariants = {
         enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
         center: { zIndex: 1, x: 0, opacity: 1 },
@@ -805,44 +922,62 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            {/* ── Full-bleed image with subtle parallax ── */}
-            <div className="absolute inset-0 w-full h-full overflow-hidden touch-pan-y">
-                <AnimatePresence initial={false} custom={direction}>
-                    <motion.div
-                        key={page}
-                        custom={direction}
-                        variants={swipeVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={isMobile ? 0.45 : 0.8}
-                        onDragEnd={(e, { offset, velocity }) => {
-                            if (offset.x < -30 || velocity.x < -300) {
-                                paginate(1);
-                            } else if (offset.x > 30 || velocity.x > 300) {
-                                paginate(-1);
-                            }
-                        }}
-                        transition={{
-                            x: { type: 'spring', stiffness: 450, damping: 35 },
-                            opacity: { duration: 0.2 },
-                        }}
+            {/* ── Full-bleed image ── */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden" style={{ touchAction: 'pan-y' }}>
+                {isMobile ? (
+                    /* MOBILE: Static image + raw touch handler for 60fps swipes */
+                    <div
+                        ref={slideRef}
                         className="absolute inset-0 w-full h-full"
                         style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
                     >
-                        <motion.img
+                        <img
                             src={images[imageIndex]}
                             alt={project.style}
-                            // First image loads eagerly so the card appears instantly; rest are lazy
-                            loading={imageIndex === 0 ? 'eager' : 'lazy'}
-                            fetchPriority={imageIndex === 0 && index < 4 ? 'high' : 'auto'}
-                            style={{ y: isMobile ? 0 : imageY }}
-                            className={`w-full ${isMobile ? 'h-full object-contain' : 'h-[115%] object-cover -translate-y-[7.5%]'} object-center`}
+                            loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
+                            draggable={false}
+                            className="w-full h-full object-contain object-center"
                         />
-                    </motion.div>
-                </AnimatePresence>
+                    </div>
+                ) : (
+                    /* DESKTOP: Framer Motion drag with AnimatePresence */
+                    <AnimatePresence initial={false} custom={direction}>
+                        <motion.div
+                            key={page}
+                            custom={direction}
+                            variants={swipeVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.8}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                if (offset.x < -30 || velocity.x < -300) {
+                                    paginate(1);
+                                } else if (offset.x > 30 || velocity.x > 300) {
+                                    paginate(-1);
+                                }
+                            }}
+                            transition={{
+                                x: { type: 'spring', stiffness: 450, damping: 35 },
+                                opacity: { duration: 0.2 },
+                            }}
+                            className="absolute inset-0 w-full h-full"
+                            style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
+                        >
+                            <motion.img
+                                src={images[imageIndex]}
+                                alt={project.style}
+                                loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
+                                fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
+                                style={{ y: imageY }}
+                                className="w-full h-[115%] object-cover -translate-y-[7.5%] object-center"
+                            />
+                        </motion.div>
+                    </AnimatePresence>
+                )}
             </div>
 
             {/* ── Scale overlay on hover ── */}
@@ -934,22 +1069,62 @@ export const Portfolio = ({ isPreview = false }) => {
 
     const scrollContainerRef = useRef(null);
 
-    const CATEGORIES_DATA = [
+    const CATEGORIES_DATA = useMemo(() => [
         { id: 'Full Design' },
         { id: 'Architectural Design' },
         { id: 'Interior Design' },
         { id: 'Civil Engineering' },
         { id: 'Mechanical and Electrical Engineering' },
-    ];
+    ], []);
 
     useEffect(() => {
-        if (categoryFilter) setActiveCategory(categoryFilter);
+        if (categoryFilter) {
+            setActiveCategory(categoryFilter);
+        }
     }, [categoryFilter]);
 
     useEffect(() => {
         document.body.style.overflow = lightbox ? 'hidden' : 'unset';
         return () => { document.body.style.overflow = 'unset'; };
     }, [lightbox]);
+
+    const loadNextCategory = useCallback(() => {
+        const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
+        if (currentIndex >= 0 && currentIndex < CATEGORIES_DATA.length - 1) {
+            const nextCatId = CATEGORIES_DATA[currentIndex + 1].id;
+            
+            startTransition(() => {
+                setActiveCategory(nextCatId);
+                setSearchParams({ category: nextCatId }, { replace: true });
+            });
+            
+            // Go back at the top of projects section as requested
+            const element = document.getElementById('projects-section');
+            if (element) {
+                // Use 'auto' instead of 'smooth' when triggering via scroll to avoid disorienting rubber-banding
+                element.scrollIntoView({ behavior: 'auto' });
+            }
+        }
+    }, [activeCategory, CATEGORIES_DATA, setSearchParams, startTransition]);
+
+    // Observer for transitioning automatically to the next category at the bottom
+    useEffect(() => {
+        if (isPreview) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                loadNextCategory();
+            }
+        }, { 
+            // trigger exactly when the bottom of the last project comes into view
+            rootMargin: '0px 0px 0px 0px' 
+        });
+
+        const trigger = document.getElementById('load-more-trigger');
+        if (trigger) observer.observe(trigger);
+
+        return () => observer.disconnect();
+    }, [isPreview, loadNextCategory]);
 
     const allProjects = [...projects].reverse();
     const filteredProjects = allProjects.filter(p => p.category === activeCategory);
@@ -1019,13 +1194,12 @@ export const Portfolio = ({ isPreview = false }) => {
                                                     setActiveCategory(cat.id);
                                                     setSearchParams({ category: cat.id }, { replace: true });
                                                 });
-                                                // Smooth scroll back to the start of projects when manually switching categories
                                                 const element = document.getElementById('projects-section');
                                                 if (element) {
                                                     element.scrollIntoView({ behavior: 'smooth' });
                                                 }
                                             }}
-                                            className={`text-lg md:text-l font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
+                                            className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
                                                 : hoveredCategory === cat.id
                                                     ? 'text-white blur-0 opacity-90 cursor-pointer'
@@ -1055,10 +1229,10 @@ export const Portfolio = ({ isPreview = false }) => {
                         </motion.div>
                     )}
 
-                    {/* ── Project List — always stacked vertically ── */}
+                    {/* ── Project List — Auto-Paginating Sequential Scroll ── */}
                     <div
                         ref={scrollContainerRef}
-                        className="flex flex-col gap-12 w-full pt-2"
+                        className="flex flex-col gap-16 md:gap-24 w-full pt-2"
                     >
                         {displayProjects.length > 0 ? (
                             displayProjects.map((project, index) => (
@@ -1079,6 +1253,8 @@ export const Portfolio = ({ isPreview = false }) => {
                                 <p className="text-white/40 text-lg font-light">Soon... Showcase of our latest projects in this category.</p>
                             </motion.div>
                         )}
+                        {/* Trigger to load the next category automatically when scrolling past the last project */}
+                        {!isPreview && <div id="load-more-trigger" className="w-full h-px bg-transparent" />}
                     </div>
 
                 </div>
@@ -1105,6 +1281,8 @@ const LightboxModal = ({ project, onClose }) => {
     const [[page, direction], setPage] = useState([0, 0]);
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
+    const lbSlideRef = useRef(null);
+    const lbTouchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
     const images = useMemo(() => {
         // Use the same params as ProjectCard so the browser cache is reused — no re-download!
@@ -1123,7 +1301,7 @@ const LightboxModal = ({ project, onClose }) => {
     // Preload only current neighbors to stay snappy on mobile
     useEffect(() => {
         if (!images.length) return;
-        
+
         const indicesToPreload = [
             Math.abs((page + 1) % images.length),
             Math.abs((page - 1 + images.length) % images.length)
@@ -1135,9 +1313,9 @@ const LightboxModal = ({ project, onClose }) => {
         });
     }, [images, page]);
 
-    const paginate = (newDirection) => {
+    const paginate = useCallback((newDirection) => {
         setPage([page + newDirection, newDirection]);
-    };
+    }, [page]);
 
     const handlePrev = (e) => {
         if (e) e.stopPropagation();
@@ -1148,6 +1326,94 @@ const LightboxModal = ({ project, onClose }) => {
         if (e) e.stopPropagation();
         paginate(1);
     };
+
+    /* ── HIGH-PERFORMANCE TOUCH HANDLER for Lightbox (mobile only) ── */
+    useEffect(() => {
+        if (!isMobile || images.length <= 1) return;
+        const el = lbSlideRef.current;
+        if (!el) return;
+
+        const t = lbTouchRef.current;
+
+        const onTouchStart = (e) => {
+            if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
+            const touch = e.touches[0];
+            t.startX = touch.clientX;
+            t.startY = touch.clientY;
+            t.currentX = 0;
+            t.startTime = Date.now();
+            t.isDragging = true;
+            t.isScrolling = null;
+            el.style.transition = 'none';
+        };
+
+        const applyTransform = () => {
+            el.style.transform = `translate3d(${t.currentX}px, 0, 0)`;
+            t.rafId = null;
+        };
+
+        const onTouchMove = (e) => {
+            if (!t.isDragging) return;
+            const touch = e.touches[0];
+            const dx = touch.clientX - t.startX;
+            const dy = touch.clientY - t.startY;
+
+            if (t.isScrolling === null) {
+                if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 5) {
+                    t.isScrolling = true;
+                    t.isDragging = false;
+                    el.style.transform = 'translate3d(0,0,0)';
+                    el.style.transition = '';
+                    return;
+                } else if (Math.abs(dx) > 5) {
+                    t.isScrolling = false;
+                }
+            }
+
+            if (t.isScrolling) return;
+            e.preventDefault();
+
+            t.currentX = dx * 0.45;
+            if (!t.rafId) {
+                t.rafId = requestAnimationFrame(applyTransform);
+            }
+        };
+
+        const onTouchEnd = () => {
+            if (!t.isDragging && t.isScrolling !== false) return;
+            t.isDragging = false;
+            if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
+
+            const dx = t.currentX;
+            const elapsed = Date.now() - t.startTime;
+            const velocity = Math.abs(dx) / (elapsed || 1);
+
+            el.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
+
+            if (dx < -30 || velocity > 0.35 && dx < 0) {
+                el.style.transform = 'translate3d(-100%, 0, 0)';
+                setTimeout(() => { paginate(1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else if (dx > 30 || velocity > 0.35 && dx > 0) {
+                el.style.transform = 'translate3d(100%, 0, 0)';
+                setTimeout(() => { paginate(-1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else {
+                el.style.transform = 'translate3d(0, 0, 0)';
+            }
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchmove', onTouchMove, { passive: false });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        el.addEventListener('touchcancel', onTouchEnd, { passive: true });
+
+        return () => {
+            if (t.rafId) cancelAnimationFrame(t.rafId);
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchmove', onTouchMove);
+            el.removeEventListener('touchend', onTouchEnd);
+            el.removeEventListener('touchcancel', onTouchEnd);
+        };
+    }, [isMobile, images.length, paginate]);
 
     return (
         <motion.div
@@ -1189,33 +1455,52 @@ const LightboxModal = ({ project, onClose }) => {
                 onClick={e => e.stopPropagation()}
             >
                 {/* Main Image Container */}
-                <div className="flex-1 w-full h-full flex items-center justify-center p-0 md:p-2 pointer-events-none min-h-0 touch-pan-y">
-                    <AnimatePresence initial={false} custom={direction}>
-                        <motion.img
-                            key={activeIndex}
-                            initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
-                            transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={isMobile ? 0.45 : 0.8}
-                            onDragEnd={(e, { offset, velocity }) => {
-                                if (offset.x < -30 || velocity.x < -300) {
-                                    handleNext(e);
-                                } else if (offset.x > 30 || velocity.x > 300) {
-                                    handlePrev(e);
-                                }
-                            }}
-                            src={images[activeIndex]}
-                            alt={project.style}
-                            // Modal images must never be lazy — user is actively waiting to see them
-                            loading="eager"
-                            fetchPriority="high"
+                <div className="flex-1 w-full h-full flex items-center justify-center p-0 md:p-2 min-h-0" style={{ touchAction: 'pan-y' }}>
+                    {isMobile ? (
+                        /* MOBILE: Raw touch handler for buttery-smooth swiping */
+                        <div
+                            ref={lbSlideRef}
+                            className="w-full h-full flex items-center justify-center pointer-events-auto"
                             style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
-                            className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
-                        />
-                    </AnimatePresence>
+                        >
+                            <img
+                                src={images[activeIndex]}
+                                alt={project.style}
+                                loading="eager"
+                                fetchPriority="high"
+                                draggable={false}
+                                className="w-full h-full object-contain rounded-lg"
+                            />
+                        </div>
+                    ) : (
+                        /* DESKTOP/TABLET: Framer Motion drag */
+                        <AnimatePresence initial={false} custom={direction}>
+                            <motion.img
+                                key={activeIndex}
+                                initial={{ opacity: 0, x: direction > 0 ? 100 : -100, scale: 1.02 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: direction > 0 ? -100 : 100, scale: 0.98 }}
+                                transition={{ x: { type: 'spring', stiffness: 450, damping: 35 }, opacity: { duration: 0.2 } }}
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={0.8}
+                                onDragEnd={(e, { offset, velocity }) => {
+                                    if (offset.x < -30 || velocity.x < -300) {
+                                        handleNext(e);
+                                    } else if (offset.x > 30 || velocity.x > 300) {
+                                        handlePrev(e);
+                                    }
+                                }}
+                                src={images[activeIndex]}
+                                alt={project.style}
+                                // Modal images must never be lazy — user is actively waiting to see them
+                                loading="eager"
+                                fetchPriority="high"
+                                style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
+                                className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
+                            />
+                        </AnimatePresence>
+                    )}
                 </div>
 
                 {/* Mobile/Tablet Navigation Arrows (Under Image) */}
@@ -1262,9 +1547,9 @@ const HomePage = () => {
         <>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');`}</style>
             <Hero />
+            <Portfolio isPreview={true} />
             <About isPreview={true} />
             <Services isPreview={true} />
-            <Portfolio isPreview={true} />
             <ContactSection />
             <CTA />
         </>
