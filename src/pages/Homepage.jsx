@@ -1066,6 +1066,7 @@ export const Portfolio = ({ isPreview = false }) => {
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
     const [hoveredCategory, setHoveredCategory] = useState(null);
     const [isPending, startTransition] = useTransition();
+    const [isChangingCategory, setIsChangingCategory] = useState(false);
 
     const scrollContainerRef = useRef(null);
 
@@ -1089,42 +1090,60 @@ export const Portfolio = ({ isPreview = false }) => {
     }, [lightbox]);
 
     const loadNextCategory = useCallback(() => {
-        const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
-        if (currentIndex >= 0 && currentIndex < CATEGORIES_DATA.length - 1) {
-            const nextCatId = CATEGORIES_DATA[currentIndex + 1].id;
-            
-            setActiveCategory(nextCatId);
-            startTransition(() => {
-                setSearchParams({ category: nextCatId }, { replace: true });
-            });
-            
-            // Go back at the top of projects section as requested
-            const element = document.getElementById('projects-section');
-            if (element) {
-                // Use 'auto' instead of 'smooth' when triggering via scroll to avoid disorienting rubber-banding
-                element.scrollIntoView({ behavior: 'auto' });
-            }
-        }
-    }, [activeCategory, CATEGORIES_DATA, setSearchParams, startTransition]);
+        if (isChangingCategory) return;
 
-    // Observer for transitioning automatically to the next category at the bottom
+        const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
+        let nextIndex = currentIndex + 1;
+
+        // Skip categories that don't have any projects to avoid immediate "stutter" skipping
+        while (nextIndex < CATEGORIES_DATA.length) {
+            const nextCat = CATEGORIES_DATA[nextIndex];
+            const hasProjects = projects.some(p => p.category === nextCat.id);
+
+            if (hasProjects) {
+                const nextCatId = nextCat.id;
+
+                // Set cooldown to prevent skipping multiple categories in one scroll
+                setIsChangingCategory(true);
+                setActiveCategory(nextCatId);
+
+                startTransition(() => {
+                    setSearchParams({ category: nextCatId }, { replace: true });
+                });
+
+                // Reset cooldown after a delay to allow the new category to render and scroll
+                setTimeout(() => {
+                    setIsChangingCategory(false);
+                }, 1200);
+
+                return;
+            }
+            nextIndex++;
+        }
+    }, [activeCategory, CATEGORIES_DATA, isChangingCategory, setSearchParams, startTransition]);
+
+    // Handle auto-scroll to top of projects section when category changes
     useEffect(() => {
         if (isPreview) return;
 
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadNextCategory();
-            }
-        }, { 
-            // trigger exactly when the bottom of the last project comes into view
-            rootMargin: '0px 0px 0px 0px' 
-        });
+        const element = document.getElementById('projects-section');
+        if (element) {
+            // Forced instant scroll to ensure we're at the top of the new category's projects
+            element.scrollIntoView({ behavior: 'auto' });
+        }
+    }, [activeCategory, isPreview]);
 
-        const trigger = document.getElementById('load-more-trigger');
-        if (trigger) observer.observe(trigger);
-
-        return () => observer.disconnect();
-    }, [isPreview, loadNextCategory]);
+    // Calculate the next available category with projects
+    const nextCategory = useMemo(() => {
+        const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
+        let nextIndex = currentIndex + 1;
+        while (nextIndex < CATEGORIES_DATA.length) {
+            const nextCat = CATEGORIES_DATA[nextIndex];
+            if (projects.some(p => p.category === nextCat.id)) return nextCat;
+            nextIndex++;
+        }
+        return null;
+    }, [activeCategory, CATEGORIES_DATA]);
 
     const allProjects = [...projects].reverse();
     const filteredProjects = allProjects.filter(p => p.category === activeCategory);
@@ -1231,6 +1250,7 @@ export const Portfolio = ({ isPreview = false }) => {
 
                     {/* ── Project List — Auto-Paginating Sequential Scroll ── */}
                     <div
+                        key={activeCategory} // Force unmount/remount of project list for a clean state reset between categories
                         ref={scrollContainerRef}
                         className="flex flex-col gap-16 md:gap-24 w-full pt-2"
                     >
@@ -1253,8 +1273,65 @@ export const Portfolio = ({ isPreview = false }) => {
                                 <p className="text-white/40 text-lg font-light">Soon... Showcase of our latest projects in this category.</p>
                             </motion.div>
                         )}
-                        {/* Trigger to load the next category automatically when scrolling past the last project */}
-                        {!isPreview && <div id="load-more-trigger" className="w-full h-px bg-transparent" />}
+                        {/* Next Category Button — manual transition instead of automatic */}
+                        {!isPreview && nextCategory && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true, margin: "-50px" }}
+                                className="mt-24 md:mt-32 mb-16 px-6 flex flex-col items-center gap-8"
+                            >
+                                {/* Vertical divider with gold shimmer */}
+                                <div className="relative h-20 md:h-28 w-px overflow-hidden">
+                                    <div className="absolute inset-0 bg-white/10" />
+                                    <motion.div
+                                        animate={{ y: ['-100%', '100%'] }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        className="absolute inset-0 bg-gradient-to-b from-transparent via-[#d4af37] to-transparent"
+                                    />
+                                </div>
+
+                                <button
+                                    onClick={loadNextCategory}
+                                    className="group relative flex flex-col items-center gap-5 w-full max-w-2xl transition-all duration-500"
+                                >
+                                    <span className="text-white/30 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-bold transition-colors duration-500 group-hover:text-[#d4af37]">
+                                        Explore Next Phase
+                                    </span>
+
+                                    <div className="relative w-full sm:w-auto flex items-center justify-center gap-4 px-6 md:px-12 py-5 md:py-7 bg-white/[0.02] border border-white/10 rounded-full hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all duration-700 backdrop-blur-sm overflow-hidden group">
+                                        {/* Subtle internal glow on hover */}
+                                        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                                        <span
+                                            className="cursor-pointer relative z-10 text-xl sm:cursor-pointer text-2xl md:text-3xl font-bold tracking-tight lowercase leading-none"
+                                            style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                                        >
+                                            View <span className="italic">{nextCategory.id} Projects</span>
+                                        </span>
+
+                                        <motion.div
+                                            className="relative z-10 flex-shrink-0"
+                                            animate={{ x: [0, 5, 0] }}
+                                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <ArrowRight className="w-5 h-5 md:w-6 md:h-6 transition-transform duration-500 group-hover:scale-110" />
+                                        </motion.div>
+                                    </div>
+
+                                    {/* Hover hint */}
+                                    <div className="h-4 overflow-hidden">
+                                        <motion.span
+                                            initial={{ y: 20 }}
+                                            whileHover={{ y: 0 }}
+                                            className="hidden md:block text-[#d4af37]/60 text-[10px] italic tracking-widest uppercase font-medium"
+                                        >
+                                            Continue the journey
+                                        </motion.span>
+                                    </div>
+                                </button>
+                            </motion.div>
+                        )}
                     </div>
 
                 </div>
