@@ -13,6 +13,7 @@ const GoldShimmer = ({ children, className = '' }) => {
     const isMobile = useMediaQuery('(max-width: 1024px)');
     return (
         <span className={`relative inline-block ${className}`}>
+            {/* Base text rendered twice: once for layout, once clipped by shimmer */}
             <span className="relative">{children}</span>
             <motion.span
                 aria-hidden
@@ -150,6 +151,7 @@ const TypewriterLoop = ({ texts, className = '' }) => {
     return (
         <span className={className}>
             {display}
+            {/* blinking cursor */}
             <motion.span
                 animate={{ opacity: [1, 0, 1] }}
                 transition={{ duration: 0.85, repeat: Infinity, ease: 'easeInOut' }}
@@ -221,14 +223,18 @@ export const Hero = () => {
     const ref = useRef(null);
     const videoRef = useRef(null);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-    const y = useTransform(scrollYProgress, [0, 1], ['-4%', '2%']);
+    const y = useTransform(scrollYProgress, [0, 1], ['-4%', '2%']); // Reduced parallax range and shifted up initially to avoid overlap
     const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-    const scale = useTransform(scrollYProgress, [0, 1], [1.1, 1.15]);
+    const scale = useTransform(scrollYProgress, [0, 1], [1.1, 1.15]); // Slightly increased scale to cover the y-shift
+
+    // Fade out scroll indicator almost immediately on scroll
     const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
+
+        // Explicitly set muted properties to ensure autoplay works on stricter browsers (e.g. Safari)
         video.defaultMuted = true;
         video.muted = true;
 
@@ -241,19 +247,28 @@ export const Hero = () => {
             }
         };
 
+        // Try playing immediately
         attemptPlay();
 
+        // Resume if tab becomes visible
         const handleVisibilityChange = () => {
-            if (!document.hidden) attemptPlay();
+            if (!document.hidden) {
+                attemptPlay();
+            }
         };
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, []);
 
     return (
         <section ref={ref} className="relative h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center text-center">
+            {/* Parallax Video BG */}
             <motion.div style={{ y, scale, opacity }} className="absolute inset-0 z-0">
+                {/* Blurred background fill — shows behind letterbox areas on mobile/tablet */}
                 <video
                     ref={videoRef}
                     autoPlay
@@ -270,11 +285,13 @@ export const Hero = () => {
                     }}
                 >
                     <source src="/video.mp4" type="video/mp4" />
+
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/5 to-black/80 z-10" />
                 <div className="absolute inset-0 bg-black/15 z-[5]" />
             </motion.div>
 
+            {/* Grain */}
             <div className="absolute inset-0 z-[6] opacity-[0.035] pointer-events-none overflow-hidden"
                 style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
@@ -283,6 +300,8 @@ export const Hero = () => {
                 }}
             />
 
+
+            {/* Content Overlay */}
             <div className="relative z-20 flex flex-col items-center gap-0 px-6 mt-[-5vh] sm:mt-0">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -313,6 +332,8 @@ export const Hero = () => {
                     </motion.div>
                 </motion.div>
             </motion.div>
+
+
         </section>
     );
 };
@@ -324,6 +345,8 @@ export const About = ({ isPreview = false }) => {
             <div className="absolute -right-40 top-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-[#064e3b]/20 blur-[120px] pointer-events-none" />
 
             <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
+
+                {/* ── LOOP: pulsing lines + breathing label ── */}
                 <motion.div
                     variants={fadeIn}
                     initial="hidden"
@@ -345,9 +368,11 @@ export const About = ({ isPreview = false }) => {
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                 >
                     We create spaces that<br />
+                    {/* ── LOOP: gold shimmer ── */}
                     <GoldShimmer className="text-[#d4af37]">reflect your soul.</GoldShimmer>
                 </motion.h2>
 
+                {/* ── LOOP: paragraph gently breathes opacity ── */}
                 <motion.p
                     variants={fadeUp}
                     initial="hidden"
@@ -405,12 +430,14 @@ export const Services = ({ isPreview = false }) => {
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div>
+                        {/* ── LOOP: pulsing line + breathing label ── */}
                         <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
                             className="inline-flex items-center gap-3 mb-4">
                             <PulsingLine />
                             <BreathingLabel>What We Do</BreathingLabel>
                         </motion.div>
 
+                        {/* ── LOOP: rotating headline words ── */}
                         <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
                             className="text-4xl md:text-5xl font-bold text-white"
                             style={{ fontFamily: "'Cormorant Garamond', serif" }}>
@@ -478,6 +505,7 @@ export const ContactSection = () => {
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#064e3b]/30 rounded-full blur-[150px]" />
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-[#d4af37]/8 rounded-full blur-[100px]" />
+                {/* Wavy Pattern Consistency */}
                 <div className="absolute inset-0 overflow-hidden opacity-[0.03]">
                     {[...Array(6)].map((_, i) => (
                         <div key={i}
@@ -491,6 +519,7 @@ export const ContactSection = () => {
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 <div className="grid md:grid-cols-2 gap-16 items-center">
                     <div>
+                        {/* ── LOOP: breathing label ── */}
                         <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
                             className="inline-flex items-center gap-3 mb-6">
                             <PulsingLine />
@@ -501,9 +530,11 @@ export const ContactSection = () => {
                             className="text-4xl md:text-6xl font-bold text-white mb-6 leading-[1.1]"
                             style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                             Bringing vision<br />
+                            {/* ── LOOP: shimmer ── */}
                             <GoldShimmer className="text-[#d4af37]">to reality.</GoldShimmer>
                         </motion.h2>
 
+                        {/* ── LOOP: typewriter rotating phrases ── */}
                         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1}
                             className="text-white/50 text-lg mb-10 min-h-[3rem] leading-relaxed">
                             <TypewriterLoop texts={[
@@ -537,6 +568,7 @@ export const ContactSection = () => {
 
                     <motion.div variants={scaleIn} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative">
                         <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-10 backdrop-blur-sm relative overflow-hidden">
+                            {/* ── LOOP: sweeping top shimmer line ── */}
                             <motion.div
                                 className="absolute top-0 left-0 h-0.5 bg-gradient-to-r from-transparent via-[#d4af37]/70 to-transparent"
                                 style={{ width: '55%' }}
@@ -582,6 +614,7 @@ export const CTA = () => {
             </div>
 
             <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
+                {/* ── LOOP: pulsing lines + breathing label ── */}
                 <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
                     className="inline-flex items-center gap-3 mb-8">
                     <PulsingLine delay={0} />
@@ -598,10 +631,12 @@ export const CTA = () => {
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                 >
                     Ready to build your<br />
+                    {/* ── LOOP: shimmer on "dream" ── */}
                     <GoldShimmer className="text-[#d4af37] italic">dream</GoldShimmer>
                     {' '}with excellence?
                 </motion.h2>
 
+                {/* ── LOOP: infinite marquee strip ── */}
                 <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                     <MarqueeStrip items={ctaMarquee} />
                 </motion.div>
@@ -624,58 +659,6 @@ export const CTA = () => {
     );
 };
 
-/* ─── PARALLAX IMAGE (desktop-only) ──────────────────────────────────────────
- * FIX #2b: Isolates useScroll into its own component so mobile ProjectCards
- * never register a scroll listener at all. On a page with 6+ cards this was
- * adding 6+ passive scroll listeners on mobile — a direct cause of jank.
- */
-const ParallaxImage = ({ src, alt, loading, fetchPriority }) => {
-    const ref = useRef(null);
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ['start end', 'end start'],
-    });
-    const y = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
-
-    return (
-        <motion.div ref={ref} className="absolute inset-0 w-full h-full">
-            <motion.img
-                src={src}
-                alt={alt}
-                loading={loading}
-                fetchPriority={fetchPriority}
-                style={{ y }}
-                draggable={false}
-                className="w-full h-[115%] object-cover -translate-y-[7.5%] object-center"
-            />
-        </motion.div>
-    );
-};
-
-/* ─── BUILD CLOUDINARY URL PARAMS ────────────────────────────────────────────
- * FIX #3: Remove dpr_auto (requires HTTP client-hint headers — not sent by
- * browsers without explicit opt-in). Instead we read window.devicePixelRatio
- * directly and bake the correct pixel width into the URL, capped at 2×.
- * Also switch q_auto → q_auto:good for architecture photography quality, and
- * add c_limit so Cloudinary never upscales a smaller source image.
- */
-function buildCloudinaryParams(isMobile, isTablet) {
-    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-
-    if (isMobile) {
-        // 390px viewport × 2× DPR = 780 → round to 800 for clean cache key
-        const w = Math.round(390 * dpr / 100) * 100 || 800;
-        return `f_auto,q_auto:good,c_limit,w_${w}`;
-    }
-    if (isTablet) {
-        // 820px viewport × 2× DPR = 1640 → round to 1600
-        const w = Math.round(820 * dpr / 100) * 100 || 1600;
-        return `f_auto,q_auto:good,c_limit,w_${w}`;
-    }
-    // Desktop: max at 1600 — the card never renders wider than that
-    return 'f_auto,q_auto:good,c_limit,w_1600';
-}
-
 export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const [hovered, setHovered] = useState(false);
     const [[page, direction], setPage] = useState([0, 0]);
@@ -684,40 +667,42 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const cardRef = useRef(null);
     const slideRef = useRef(null);
-    const touchRef = useRef({
-        startX: 0, startY: 0, startTime: 0,
-        currentX: 0, isDragging: false, rafId: null, isScrolling: null,
-    });
+    const touchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
-    // ─── FIX #2a: Stable paginate reference ───────────────────────────────
-    // Using the functional updater form of setPage means this callback has
-    // zero external dependencies and never needs to be recreated. Previously
-    // paginate depended on [page], so it changed every swipe, which caused
-    // the touch useEffect to re-run and re-register all event listeners on
-    // every single swipe — the primary source of input lag.
-    const paginate = useCallback((newDirection) => {
-        setPage(prev => [prev[0] + newDirection, newDirection]);
-    }, []); // ← intentionally empty — this is now a stable reference
+    // Parallax scroll effect on the inner image — SKIP on mobile/tablet to avoid idle scroll listeners
+    const { scrollYProgress } = useScroll({
+        target: cardRef,
+        offset: ['start end', 'end start'],
+    });
+    const imageY = useTransform(scrollYProgress, [0, 1], (isMobile || isTablet) ? ['0%', '0%'] : ['0%', '12%']);
 
     const images = useMemo(
         () => {
-            const params = buildCloudinaryParams(isMobile, isTablet);
+            // Reduced widths + dpr_auto for faster delivery
+            // Mobile width reduced from 600 to 512 for better memory management
+            const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
-                ? project.images.map(id =>
-                    `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`
-                )
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) =>
-                        `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
                 );
+
+            /*
+            // Local fallback logic
+            return Array.from(
+                { length: project.imageCount },
+                (_, i) => `/portfolio_images/${project.folder}/image-${i + 1}.webp`
+            );
+            */
         },
         [project, isMobile, isTablet]
     );
 
     const imageIndex = Math.abs(page % images.length);
 
-    // Preload on hover (desktop only — already correct)
+    // When hovered, preload ALL remaining images so swiping is instant
+    // We disable this on mobile to prevent main-thread jank during touch-start
     useEffect(() => {
         if (isMobile || !hovered || imagesLoaded || images.length <= 1) return;
 
@@ -727,7 +712,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         const checkDone = () => {
             if (isCancelled) return;
             loadedCount++;
-            if (loadedCount === images.length) setImagesLoaded(true);
+            if (loadedCount === images.length) {
+                setImagesLoaded(true);
+            }
         };
 
         images.forEach((src) => {
@@ -735,15 +722,23 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             img.onload = checkDone;
             img.onerror = checkDone;
             img.src = src;
-            if (img.complete) { img.onload = null; img.onerror = null; checkDone(); }
+            if (img.complete) {
+                img.onload = null;
+                img.onerror = null;
+                checkDone();
+            }
         });
 
-        return () => { isCancelled = true; };
+        return () => {
+            isCancelled = true;
+        };
     }, [hovered, images, imagesLoaded, isMobile]);
 
-    // Prefetch next neighbor
+    // Prefetch the NEXT image in the sequence while the current one is displayed
+    // Only prefetch one at a time on mobile to stay efficient
     useEffect(() => {
         if (isMobile) {
+            // On mobile, prefetch neighbors silently via idle callback
             if (images.length <= 1) return;
             const prefetch = () => {
                 const nextIdx = Math.abs((page + 1) % images.length);
@@ -763,16 +758,26 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         img.src = images[nextIndex];
     }, [hovered, page, images, isMobile]);
 
-    // Auto-swipe on desktop hover
+    const paginate = useCallback(
+        (newDirection) => setPage([page + newDirection, newDirection]),
+        [page]
+    );
+
+    // Auto-swipe every 3 s, only if hovered (desktop only)
     useEffect(() => {
         if (images.length <= 1) return;
+
+        // On mobile/tablet, we disable auto-swipe to prevent multiple cards swiping at once.
+        // We only enable it on desktop when the user hovers over a card.
         const shouldAutoSwipe = !isMobile && !isTablet && hovered && imagesLoaded;
+
         if (!shouldAutoSwipe) return;
+
         const id = setInterval(() => paginate(1), 3000);
         return () => clearInterval(id);
     }, [hovered, isMobile, isTablet, images.length, paginate, imagesLoaded]);
 
-    // Keyboard nav
+    // Keyboard navigation when hovered
     useEffect(() => {
         if (!hovered || images.length <= 1) return;
         const handleKeys = (e) => {
@@ -783,14 +788,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         return () => window.removeEventListener('keydown', handleKeys);
     }, [hovered, images.length, paginate]);
 
-    /* ── HIGH-PERFORMANCE TOUCH HANDLER ──────────────────────────────────────
-     * FIX #2c: Replaced the 280ms setTimeout exit animation with an instant
-     * crossfade (100ms fade-out → swap image → 130ms fade-in). This cuts the
-     * perceived delay to image change by ~60% while still feeling premium.
-     *
-     * FIX #2a (continued): Because paginate is now stable (empty deps), this
-     * effect only re-runs when isMobile or images.length changes — NOT on
-     * every swipe. This is the biggest single performance win.
+    /* ── HIGH-PERFORMANCE TOUCH HANDLER (mobile only) ─────────────────────
+     * Bypasses React/Framer-Motion reconciliation during the gesture.
+     * Writes directly to the DOM via translate3d on rAF, giving true 60fps.
+     * Falls back to Framer Motion drag on desktop.
      */
     useEffect(() => {
         if (!isMobile || images.length <= 1) return;
@@ -798,10 +799,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         if (!el) return;
 
         const t = touchRef.current;
-        let animatingOut = false; // guard: ignore touches during crossfade
 
         const onTouchStart = (e) => {
-            if (animatingOut) return; // block new touch during crossfade
+            // Cancel any lingering rAF
             if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
             const touch = e.touches[0];
             t.startX = touch.clientX;
@@ -809,8 +809,8 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             t.currentX = 0;
             t.startTime = Date.now();
             t.isDragging = true;
-            t.isScrolling = null;
-            el.style.transition = 'none';
+            t.isScrolling = null; // will be decided on first move
+            el.style.transition = 'none'; // kill CSS transition during drag
         };
 
         const applyTransform = () => {
@@ -819,13 +819,15 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
         };
 
         const onTouchMove = (e) => {
-            if (!t.isDragging || animatingOut) return;
+            if (!t.isDragging) return;
             const touch = e.touches[0];
             const dx = touch.clientX - t.startX;
             const dy = touch.clientY - t.startY;
 
+            // Determine scroll direction on first significant move
             if (t.isScrolling === null) {
                 if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 5) {
+                    // Vertical scroll — bail out and let the browser scroll
                     t.isScrolling = true;
                     t.isDragging = false;
                     el.style.transform = 'translate3d(0,0,0)';
@@ -837,9 +839,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             }
 
             if (t.isScrolling) return;
+
+            // Horizontal swipe detected — prevent scroll
             e.preventDefault();
 
-            t.currentX = dx * 0.45;
+            // Apply elastic resistance at edges  (0.35 damping)
+            const elasticDx = dx * 0.45;
+            t.currentX = elasticDx;
+            // Batch the DOM write into rAF
             if (!t.rafId) {
                 t.rafId = requestAnimationFrame(applyTransform);
             }
@@ -852,33 +859,24 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
             const dx = t.currentX;
             const elapsed = Date.now() - t.startTime;
-            const velocity = Math.abs(dx) / (elapsed || 1);
+            const velocity = Math.abs(dx) / (elapsed || 1); // px/ms
 
-            const shouldGoNext = dx < -30 || (velocity > 0.35 && dx < 0);
-            const shouldGoPrev = dx > 30 || (velocity > 0.35 && dx > 0);
+            // Snap with a CSS transition for the settle animation
+            el.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
 
-            if (shouldGoNext || shouldGoPrev) {
-                // ── Crossfade swap: fast, no setTimeout jank ──────────────
-                // 1. Reset translate to 0 (snappy, no slide-out delay)
-                // 2. Fade out image element
-                // 3. After 100ms: swap image via React state, fade back in
-                animatingOut = true;
-                el.style.transition = 'transform 0.08s ease-out, opacity 0.1s ease-out';
-                el.style.transform = 'translate3d(0, 0, 0)';
-                el.style.opacity = '0';
+            const swipeThreshold = 30;
+            const velocityThreshold = 0.35; // px/ms
 
-                setTimeout(() => {
-                    paginate(shouldGoNext ? 1 : -1);
-                    // Use rAF to ensure the new image src has been painted
-                    requestAnimationFrame(() => {
-                        el.style.transition = 'opacity 0.13s ease-in';
-                        el.style.opacity = '1';
-                        setTimeout(() => { animatingOut = false; }, 130);
-                    });
-                }, 100);
+            if (dx < -swipeThreshold || velocity > velocityThreshold && dx < 0) {
+                // Slide out left then paginate
+                el.style.transform = 'translate3d(-100%, 0, 0)';
+                setTimeout(() => { paginate(1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else if (dx > swipeThreshold || velocity > velocityThreshold && dx > 0) {
+                // Slide out right then paginate
+                el.style.transform = 'translate3d(100%, 0, 0)';
+                setTimeout(() => { paginate(-1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
             } else {
-                // Snap back with spring feel
-                el.style.transition = 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
+                // Snap back
                 el.style.transform = 'translate3d(0, 0, 0)';
             }
         };
@@ -895,8 +893,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             el.removeEventListener('touchend', onTouchEnd);
             el.removeEventListener('touchcancel', onTouchEnd);
         };
-    }, [isMobile, images.length, paginate]); // paginate is now stable — this only re-runs on mount/unmount
+    }, [isMobile, images.length, paginate]);
 
+    // Slide variants (used only on desktop where drag="x" is active)
     const swipeVariants = {
         enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
         center: { zIndex: 1, x: 0, opacity: 1 },
@@ -919,15 +918,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                 boxShadow: 'none',
                 width: '100%'
             }}
+
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
             {/* ── Full-bleed image ── */}
             <div className="absolute inset-0 w-full h-full overflow-hidden" style={{ touchAction: 'pan-y' }}>
                 {isMobile ? (
-                    /* ── FIX #2b (mobile): No useScroll here. ParallaxImage is
-                     * desktop-only. This removes passive scroll listeners from
-                     * every mobile card, freeing the main thread for touch events. */
+                    /* MOBILE: Static image + raw touch handler for 60fps swipes */
                     <div
                         ref={slideRef}
                         className="absolute inset-0 w-full h-full"
@@ -943,7 +941,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                         />
                     </div>
                 ) : (
-                    /* ── Desktop: Framer Motion drag + ParallaxImage ── */
+                    /* DESKTOP: Framer Motion drag with AnimatePresence */
                     <AnimatePresence initial={false} custom={direction}>
                         <motion.div
                             key={page}
@@ -956,31 +954,35 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                             dragConstraints={{ left: 0, right: 0 }}
                             dragElastic={0.8}
                             onDragEnd={(e, { offset, velocity }) => {
-                                if (offset.x < -30 || velocity.x < -300) paginate(1);
-                                else if (offset.x > 30 || velocity.x > 300) paginate(-1);
+                                if (offset.x < -30 || velocity.x < -300) {
+                                    paginate(1);
+                                } else if (offset.x > 30 || velocity.x > 300) {
+                                    paginate(-1);
+                                }
                             }}
                             transition={{
                                 x: { type: 'spring', stiffness: 450, damping: 35 },
                                 opacity: { duration: 0.2 },
                             }}
                             className="absolute inset-0 w-full h-full"
-                            style={{ willChange: 'transform' }}
+                            style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
                         >
-                            {/* FIX #2b: ParallaxImage owns the useScroll hook — it only
-                             * renders on desktop, so mobile gets zero scroll listeners. */}
-                            <ParallaxImage
+                            <motion.img
                                 src={images[imageIndex]}
                                 alt={project.style}
-                                loading={index < 3 && imageIndex === 0 ? 'eager' : 'auto'}
+                                loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
                                 fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
+                                style={{ y: imageY }}
+                                className="w-full h-[115%] object-cover -translate-y-[7.5%] object-center"
                             />
                         </motion.div>
                     </AnimatePresence>
                 )}
             </div>
 
-            {/* ── Hover overlay ── */}
+            {/* ── Scale overlay on hover ── */}
             <motion.div
+                //className="absolute inset-0 bg-black/20 z-[2]"
                 animate={{ opacity: hovered ? 1 : 0 }}
                 transition={{ duration: 0.4 }}
             />
@@ -988,15 +990,20 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             {/* ── Permanent bottom gradient scrim ── */}
             <div className="absolute inset-0 z-[3] pointer-events-none"
                 style={{
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 45%, transparent 100%)',
+                    background:
+                        'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 45%, transparent 100%)',
                 }}
             />
 
             {/* ── Top-left: project index badge ── */}
             <div className="absolute top-6 left-7 z-10 flex items-center gap-2.5">
-                <span className="text-[11px] font-bold tracking-[0.25em] uppercase" style={{ color: '#d4af37' }}>
+                <span
+                    className="text-[11px] font-bold tracking-[0.25em] uppercase"
+                    style={{ color: '#d4af37' }}
+                >
                     {paddedIndex}
                 </span>
+
             </div>
 
             {/* ── Top-right: image counter dots ── */}
@@ -1019,6 +1026,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
             {/* ── Bottom content ── */}
             <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
+                {/* Title + subtitle */}
                 <div className="flex flex-col gap-0.5">
                     <motion.h3
                         className="text-white font-bold leading-tight"
@@ -1031,8 +1039,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     >
                         {project.style}
                     </motion.h3>
+
                 </div>
 
+                {/* New: View Project Button */}
                 <motion.button
                     onClick={(e) => { e.stopPropagation(); onOpen(project); }}
                     whileHover={{ scale: 1.05 }}
@@ -1042,6 +1052,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     {isMobile ? <ArrowRight className="w-5 h-5" /> : 'View Project'}
                 </motion.button>
             </div>
+
         </motion.div>
     );
 }
@@ -1067,7 +1078,9 @@ export const Portfolio = ({ isPreview = false }) => {
     ], []);
 
     useEffect(() => {
-        if (categoryFilter) setActiveCategory(categoryFilter);
+        if (categoryFilter) {
+            setActiveCategory(categoryFilter);
+        }
     }, [categoryFilter]);
 
     useEffect(() => {
@@ -1079,28 +1092,33 @@ export const Portfolio = ({ isPreview = false }) => {
         const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
         if (currentIndex >= 0 && currentIndex < CATEGORIES_DATA.length - 1) {
             const nextCatId = CATEGORIES_DATA[currentIndex + 1].id;
-
-            // FIX #1: Both state updates inside startTransition so React
-            // treats the re-render as non-urgent (interruptible). Previously
-            // setActiveCategory was outside, causing a synchronous blocking
-            // re-render of all ProjectCards before the UI could respond.
+            
+            setActiveCategory(nextCatId);
             startTransition(() => {
-                setActiveCategory(nextCatId);
                 setSearchParams({ category: nextCatId }, { replace: true });
             });
-
+            
+            // Go back at the top of projects section as requested
             const element = document.getElementById('projects-section');
-            if (element) element.scrollIntoView({ behavior: 'auto' });
+            if (element) {
+                // Use 'auto' instead of 'smooth' when triggering via scroll to avoid disorienting rubber-banding
+                element.scrollIntoView({ behavior: 'auto' });
+            }
         }
     }, [activeCategory, CATEGORIES_DATA, setSearchParams, startTransition]);
 
-    // Auto-advance to next category at bottom of list
+    // Observer for transitioning automatically to the next category at the bottom
     useEffect(() => {
         if (isPreview) return;
 
         const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) loadNextCategory();
-        }, { rootMargin: '0px 0px 0px 0px' });
+            if (entries[0].isIntersecting) {
+                loadNextCategory();
+            }
+        }, { 
+            // trigger exactly when the bottom of the last project comes into view
+            rootMargin: '0px 0px 0px 0px' 
+        });
 
         const trigger = document.getElementById('load-more-trigger');
         if (trigger) observer.observe(trigger);
@@ -1108,13 +1126,8 @@ export const Portfolio = ({ isPreview = false }) => {
         return () => observer.disconnect();
     }, [isPreview, loadNextCategory]);
 
-    // FIX #1 (continued): Memoize both derived arrays so they're only
-    // recomputed when activeCategory or projects change, not on every render.
-    const allProjects = useMemo(() => [...projects].reverse(), []);
-    const filteredProjects = useMemo(
-        () => allProjects.filter(p => p.category === activeCategory),
-        [allProjects, activeCategory]
-    );
+    const allProjects = [...projects].reverse();
+    const filteredProjects = allProjects.filter(p => p.category === activeCategory);
     const displayProjects = isPreview ? filteredProjects.slice(0, 3) : filteredProjects;
 
     return (
@@ -1123,6 +1136,7 @@ export const Portfolio = ({ isPreview = false }) => {
                 id="projects-section"
                 className={`py-28 ${isPreview ? 'bg-neutral-950' : 'bg-black'} relative overflow-hidden`}
             >
+                {/* Ambient glow */}
                 <div className="absolute right-0 bottom-0 w-[600px] h-[400px] bg-[#064e3b]/10 blur-[120px] pointer-events-none" />
 
                 <div className="max-w-[1600px] mx-auto sm:px-2 md:px-12 relative z-10">
@@ -1176,16 +1190,14 @@ export const Portfolio = ({ isPreview = false }) => {
                                     >
                                         <button
                                             onClick={() => {
-                                                // FIX #1: Both state updates are now inside startTransition.
-                                                // React will prioritize user input (button click visual feedback)
-                                                // over the expensive project-list re-render. The category button
-                                                // highlights instantly; the new project cards render in the background.
+                                                setActiveCategory(cat.id);
                                                 startTransition(() => {
-                                                    setActiveCategory(cat.id);
                                                     setSearchParams({ category: cat.id }, { replace: true });
                                                 });
                                                 const element = document.getElementById('projects-section');
-                                                if (element) element.scrollIntoView({ behavior: 'auto' });
+                                                if (element) {
+                                                    element.scrollIntoView({ behavior: 'auto' });
+                                                }
                                             }}
                                             className={`text-lg md:text-xl font-semibold transition-all duration-700 text-left block mb-2 tracking-tight ${activeCategory === cat.id
                                                 ? 'text-white blur-0 opacity-100'
@@ -1217,14 +1229,10 @@ export const Portfolio = ({ isPreview = false }) => {
                         </motion.div>
                     )}
 
-                    {/* ── Project List ──
-                     * FIX #1 (visual): isPending dims the grid during the transition,
-                     * giving the user instant feedback that something is happening
-                     * while React processes the non-urgent render in the background.
-                     */}
+                    {/* ── Project List — Auto-Paginating Sequential Scroll ── */}
                     <div
                         ref={scrollContainerRef}
-                        className={`flex flex-col gap-16 md:gap-24 w-full pt-2 transition-opacity duration-200 ${isPending ? 'opacity-50' : 'opacity-100'}`}
+                        className="flex flex-col gap-16 md:gap-24 w-full pt-2"
                     >
                         {displayProjects.length > 0 ? (
                             displayProjects.map((project, index) => (
@@ -1245,12 +1253,14 @@ export const Portfolio = ({ isPreview = false }) => {
                                 <p className="text-white/40 text-lg font-light">Soon... Showcase of our latest projects in this category.</p>
                             </motion.div>
                         )}
+                        {/* Trigger to load the next category automatically when scrolling past the last project */}
                         {!isPreview && <div id="load-more-trigger" className="w-full h-px bg-transparent" />}
                     </div>
 
                 </div>
             </section>
 
+            {/* ── Lightbox Modal - Rendered outside section for better stacking ── */}
             <AnimatePresence>
                 {lightbox && (
                     <LightboxModal
@@ -1264,72 +1274,68 @@ export const Portfolio = ({ isPreview = false }) => {
 };
 
 /**
- * LightboxModal — same fixes applied: stable paginate + crossfade swap
+ * LightboxModal Component
+ * Extracted for cleaner state management of the image index
  */
 const LightboxModal = ({ project, onClose }) => {
     const [[page, direction], setPage] = useState([0, 0]);
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const lbSlideRef = useRef(null);
-    const lbTouchRef = useRef({
-        startX: 0, startY: 0, startTime: 0,
-        currentX: 0, isDragging: false, rafId: null, isScrolling: null,
-    });
+    const lbTouchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
     const images = useMemo(() => {
-        // FIX #3: Lightbox uses larger sizes for full-screen quality.
-        // Desktop gets 2000px wide for retina displays.
-        const params = isMobile
-            ? buildCloudinaryParams(true, false)
-            : isTablet
-                ? buildCloudinaryParams(false, true)
-                : 'f_auto,q_auto:good,c_limit,w_2000';
-
+        // Use the same params as ProjectCard so the browser cache is reused — no re-download!
+        // Mobile width reduced from 600 to 512 for better memory management
+        const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
-            ? project.images.map(id =>
-                `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`
-            )
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) =>
-                    `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
             );
     }, [project, isMobile, isTablet]);
 
     const activeIndex = Math.abs(page % images.length);
 
-    // Preload neighbors
+    // Preload only current neighbors to stay snappy on mobile
     useEffect(() => {
         if (!images.length) return;
+
         const indicesToPreload = [
             Math.abs((page + 1) % images.length),
             Math.abs((page - 1 + images.length) % images.length)
         ];
+
         indicesToPreload.forEach(idx => {
             const img = new Image();
             img.src = images[idx];
         });
     }, [images, page]);
 
-    // FIX #2a: Stable paginate reference — same pattern as ProjectCard
     const paginate = useCallback((newDirection) => {
-        setPage(prev => [prev[0] + newDirection, newDirection]);
-    }, []);
+        setPage([page + newDirection, newDirection]);
+    }, [page]);
 
-    const handlePrev = (e) => { if (e) e.stopPropagation(); paginate(-1); };
-    const handleNext = (e) => { if (e) e.stopPropagation(); paginate(1); };
+    const handlePrev = (e) => {
+        if (e) e.stopPropagation();
+        paginate(-1);
+    };
 
-    /* ── HIGH-PERFORMANCE TOUCH HANDLER for Lightbox ── */
+    const handleNext = (e) => {
+        if (e) e.stopPropagation();
+        paginate(1);
+    };
+
+    /* ── HIGH-PERFORMANCE TOUCH HANDLER for Lightbox (mobile only) ── */
     useEffect(() => {
         if (!isMobile || images.length <= 1) return;
         const el = lbSlideRef.current;
         if (!el) return;
 
         const t = lbTouchRef.current;
-        let animatingOut = false;
 
         const onTouchStart = (e) => {
-            if (animatingOut) return;
             if (t.rafId) { cancelAnimationFrame(t.rafId); t.rafId = null; }
             const touch = e.touches[0];
             t.startX = touch.clientX;
@@ -1347,7 +1353,7 @@ const LightboxModal = ({ project, onClose }) => {
         };
 
         const onTouchMove = (e) => {
-            if (!t.isDragging || animatingOut) return;
+            if (!t.isDragging) return;
             const touch = e.touches[0];
             const dx = touch.clientX - t.startX;
             const dy = touch.clientY - t.startY;
@@ -1368,7 +1374,9 @@ const LightboxModal = ({ project, onClose }) => {
             e.preventDefault();
 
             t.currentX = dx * 0.45;
-            if (!t.rafId) t.rafId = requestAnimationFrame(applyTransform);
+            if (!t.rafId) {
+                t.rafId = requestAnimationFrame(applyTransform);
+            }
         };
 
         const onTouchEnd = () => {
@@ -1380,26 +1388,15 @@ const LightboxModal = ({ project, onClose }) => {
             const elapsed = Date.now() - t.startTime;
             const velocity = Math.abs(dx) / (elapsed || 1);
 
-            const shouldGoNext = dx < -30 || (velocity > 0.35 && dx < 0);
-            const shouldGoPrev = dx > 30 || (velocity > 0.35 && dx > 0);
+            el.style.transition = 'transform 0.28s cubic-bezier(0.22, 1, 0.36, 1)';
 
-            if (shouldGoNext || shouldGoPrev) {
-                // FIX #2c: Same crossfade approach — 100ms out, swap, 130ms in
-                animatingOut = true;
-                el.style.transition = 'transform 0.08s ease-out, opacity 0.1s ease-out';
-                el.style.transform = 'translate3d(0, 0, 0)';
-                el.style.opacity = '0';
-
-                setTimeout(() => {
-                    paginate(shouldGoNext ? 1 : -1);
-                    requestAnimationFrame(() => {
-                        el.style.transition = 'opacity 0.13s ease-in';
-                        el.style.opacity = '1';
-                        setTimeout(() => { animatingOut = false; }, 130);
-                    });
-                }, 100);
+            if (dx < -30 || velocity > 0.35 && dx < 0) {
+                el.style.transform = 'translate3d(-100%, 0, 0)';
+                setTimeout(() => { paginate(1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
+            } else if (dx > 30 || velocity > 0.35 && dx > 0) {
+                el.style.transform = 'translate3d(100%, 0, 0)';
+                setTimeout(() => { paginate(-1); el.style.transition = 'none'; el.style.transform = 'translate3d(0,0,0)'; }, 280);
             } else {
-                el.style.transition = 'transform 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
                 el.style.transform = 'translate3d(0, 0, 0)';
             }
         };
@@ -1416,7 +1413,7 @@ const LightboxModal = ({ project, onClose }) => {
             el.removeEventListener('touchend', onTouchEnd);
             el.removeEventListener('touchcancel', onTouchEnd);
         };
-    }, [isMobile, images.length, paginate]); // paginate is stable — no listener churn
+    }, [isMobile, images.length, paginate]);
 
     return (
         <motion.div
@@ -1424,9 +1421,14 @@ const LightboxModal = ({ project, onClose }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100000] flex flex-col items-center justify-center p-2 md:p-6 overflow-hidden"
-            style={{ background: 'rgba(0,0,0,0.98)', backdropFilter: 'blur(20px)' }}
+            style={{
+                background: 'rgba(0,0,0,0.98)',
+                backdropFilter: 'blur(20px)'
+            }}
             onClick={onClose}
         >
+
+            {/* Desktop Navigation Arrows (Side) */}
             {images.length > 1 && !isMobile && !isTablet && (
                 <>
                     <button
@@ -1452,8 +1454,10 @@ const LightboxModal = ({ project, onClose }) => {
                 className="relative w-full h-full flex flex-col items-center justify-center gap-4"
                 onClick={e => e.stopPropagation()}
             >
+                {/* Main Image Container */}
                 <div className="flex-1 w-full h-full flex items-center justify-center p-0 md:p-2 min-h-0" style={{ touchAction: 'pan-y' }}>
                     {isMobile ? (
+                        /* MOBILE: Raw touch handler for buttery-smooth swiping */
                         <div
                             ref={lbSlideRef}
                             className="w-full h-full flex items-center justify-center pointer-events-auto"
@@ -1469,6 +1473,7 @@ const LightboxModal = ({ project, onClose }) => {
                             />
                         </div>
                     ) : (
+                        /* DESKTOP/TABLET: Framer Motion drag */
                         <AnimatePresence initial={false} custom={direction}>
                             <motion.img
                                 key={activeIndex}
@@ -1480,20 +1485,25 @@ const LightboxModal = ({ project, onClose }) => {
                                 dragConstraints={{ left: 0, right: 0 }}
                                 dragElastic={0.8}
                                 onDragEnd={(e, { offset, velocity }) => {
-                                    if (offset.x < -30 || velocity.x < -300) handleNext(e);
-                                    else if (offset.x > 30 || velocity.x > 300) handlePrev(e);
+                                    if (offset.x < -30 || velocity.x < -300) {
+                                        handleNext(e);
+                                    } else if (offset.x > 30 || velocity.x > 300) {
+                                        handlePrev(e);
+                                    }
                                 }}
                                 src={images[activeIndex]}
                                 alt={project.style}
+                                // Modal images must never be lazy — user is actively waiting to see them
                                 loading="eager"
                                 fetchPriority="high"
-                                style={{ willChange: 'transform' }}
+                                style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
                                 className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                             />
                         </AnimatePresence>
                     )}
                 </div>
 
+                {/* Mobile/Tablet Navigation Arrows (Under Image) */}
                 {images.length > 1 && (isMobile || isTablet) && (
                     <div className="flex items-center gap-12 pb-6">
                         <button
@@ -1502,9 +1512,12 @@ const LightboxModal = ({ project, onClose }) => {
                         >
                             <ChevronLeft className="w-7 h-7" />
                         </button>
+
+                        {/* Image Counter */}
                         <span className="text-white/40 text-sm font-medium tracking-widest uppercase">
                             {activeIndex + 1} / {images.length}
                         </span>
+
                         <button
                             onClick={handleNext}
                             className="text-white/40 hover:text-[#d4af37] bg-white/5 hover:bg-white/10 rounded-full p-5 transition-all duration-300 border border-white/5 focus:outline-none"
@@ -1513,8 +1526,10 @@ const LightboxModal = ({ project, onClose }) => {
                         </button>
                     </div>
                 )}
+
             </motion.div>
 
+            {/* Close Button - Positioned absolutely within the fixed inset-0 modal */}
             <button
                 onClick={onClose}
                 className="cursor-pointer absolute top-5 right-5 md:top-8 md:right-8 text-white/70 hover:text-[#d4af37] bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full p-2.5 transition-all duration-300 z-[100010] border border-white/10 focus:outline-none"
