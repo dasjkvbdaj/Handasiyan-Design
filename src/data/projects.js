@@ -74,7 +74,7 @@ export const projects = [
         folder: 'Project-11',
         imageCount: 3,
         category: 'Architectural Design',
-        style: "Contemporary Style Design"
+        style: "Contemporary Style"
     },
     {
         name: 'Project 12',
@@ -96,6 +96,62 @@ export const projects = [
         imageCount: 4,
         category: 'Interior Design',
         style: "Contemporary Style"
+    },
+    {
+        name: 'Mr. Boakye Kensah',
+        folder: 'Project-15',
+        imageCount: 10,
+        category: 'Full Design',
+        style: "Project-15"
+    },
+    {
+        name: 'Alhaji Habib',
+        folder: 'Project-16',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "Contemporary Minimalism"
+    },
+    {
+        name: 'Madame Bernice',
+        folder: 'Project-17',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Neo-Brutalist Modernism Style"
+    },
+    {
+        name: 'Project-18',
+        folder: 'Project-18',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Afro-Minimalist Luxury Modernism"
+    },
+    {
+        name: 'Madame Cynthia Serwaa',
+        folder: 'Project-19',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "Contemporary Tropical Minimalism"
+    },
+    {
+        name: 'Mr. Kweku Acheampong',
+        folder: 'Project-20',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Tropical Modern Luxury style"
+    },
+    {
+        name: 'Project-21',
+        folder: 'Project-21',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "West African local style"
+    },
+    {
+        name: 'Project-22',
+        folder: 'Project-22',
+        imageCount: 19,
+        category: 'Interior Design',
+        style: "Kitchen Design"
     },
 
 ];

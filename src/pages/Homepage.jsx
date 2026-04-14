@@ -1305,20 +1305,21 @@ export const Portfolio = ({ isPreview = false }) => {
                                     />
                                 </div>
 
-                                <button
-                                    onClick={loadNextCategory}
-                                    className="group relative flex flex-col items-center gap-5 w-full max-w-2xl transition-all duration-500"
-                                >
-                                    <span className="text-white/30 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-bold transition-colors duration-500 group-hover:text-[#d4af37]">
+                                <span className="text-white/30 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-bold transition-colors duration-500 group-hover:text-[#d4af37]">
                                         Explore Next Phase
                                     </span>
+
+                                <button
+                                    onClick={loadNextCategory}
+                                    className="cursor-pointer group relative flex flex-col items-center gap-5 w-full max-w-2xl transition-all duration-500"
+                                >
 
                                     <div className="relative w-full sm:w-auto flex items-center justify-center gap-4 px-6 md:px-12 py-5 md:py-7 bg-white/[0.02] border border-white/10 rounded-full hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all duration-700 backdrop-blur-sm overflow-hidden group">
                                         {/* Subtle internal glow on hover */}
                                         <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
                                         <span
-                                            className="cursor-pointer relative z-10 text-xl sm:cursor-pointer text-2xl md:text-3xl font-bold tracking-tight lowercase leading-none"
+                                            className="relative z-10 text-xl sm:text-2xl md:text-3xl font-bold tracking-tight lowercase leading-none"
                                             style={{ fontFamily: "'Cormorant Garamond', serif" }}
                                         >
                                             View <span className="italic">{nextCategory.id} Projects</span>
