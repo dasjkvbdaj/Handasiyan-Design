@@ -254,7 +254,7 @@ export const Hero = () => {
         const handleVisibilityChange = () => {
             if (!document.hidden) {
                 attemptPlay();
-                
+
             }
         };
 
@@ -938,6 +938,12 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                             loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
                             fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
                             draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            style={{
+                                WebkitTouchCallout: 'none',
+                                WebkitUserSelect: 'none',
+                                userSelect: 'none'
+                            }}
                             className="w-full h-full object-contain object-center"
                         />
                     </div>
@@ -973,7 +979,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                                 alt={project.style}
                                 loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
                                 fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
-                                style={{ y: imageY }}
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                style={{
+                                    y: imageY,
+                                    WebkitTouchCallout: 'none',
+                                    WebkitUserSelect: 'none',
+                                    userSelect: 'none'
+                                }}
                                 className="w-full h-[115%] object-cover -translate-y-[7.5%] object-center"
                             />
                         </motion.div>
@@ -1547,6 +1560,12 @@ const LightboxModal = ({ project, onClose }) => {
                                 loading="eager"
                                 fetchPriority="high"
                                 draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                style={{
+                                    WebkitTouchCallout: 'none',
+                                    WebkitUserSelect: 'none',
+                                    userSelect: 'none'
+                                }}
                                 className="w-full h-full object-contain rounded-lg"
                             />
                         </div>
@@ -1574,7 +1593,15 @@ const LightboxModal = ({ project, onClose }) => {
                                 // Modal images must never be lazy — user is actively waiting to see them
                                 loading="eager"
                                 fetchPriority="high"
-                                style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
+                                draggable={false}
+                                onContextMenu={(e) => e.preventDefault()}
+                                style={{
+                                    willChange: 'transform',
+                                    transform: 'translate3d(0,0,0)',
+                                    WebkitTouchCallout: 'none',
+                                    WebkitUserSelect: 'none',
+                                    userSelect: 'none'
+                                }}
                                 className="w-full h-full object-contain rounded-lg md:shadow-[0_30px_90px_rgba(0,0,0,0.8)] pointer-events-auto cursor-grab active:cursor-grabbing"
                             />
                         </AnimatePresence>

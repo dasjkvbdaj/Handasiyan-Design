@@ -117,6 +117,13 @@ const Step5Generate = ({ data, onReset }) => {
           <img
             src={result}
             alt="Generated Design"
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            style={{
+              WebkitTouchCallout: 'none',
+              WebkitUserSelect: 'none',
+              userSelect: 'none'
+            }}
             className="rounded-3xl w-full shadow-lg"
             loading="lazy"
           />
@@ -153,8 +160,8 @@ const Step5Generate = ({ data, onReset }) => {
           onClick={handleGenerate}
           disabled={loading || cooldown}
           className={`px-12 py-4 rounded-full font-semibold flex items-center gap-2 mx-auto transition ${loading || cooldown
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-[#d4af37] text-black hover:scale-105"
+            ? "bg-gray-500 cursor-not-allowed"
+            : "bg-[#d4af37] text-black hover:scale-105"
             }`}
         >
           <Sparkles size={20} />

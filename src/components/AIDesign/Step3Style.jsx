@@ -13,7 +13,7 @@ const styles = [
         name: 'Baroque',
         prompt: 'baroque luxury interior design',
         image: 'https://i.pinimg.com/736x/65/e8/2e/65e82e4f97d00ab2f90d43334e17ef83.jpg'
-        
+
     }
     ,
     { id: 'mediterranean', name: 'Mediterranean', prompt: 'mediterranean interior design', image: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=800&auto=format&fit=crop' },
@@ -66,7 +66,7 @@ const Step3Style = ({ onNext, data, updateData }) => {
 
                     return (
                         <button
-                            type="button" 
+                            type="button"
                             key={style.id}
                             onClick={() => updateData({ style: style.id })}
                             className={`group flex flex-col items-center gap-2 sm:gap-3 transition-all duration-300 ${isSelected ? 'scale-105' : 'hover:scale-102'
@@ -81,7 +81,14 @@ const Step3Style = ({ onNext, data, updateData }) => {
                                 <img
                                     src={style.image}
                                     alt={style.name}
-                                    loading="lazy" 
+                                    loading="lazy"
+                                    draggable={false}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                    style={{
+                                        WebkitTouchCallout: 'none',
+                                        WebkitUserSelect: 'none',
+                                        userSelect: 'none'
+                                    }}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                 />
 

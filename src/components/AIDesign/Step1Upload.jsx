@@ -79,10 +79,10 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
                 className={`relative group aspect-[16/10] max-w-2xl mx-auto rounded-3xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden ${dragging
-                        ? 'border-[#d4af37] bg-[#d4af37]/10'
-                        : preview
-                            ? 'border-white/20 bg-black/40'
-                            : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                    ? 'border-[#d4af37] bg-[#d4af37]/10'
+                    : preview
+                        ? 'border-white/20 bg-black/40'
+                        : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
                     }`}
             >
                 {preview ? (
@@ -90,6 +90,13 @@ const Step1Upload = ({ onNext, data, updateData }) => {
                         <img
                             src={preview}
                             alt="Preview"
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            style={{
+                                WebkitTouchCallout: 'none',
+                                WebkitUserSelect: 'none',
+                                userSelect: 'none'
+                            }}
                             className="w-full h-full object-cover"
                         />
 

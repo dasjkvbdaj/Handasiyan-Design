@@ -302,7 +302,18 @@ const DigitalCard = () => {
                                 }}
                             >
                                 <div className="w-full h-full rounded-full overflow-hidden bg-[#061e15] flex items-center justify-center">
-                                    <img src={logo} alt="Handasiyan Logo" className="w-[82%] h-[82%] object-contain" />
+                                    <img
+                                        src={logo}
+                                        alt="Handasiyan Logo"
+                                        className="w-[82%] h-[82%] object-contain"
+                                        draggable={false}
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        style={{
+                                            WebkitTouchCallout: 'none',
+                                            WebkitUserSelect: 'none',
+                                            userSelect: 'none'
+                                        }}
+                                    />
                                 </div>
                             </div>
 
