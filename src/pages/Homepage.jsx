@@ -254,6 +254,7 @@ export const Hero = () => {
         const handleVisibilityChange = () => {
             if (!document.hidden) {
                 attemptPlay();
+                
             }
         };
 
