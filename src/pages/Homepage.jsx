@@ -1,4 +1,4 @@
-import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer, Zap, Globe } from 'lucide-react';
+import { Palette, ArrowRight, Ruler, X, Mail, Phone, ChevronLeft, ChevronRight, ChevronDown, Building2, HardHat, Briefcase, Layers, Hammer, Zap, Globe, Eye } from 'lucide-react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useRef, useState, useEffect, useCallback, useMemo, useTransition } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'framer-motion';
@@ -660,7 +660,7 @@ export const CTA = () => {
     );
 };
 
-export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
+export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview = false }) {
     const [hovered, setHovered] = useState(false);
     const [[page, direction], setPage] = useState([0, 0]);
     const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -1041,7 +1041,15 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
             {/* ── Bottom content ── */}
             <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-1 pr-4">
+                    {isPreview && (
+                        <motion.span 
+                            className="text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold"
+                            animate={{ opacity: hovered ? 1 : 0.8 }}
+                        >
+                            {project.category}
+                        </motion.span>
+                    )}
                     <motion.h3
                         className="text-white font-bold leading-tight"
                         style={{
@@ -1053,18 +1061,34 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
                     >
                         {project.style}
                     </motion.h3>
-
                 </div>
 
-                {/* "View Project" Button */}
-                <motion.button
-                    onClick={(e) => { e.stopPropagation(); onOpen(project); }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`cursor-pointer flex-shrink-0 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all ${isMobile ? 'p-3' : 'px-6 py-3 text-sm'}`}
-                >
-                    {isMobile ? <ArrowRight className="w-5 h-5" /> : 'View Project'}
-                </motion.button>
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+                    {/* Quick View (Lightbox) */}
+                    <motion.button
+                        onClick={(e) => { e.stopPropagation(); onOpen(project); }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold rounded-full tracking-wider uppercase transition-all hover:bg-white/20 ${isMobile ? 'px-3 py-2' : 'px-6 py-3.5 text-xs'}`}
+                    >
+                        <Eye className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-[#d4af37]`} />
+                        <span className={`${isMobile ? 'text-[8px]' : 'text-[10px]'} leading-none`}>
+                            {isMobile ? 'Images' : 'View Project'}
+                        </span>
+                    </motion.button>
+                    
+                    {/* Detailed Page Link */}
+                    <Link
+                        to={`/portfolio?category=${encodeURIComponent(project.category)}#projects-section`}
+                        className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all hover:bg-[#c49f27] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.2)] ${isMobile ? 'px-3 py-2' : 'px-8 py-3.5 text-sm'}`}
+                    >
+                        <span className={`${isMobile ? 'text-[8px]' : 'text-xs'} leading-none`}>
+                            {isMobile ? 'Explore' : 'View More'}
+                        </span>
+                        <ArrowRight className={`${isMobile ? 'w-3.5 h-3.5' : 'w-5 h-5'} transition-transform duration-300 group-hover:translate-x-1`} />
+                    </Link>
+                </div>
             </div>
 
         </motion.div>
@@ -1136,9 +1160,16 @@ export const Portfolio = ({ isPreview = false }) => {
         }
     }, [activeCategory, CATEGORIES_DATA, isChangingCategory, setSearchParams, startTransition]);
 
+    const isFirstMount = useRef(true);
+
     // Handle auto-scroll to top of projects section when category changes
     useEffect(() => {
         if (isPreview) return;
+
+        if (isFirstMount.current) {
+            isFirstMount.current = false;
+            return;
+        }
 
         const element = document.getElementById('projects-section');
         if (element) {
@@ -1284,6 +1315,7 @@ export const Portfolio = ({ isPreview = false }) => {
                                     index={index}
                                     onOpen={setLightbox}
                                     layout="list"
+                                    isPreview={isPreview}
                                 />
                             ))
                         ) : (
