@@ -1056,7 +1056,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid' }) {
 
                 </div>
 
-                {/* New: View Project Button */}
+                {/* "View Project" Button */}
                 <motion.button
                     onClick={(e) => { e.stopPropagation(); onOpen(project); }}
                     whileHover={{ scale: 1.05 }}
@@ -1159,9 +1159,17 @@ export const Portfolio = ({ isPreview = false }) => {
         return null;
     }, [activeCategory, CATEGORIES_DATA]);
 
-    const allProjects = [...projects].reverse();
-    const filteredProjects = allProjects.filter(p => p.category === activeCategory);
-    const displayProjects = isPreview ? filteredProjects.slice(0, 3) : filteredProjects;
+    const displayProjects = useMemo(() => {
+        if (isPreview) {
+            // Specific projects for homepage featured section as requested
+            const featuredFolders = ['Project-2', 'Project-13', 'Project-8'];
+            return featuredFolders.map(folder => 
+                projects.find(p => p.folder === folder)
+            ).filter(Boolean);
+        }
+        const allProjects = [...projects].reverse();
+        return allProjects.filter(p => p.category === activeCategory);
+    }, [isPreview, activeCategory]);
 
     return (
         <>
