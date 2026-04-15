@@ -133,5 +133,19 @@ export const projects = [
         category: 'Interior Design',
         style: "Project-19"
     },
+    {
+        name: 'Project-20',
+        folder: 'Project-20',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Tropical Contemporary style"
+    },
+    {
+        name: 'Project-21',
+        folder: 'Project-21',
+        imageCount: 2,
+        category: 'Interior Design',
+        style: "Modern Kitchen"
+    },
 
 ];
