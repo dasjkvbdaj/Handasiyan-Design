@@ -41,27 +41,27 @@ export const projects = [
         category: 'Interior Design',
         style: "Modern Style Studio"
     },
-    // {
-    //     name: 'Mr. Kwame',
-    //     folder: 'Project-7',
-    //     imageCount: 2,
-    //     category: 'Interior Design',
-    //     style: "Contemporary Modern Kitchen"
-    // },
-    // {
-    //     name: 'Project 8',
-    //     folder: 'Project-8',
-    //     imageCount: 7,
-    //     category: 'Interior Design',
-    //     style: "Minimalist Colourful Style"
-    // },
-    // {
-    //     name: 'Madame Ama Gifty badu',
-    //     folder: 'Project-9',
-    //     imageCount: 3,
-    //     category: 'Architectural Design',
-    //     style: "Contemporary Style"
-    // },
+    {
+        name: 'Mr. Kwame',
+        folder: 'Project-7',
+        imageCount: 2,
+        category: 'Interior Design',
+        style: "Contemporary Modern Kitchen"
+    },
+    {
+        name: 'Project 8',
+        folder: 'Project-8',
+        imageCount: 7,
+        category: 'Interior Design',
+        style: "Minimalist Colourful Style"
+    },
+    {
+        name: 'Madame Ama Gifty badu',
+        folder: 'Project-9',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Contemporary Style"
+    },
     // {
     //     name: 'Project 10',
     //     folder: 'Project-10',

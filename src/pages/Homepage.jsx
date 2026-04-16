@@ -682,10 +682,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             // Mobile width reduced from 600 to 512 for better memory management
             const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v3/${id}.png`)
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${id}.png`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v3/${project.folder}/image-${i + 1}.png`
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${project.folder}/image-${i + 1}.png`
                 );
         },
         [project, isMobile, isTablet]
@@ -1055,7 +1055,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                 <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
                     {/* Quick View (Lightbox) */}
                     <motion.button
-                        onClick={(e) => { e.stopPropagation(); onOpen({ project, index: imageIndex }); }}
+                        onClick={(e) => { e.stopPropagation(); onOpen(project); }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold rounded-full tracking-wider uppercase transition-all hover:bg-white/20 ${isMobile ? 'px-3 py-2' : 'px-6 py-3.5 text-xs'}`}
@@ -1386,8 +1386,7 @@ export const Portfolio = ({ isPreview = false }) => {
             <AnimatePresence>
                 {lightbox && (
                     <LightboxModal
-                        project={lightbox.project}
-                        initialIndex={lightbox.index}
+                        project={lightbox}
                         onClose={() => setLightbox(null)}
                     />
                 )}
@@ -1400,8 +1399,8 @@ export const Portfolio = ({ isPreview = false }) => {
  * LightboxModal Component
  * Extracted for cleaner state management of the image index
  */
-const LightboxModal = ({ project, initialIndex = 0, onClose }) => {
-    const [[page, direction], setPage] = useState([initialIndex, 0]);
+const LightboxModal = ({ project, onClose }) => {
+    const [[page, direction], setPage] = useState([0, 0]);
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');
     const lbSlideRef = useRef(null);
@@ -1412,10 +1411,10 @@ const LightboxModal = ({ project, initialIndex = 0, onClose }) => {
         // Mobile width reduced from 600 to 512 for better memory management
         const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v3/${id}.png`)
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v3/${project.folder}/image-${i + 1}.png`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
             );
     }, [project, isMobile, isTablet]);
 
