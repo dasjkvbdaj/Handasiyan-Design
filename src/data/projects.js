@@ -13,20 +13,20 @@ export const projects = [
         category: 'Full Design',
         style: "Minimalist Style"
     },
-    // {
-    //     name: 'Project 3',
-    //     folder: 'Project-3',
-    //     imageCount: 4,
-    //     category: 'Interior Design',
-    //     style: "Classic Style"
-    // },
-    // {
-    //     name: 'Project 4',
-    //     folder: 'Project-4',
-    //     imageCount: 3,
-    //     category: 'Architectural Design',
-    //     style: "Classic Style Villa"
-    // },
+    {
+        name: 'Project 3',
+        folder: 'Project-3',
+        imageCount: 4,
+        category: 'Interior Design',
+        style: "Classic Style"
+    },
+    {
+        name: 'Project 4',
+        folder: 'Project-4',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Classic Style Villa"
+    },
     // {
     //     name: 'Project 5',
     //     folder: 'Project-5',
