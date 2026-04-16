@@ -1012,33 +1012,18 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
 
             </div> */}
 
-            {/* ── Top-right: image counter dots ── */}
+            {/* ── Top-right: image counter badge ── */}
             {images.length > 1 && (
-                <div className="absolute top-6 right-7 z-10 flex items-center gap-1.5">
-                    {isMobile && images.length > 6 ? (
-                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                             <span className="text-[10px] font-bold text-[#d4af37] tabular-nums">
-                                {imageIndex + 1}
-                             </span>
-                             <span className="text-[10px] text-white/30">/</span>
-                             <span className="text-[10px] text-white/40 tabular-nums">
-                                {images.length}
-                             </span>
-                        </div>
-                    ) : (
-                        images.map((_, i) => (
-                            <button
-                                key={i}
-                                onClick={(e) => { e.stopPropagation(); setPage([i, i > imageIndex ? 1 : -1]); }}
-                                className="rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
-                                style={{
-                                    width: i === imageIndex ? (isMobile ? '12px' : '20px') : '6px',
-                                    height: '4px',
-                                    background: i === imageIndex ? '#d4af37' : 'rgba(255,255,255,0.35)',
-                                }}
-                            />
-                        ))
-                    )}
+                <div className="absolute top-6 right-7 z-10 flex items-center">
+                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+                        <span className="text-[10px] font-bold text-[#d4af37] tabular-nums">
+                            {imageIndex + 1}
+                        </span>
+                        <span className="text-[10px] text-white/30">/</span>
+                        <span className="text-[10px] text-white/40 tabular-nums">
+                            {images.length}
+                        </span>
+                    </div>
                 </div>
             )}
 
