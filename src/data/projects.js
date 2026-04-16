@@ -27,20 +27,20 @@ export const projects = [
         category: 'Architectural Design',
         style: "Classic Style Villa"
     },
-    // {
-    //     name: 'Project 5',
-    //     folder: 'Project-5',
-    //     imageCount: 10,
-    //     category: 'Interior Design',
-    //     style: "Contemporary Style"
-    // },
-    // {
-    //     name: 'Mr. Ali Ganza',
-    //     folder: 'Project-6',
-    //     imageCount: 5,
-    //     category: 'Interior Design',
-    //     style: "Modern Style Studio"
-    // },
+    {
+        name: 'Project 5',
+        folder: 'Project-5',
+        imageCount: 10,
+        category: 'Interior Design',
+        style: "Contemporary Style"
+    },
+    {
+        name: 'Mr. Ali Ganza',
+        folder: 'Project-6',
+        imageCount: 5,
+        category: 'Interior Design',
+        style: "Modern Style Studio"
+    },
     // {
     //     name: 'Mr. Kwame',
     //     folder: 'Project-7',
