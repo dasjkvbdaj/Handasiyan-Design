@@ -69,7 +69,7 @@ const Navbar = () => {
 
           {/* 🔥 AUTH PART */}
           {currentUser ? (
-            <div className="relative flex items-center gap-4 transition-all duration-300 blur-[.7px] hover:blur-none transition-all duration-400">
+            <div className="relative flex items-center gap-4 transition-all duration-300">
               {/* Avatar */}
               <button onClick={() => setOpenMenu(!openMenu)}>
                 <img
