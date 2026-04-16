@@ -6,13 +6,13 @@ export const projects = [
         category: 'Interior Design',
         style: "Minimalist Style"
     },
-    // {
-    //     name: 'Dome pillar',
-    //     folder: 'Project-2',
-    //     imageCount: 26,
-    //     category: 'Full Design',
-    //     style: "Minimalist Style"
-    // },
+    {
+        name: 'Dome pillar',
+        folder: 'Project-2',
+        imageCount: 26,
+        category: 'Full Design',
+        style: "Minimalist Style"
+    },
     // {
     //     name: 'Project 3',
     //     folder: 'Project-3',
