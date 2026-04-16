@@ -688,14 +688,6 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                     { length: project.imageCount },
                     (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
                 );
-
-            /*
-            // Local fallback logic
-            return Array.from(
-                { length: project.imageCount },
-                (_, i) => `/portfolio_images/${project.folder}/image-${i + 1}.webp`
-            );
-            */
         },
         [project, isMobile, isTablet]
     );
@@ -1010,7 +1002,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             />
 
             {/* ── Top-left: project index badge ── */}
-            <div className="absolute top-6 left-7 z-10 flex items-center gap-2.5">
+            {/* <div className="absolute top-6 left-7 z-10 flex items-center gap-2.5">
                 <span
                     className="text-[11px] font-bold tracking-[0.25em] uppercase"
                     style={{ color: '#d4af37' }}
@@ -1018,23 +1010,35 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                     {paddedIndex}
                 </span>
 
-            </div>
+            </div> */}
 
             {/* ── Top-right: image counter dots ── */}
             {images.length > 1 && (
                 <div className="absolute top-6 right-7 z-10 flex items-center gap-1.5">
-                    {images.map((_, i) => (
-                        <button
-                            key={i}
-                            onClick={(e) => { e.stopPropagation(); setPage([i, i > imageIndex ? 1 : -1]); }}
-                            className="rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
-                            style={{
-                                width: i === imageIndex ? '20px' : '6px',
-                                height: '6px',
-                                background: i === imageIndex ? '#d4af37' : 'rgba(255,255,255,0.35)',
-                            }}
-                        />
-                    ))}
+                    {isMobile && images.length > 6 ? (
+                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                             <span className="text-[10px] font-bold text-[#d4af37] tabular-nums">
+                                {imageIndex + 1}
+                             </span>
+                             <span className="text-[10px] text-white/30">/</span>
+                             <span className="text-[10px] text-white/40 tabular-nums">
+                                {images.length}
+                             </span>
+                        </div>
+                    ) : (
+                        images.map((_, i) => (
+                            <button
+                                key={i}
+                                onClick={(e) => { e.stopPropagation(); setPage([i, i > imageIndex ? 1 : -1]); }}
+                                className="rounded-full transition-all duration-300 focus:outline-none cursor-pointer"
+                                style={{
+                                    width: i === imageIndex ? (isMobile ? '12px' : '20px') : '6px',
+                                    height: '4px',
+                                    background: i === imageIndex ? '#d4af37' : 'rgba(255,255,255,0.35)',
+                                }}
+                            />
+                        ))
+                    )}
                 </div>
             )}
 
@@ -1042,14 +1046,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
                 <div className="flex flex-col gap-1 pr-4">
-                    {isPreview && (
-                        <motion.span 
+                    {/* {isPreview && (
+                        <motion.span
                             className="text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold"
                             animate={{ opacity: hovered ? 1 : 0.8 }}
                         >
                             {project.category}
                         </motion.span>
-                    )}
+                    )} */}
                     <motion.h3
                         className="text-white font-bold leading-tight"
                         style={{
@@ -1077,17 +1081,19 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                             {isMobile ? 'Images' : 'View Project'}
                         </span>
                     </motion.button>
-                    
-                    {/* Detailed Page Link */}
-                    <Link
-                        to={`/portfolio?category=${encodeURIComponent(project.category)}#projects-section`}
-                        className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all hover:bg-[#c49f27] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.2)] ${isMobile ? 'px-3 py-2' : 'px-8 py-3.5 text-sm'}`}
-                    >
-                        <span className={`${isMobile ? 'text-[8px]' : 'text-xs'} leading-none`}>
-                            {isMobile ? 'Explore' : 'View More'}
-                        </span>
-                        <ArrowRight className={`${isMobile ? 'w-3.5 h-3.5' : 'w-5 h-5'} transition-transform duration-300 group-hover:translate-x-1`} />
-                    </Link>
+
+                    {/* Detailed Page Link — Only on Homepage */}
+                    {isPreview && (
+                        <Link
+                            to={`/portfolio?category=${encodeURIComponent(project.category)}#projects-section`}
+                            className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all hover:bg-[#c49f27] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.2)] ${isMobile ? 'px-3 py-2' : 'px-8 py-3.5 text-sm'}`}
+                        >
+                            <span className={`${isMobile ? 'text-[8px]' : 'text-xs'} leading-none`}>
+                                {isMobile ? 'Explore' : 'View More'}
+                            </span>
+                            <ArrowRight className={`${isMobile ? 'w-3.5 h-3.5' : 'w-5 h-5'} transition-transform duration-300 group-hover:translate-x-1`} />
+                        </Link>
+                    )}
                 </div>
             </div>
 
@@ -1194,7 +1200,7 @@ export const Portfolio = ({ isPreview = false }) => {
         if (isPreview) {
             // Specific projects for homepage featured section as requested
             const featuredFolders = ['Project-2', 'Project-13', 'Project-8'];
-            return featuredFolders.map(folder => 
+            return featuredFolders.map(folder =>
                 projects.find(p => p.folder === folder)
             ).filter(Boolean);
         }
@@ -1346,8 +1352,8 @@ export const Portfolio = ({ isPreview = false }) => {
                                 </div>
 
                                 <span className="text-white/30 text-[9px] md:text-[10px] tracking-[0.5em] uppercase font-bold transition-colors duration-500 group-hover:text-[#d4af37]">
-                                        Explore Next Phase
-                                    </span>
+                                    Explore Next Phase
+                                </span>
 
                                 <button
                                     onClick={loadNextCategory}
