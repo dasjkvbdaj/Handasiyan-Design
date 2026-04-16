@@ -669,6 +669,11 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
     const slideRef = useRef(null);
     const touchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
+    // Reset pagination when project changes to prevent state bleeding between reused cards
+    useEffect(() => {
+        setPage([0, 0]);
+    }, [project.folder]);
+
     // Parallax scroll effect on the inner image — SKIP on mobile/tablet to avoid idle scroll listeners
     const { scrollYProgress } = useScroll({
         target: cardRef,
@@ -1300,7 +1305,7 @@ export const Portfolio = ({ isPreview = false }) => {
                         {displayProjects.length > 0 ? (
                             displayProjects.map((project, index) => (
                                 <ProjectCard
-                                    key={project.name}
+                                    key={project.folder}
                                     project={project}
                                     index={index}
                                     onOpen={setLightbox}
@@ -1411,10 +1416,10 @@ const LightboxModal = ({ project, onClose }) => {
         // Mobile width reduced from 600 to 512 for better memory management
         const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${id}.png`)
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${id}.png`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v1/${project.folder}/image-${i + 1}.png`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${project.folder}/image-${i + 1}.png`
             );
     }, [project, isMobile, isTablet]);
 
