@@ -687,10 +687,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             // Mobile width reduced from 600 to 512 for better memory management
             const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
             return project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${id}.png`)
+                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${id}.png?_v=${__BUILD_TIMESTAMP__}`)
                 : Array.from(
                     { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${project.folder}/image-${i + 1}.png`
+                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
                 );
         },
         [project, isMobile, isTablet]
@@ -1416,10 +1416,10 @@ const LightboxModal = ({ project, onClose }) => {
         // Mobile width reduced from 600 to 512 for better memory management
         const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
         return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${id}.png`)
+            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${id}.png?_v=${__BUILD_TIMESTAMP__}`)
             : Array.from(
                 { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/v2/${project.folder}/image-${i + 1}.png`
+                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
             );
     }, [project, isMobile, isTablet]);
 
