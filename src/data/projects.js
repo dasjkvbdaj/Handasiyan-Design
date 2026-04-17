@@ -72,7 +72,7 @@ export const projects = [
     {
         name: 'Madame Vanessa',
         folder: 'Project-11',
-        imageCount: 10,
+        imageCount: 11,
         category: 'Full Design',
         style: "Industrial Style"
     },
@@ -148,6 +148,21 @@ export const projects = [
         style: "Modern Kitchen"
     },
 
+    {
+        name: 'Project-22',
+        folder: 'Project-22',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "Project-22"
+    },
+
+    {
+        name: 'TK Boakye Kitchen',
+        folder: 'Project-23',
+        imageCount: 5,
+        category: 'Interior Design',
+        style: "Modern Minimal Kitchen Design"
+    },
 
 
 ];
