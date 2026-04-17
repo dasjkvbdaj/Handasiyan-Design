@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook, Sparkles } from 'lucide-react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 
 
@@ -222,9 +223,11 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
 };
 
 /* ─── Contact Info Card ─────────────────────────────────────────── */
-const InfoCard = ({ icon: Icon, title, value, index, href }) => (
+const InfoCard = ({ icon: Icon, title, value, index, href, target, rel }) => (
     <motion.a
         href={href}
+        target={target}
+        rel={rel}
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
@@ -282,6 +285,7 @@ const ContactPage = () => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
+        phone: '',
         service: '',
         message: ''
     });
@@ -319,7 +323,7 @@ const ContactPage = () => {
 
     const handleSend = () => {
         // Check if form is completely empty
-        if (!formData.firstName && !formData.lastName && !formData.service && !formData.message) {
+        if (!formData.firstName && !formData.lastName && !formData.phone && !formData.service && !formData.message) {
             setFormStatus('The form is empty. Please fill in your details.');
             return;
         }
@@ -335,6 +339,9 @@ const ContactPage = () => {
         }
         if (!nameRegex.test(formData.lastName)) {
             newErrors.lastName = 'Invalid last name';
+        }
+        if (!formData.phone) {
+            newErrors.phone = 'Phone number is required';
         }
         if (!formData.service) {
             newErrors.service = 'Please select a service';
@@ -352,28 +359,43 @@ const ContactPage = () => {
         setSending(true);
         setFormStatus('');
 
-        // Formulate Gmail message
-        const recipient = "Handasiyan.2020@gmail.com";
-        const subject = "New Project Inquiry";
-        const messageBody = `Dear Handasiyan Team,
+        // Prepare EmailJS parameters
+        // We include multiple common recipient field names to resolve the 422 error
+        const templateParams = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            phone: formData.phone,
+            service: formData.service,
+            message: formData.message,
+            to_email: 'Handasiyan.2020@gmail.com', // Primary
+            email: 'Handasiyan.2020@gmail.com',    // Fallback 1
+            user_email: 'Handasiyan.2020@gmail.com',// Fallback 2
+            to_name: 'Handasiyan Admin',           // Common template field
+            recipient: 'Handasiyan.2020@gmail.com' // Fallback 3
+        };
 
-I hope this email finds you well. 
-
-I am reaching out to inquire about your "${formData.service}" services. 
-
-${formData.message}
-
-I look forward to hearing from you.
-
-Best regards,\n\n${formData.firstName} ${formData.lastName}`;
-
-        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipient}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(messageBody)}`;
-
-        setTimeout(() => {
+        // Send via EmailJS
+        emailjs.send(
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            templateParams,
+            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+        )
+        .then((response) => {
+            console.log('SUCCESS!', response.status, response.text);
             setSending(false);
             setSubmitted(true);
-            window.open(gmailUrl, '_blank');
-        }, 1800);
+        })
+        .catch((err) => {
+            console.error('FAILED...', err);
+            setSending(false);
+            
+            if (err?.status === 422) {
+                setFormStatus('There was an issue sending the email. Please try again or contact us directly.');
+            } else {
+                setFormStatus('Something went wrong. Please try again later.');
+            }
+        });
     };
 
 
@@ -568,9 +590,15 @@ Best regards,\n\n${formData.firstName} ${formData.lastName}`;
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
-                                        <a href="tel:+233596399006" target='_blank' rel="noopener noreferrer">
-                                            <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} href="tel:+233596399006" />
-                                        </a>
+                                        <InfoCard 
+                                            icon={Phone} 
+                                            title="Phone" 
+                                            value="+233 596 399 006" 
+                                            index={0} 
+                                            href="tel:+233596399006"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        />
                                     </div>
                                     <a href="https://wa.me/233596399006" target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 flex flex-shrink-0 items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.15)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:scale-105" aria-label="WhatsApp">
                                         <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 3.825.001 6.938 3.113 6.939 6.938-.001 3.825-3.114 6.938-6.939 6.938z" /></svg>
@@ -665,6 +693,16 @@ Best regards,\n\n${formData.firstName} ${formData.lastName}`;
                                                     error={errors.lastName}
                                                 />
                                             </div>
+
+                                            <FloatingInput
+                                                label="Phone Number"
+                                                name="phone"
+                                                type="tel"
+                                                placeholder="+233 XXX XXX XXX"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                error={errors.phone}
+                                            />
 
                                             <FloatingInput
                                                 label="Service Interest"
