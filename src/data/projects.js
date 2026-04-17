@@ -126,27 +126,27 @@ export const projects = [
         category: 'Architectural Design',
         style: "West African local style"
     },
-    // {
-    //     name: 'Project-19',
-    //     folder: 'Project-19',
-    //     imageCount: 19,
-    //     category: 'Interior Design',
-    //     style: "Project-19"
-    // },
-    // {
-    //     name: 'Project-20',
-    //     folder: 'Project-20',
-    //     imageCount: 2,
-    //     category: 'Architectural Design',
-    //     style: "Tropical Contemporary style"
-    // },
-    // {
-    //     name: 'Project-21',
-    //     folder: 'Project-21',
-    //     imageCount: 2,
-    //     category: 'Interior Design',
-    //     style: "Modern Kitchen"
-    // },
+    {
+        name: 'Project-19',
+        folder: 'Project-19',
+        imageCount: 19,
+        category: 'Interior Design',
+        style: "Project-19"
+    },
+    {
+        name: 'Project-20',
+        folder: 'Project-20',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Tropical Contemporary style"
+    },
+    {
+        name: 'Project-21',
+        folder: 'Project-21',
+        imageCount: 2,
+        category: 'Interior Design',
+        style: "Modern Kitchen"
+    },
 
 
 
