@@ -105,27 +105,27 @@ export const projects = [
         category: 'Architectural Design',
         style: "Afro-Minimalist Luxury Modernism"
     },
-    // {
-    //     name: 'Madame Cynthia Serwaa',
-    //     folder: 'Project-16',
-    //     imageCount: 4,
-    //     category: 'Architectural Design',
-    //     style: "Contemporary Tropical Minimalism"
-    // },
-    // {
-    //     name: 'Mr. Kweku Acheampong',
-    //     folder: 'Project-17',
-    //     imageCount: 2,
-    //     category: 'Architectural Design',
-    //     style: "Tropical Modern Luxury style"
-    // },
-    // {
-    //     name: 'Project-18',
-    //     folder: 'Project-18',
-    //     imageCount: 4,
-    //     category: 'Architectural Design',
-    //     style: "West African local style"
-    // },
+    {
+        name: 'Madame Cynthia Serwaa',
+        folder: 'Project-16',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "Contemporary Tropical Minimalism"
+    },
+    {
+        name: 'Mr. Kweku Acheampong',
+        folder: 'Project-17',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Tropical Modern Luxury style"
+    },
+    {
+        name: 'Project-18',
+        folder: 'Project-18',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "West African local style"
+    },
     // {
     //     name: 'Project-19',
     //     folder: 'Project-19',
