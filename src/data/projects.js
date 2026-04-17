@@ -129,7 +129,7 @@ export const projects = [
     {
         name: 'Project-19',
         folder: 'Project-19',
-        imageCount: 19,
+        imageCount: 16,
         category: 'Interior Design',
         style: "Project-19"
     },
