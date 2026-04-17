@@ -62,13 +62,13 @@ export const projects = [
         category: 'Architectural Design',
         style: "Contemporary Style"
     },
-    // {
-    //     name: 'Project 10',
-    //     folder: 'Project-10',
-    //     imageCount: 9,
-    //     category: 'Interior Design',
-    //     style: "Tropical Contemporary Style"
-    // },
+    {
+        name: 'Project 10',
+        folder: 'Project-10',
+        imageCount: 9,
+        category: 'Interior Design',
+        style: "Tropical Contemporary Style"
+    },
     {
         name: 'Madame Vanessa',
         folder: 'Project-11',
@@ -84,27 +84,27 @@ export const projects = [
         category: 'Full Design',
         style: "Project-12"
     },
-    // {
-    //     name: 'Alhaji Habib',
-    //     folder: 'Project-13',
-    //     imageCount: 4,
-    //     category: 'Architectural Design',
-    //     style: "Contemporary Minimalism"
-    // },
-    // {
-    //     name: 'Madame Bernice',
-    //     folder: 'Project-14',
-    //     imageCount: 2,
-    //     category: 'Architectural Design',
-    //     style: "Neo-Brutalist Modernism Style"
-    // },
-    // {
-    //     name: 'Project-15',
-    //     folder: 'Project-15',
-    //     imageCount: 3,
-    //     category: 'Architectural Design',
-    //     style: "Afro-Minimalist Luxury Modernism"
-    // },
+    {
+        name: 'Alhaji Habib',
+        folder: 'Project-13',
+        imageCount: 4,
+        category: 'Architectural Design',
+        style: "Contemporary Minimalism"
+    },
+    {
+        name: 'Madame Bernice',
+        folder: 'Project-14',
+        imageCount: 2,
+        category: 'Architectural Design',
+        style: "Neo-Brutalist Modernism Style"
+    },
+    {
+        name: 'Project-15',
+        folder: 'Project-15',
+        imageCount: 3,
+        category: 'Architectural Design',
+        style: "Afro-Minimalist Luxury Modernism"
+    },
     // {
     //     name: 'Madame Cynthia Serwaa',
     //     folder: 'Project-16',
