@@ -548,20 +548,21 @@ export const ContactSection = () => {
                         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={2}
                             className="flex flex-col gap-4">
                             {[
-                                { icon: <Mail className="w-5 h-5" />, value: 'Handasiyan.2020@gmail.com' },
-                                { icon: <Phone className="w-5 h-5" />, value: '+233 596 399 006' },
+                                { icon: <Mail className="w-5 h-5" />, value: 'Handasiyan.2020@gmail.com', href: 'mailto:Handasiyan.2020@gmail.com' },
+                                { icon: <Phone className="w-5 h-5" />, value: '+233 596 399 006', href: 'tel:+233596399006' },
                             ].map((item, i) => (
-                                <motion.div key={i}
+                                <motion.a key={i}
+                                    href={item.href}
                                     whileHover={{ x: 6 }}
                                     transition={{ duration: 0.3 }}
-                                    className="flex items-center gap-4 group cursor-default">
+                                    className="flex items-center gap-4 group cursor-pointer no-underline">
                                     <div className="p-3 bg-[#d4af37]/10 rounded-xl text-[#d4af37] group-hover:bg-[#d4af37]/20 transition-colors">
                                         {item.icon}
                                     </div>
                                     <span className="text-white/70 group-hover:text-white transition-colors font-medium">
                                         {item.value}
                                     </span>
-                                </motion.div>
+                                </motion.a>
                             ))}
                         </motion.div>
                     </div>
@@ -1228,16 +1229,7 @@ export const Portfolio = ({ isPreview = false }) => {
                             </motion.h2>
                         </div>
 
-                        {isPreview && (
-                            <motion.div variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                                <Link
-                                    to="/portfolio"
-                                    className="hidden md:flex items-center gap-2 text-[#d4af37] text-sm font-medium pr-5 hover:gap-4 transition-all duration-300"
-                                >
-                                    View all projects <ArrowRight className="w-4 h-4" />
-                                </Link>
-                            </motion.div>
-                        )}
+                        {/* Removed side link as per request, moving to bottom */}
                     </div>
 
                     {/* ── Category Filter (full page only) ── */}
@@ -1322,6 +1314,34 @@ export const Portfolio = ({ isPreview = false }) => {
                                 <p className="text-white/40 text-lg font-light">Soon... Showcase of our latest projects in this category.</p>
                             </motion.div>
                         )}
+                        {/* Featured Projects Bottom Button (Homepage only) */}
+                        {isPreview && (
+                            <motion.div
+                                variants={fadeUp}
+                                initial="hidden"
+                                whileInView="visible"
+                                viewport={{ once: true }}
+                                custom={1}
+                                className="flex justify-center mt-12 mb-8"
+                            >
+                                <Link
+                                    to="/portfolio"
+                                    className="group relative px-10 py-5 bg-[#d4af37] text-black font-bold rounded-full overflow-hidden hover:scale-105 active:scale-95 transition-all duration-300 shadow-[0_10px_40px_rgba(212,175,55,0.25)] flex items-center gap-3"
+                                >
+                                    {/* Shimmer effect on button */}
+                                    <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                                        animate={{ x: ['-100%', '200%'] }}
+                                        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', repeatDelay: 1 }}
+                                    />
+                                    <span className="relative z-10 text-base uppercase tracking-widest">
+                                        View All Projects
+                                    </span>
+                                    <ArrowRight className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1.5" />
+                                </Link>
+                            </motion.div>
+                        )}
+
                         {/* Next Category Button — manual transition instead of automatic */}
                         {!isPreview && nextCategory && (
                             <motion.div

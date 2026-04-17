@@ -24,10 +24,10 @@ END:VCARD`;
 
 const socialLinks = [
     { icon: <Phone size={18} />, href: "tel:+233596399006", label: "Call" },
-    { icon: <WhatsappIcon size={18} />, href: "https://wa.me/+233596399006", label: "WhatsApp" },
-    { icon: <Instagram size={18} />, href: "https://instagram.com/handasiyan", label: "Instagram" },
-    { icon: <Facebook size={18} />, href: "https://www.facebook.com/share/1CAPaHcGzd/?mibextid=wwXIfr", label: "Facebook" },
-    { icon: <TiktokIcon size={18} />, href: "https://tiktok.com/@handasiyan", label: "TikTok" },
+    { icon: <WhatsappIcon size={18} />, href: "https://wa.me/233596399006", label: "WhatsApp" },
+    { icon: <Instagram size={18} />, href: "https://www.instagram.com/handasiyan?igsh=MXJoNjAwNWUyZWtvcw==", label: "Instagram" },
+    { icon: <Facebook size={18} />, href: "https://www.facebook.com/share/18kL4KzpoY/?mibextid=wwXIfr", label: "Facebook" },
+    { icon: <TiktokIcon size={18} />, href: "https://www.tiktok.com/@handasiyan.africa?_r=1&_t=ZS-95cFJi49Tei", label: "TikTok" },
     { icon: <Mail size={18} />, href: "mailto:handasiyan.2020@gmail.com", label: "Email" },
 ];
 
@@ -422,7 +422,7 @@ const DigitalCard = () => {
                                 </a>
 
                                 <a
-                                    href="http://wa.me/233596399006"
+                                    href="https://wa.me/233596399006"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn-secondary flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-[12px] font-semibold tracking-[0.05em] text-white/80"

@@ -27,14 +27,14 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-6">Contact Us</h3>
                         <div className="space-y-4">
-                            <div className="flex items-start space-x-3 text-white/60 text-sm">
+                            <a href="tel:+233596399006" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors">
                                 <Phone className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
                                 <span>+233 596 399 006</span>
-                            </div>
-                            <div className="flex items-start space-x-3 text-white/60 text-sm">
+                            </a>
+                            <a href="mailto:Handasiyan.2020@gmail.com" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors">
                                 <Mail className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
                                 <span>Handasiyan.2020@gmail.com</span>
-                            </div>
+                            </a>
                         </div>
                     </div>
 
@@ -59,17 +59,17 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-semibold mb-6">Follow Us</h3>
                         <div className="flex space-x-4">
-                            <a href="https://www.facebook.com/share/1CAPaHcGzd/?mibextid=wwXIfr" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.facebook.com/share/18kL4KzpoY/?mibextid=wwXIfr" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Facebook className="w-5 h-5" />
                             </a>
-                            <a href="https://instagram.com/handasiyan" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.instagram.com/handasiyan?igsh=MXJoNjAwNWUyZWtvcw==" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Instagram className="w-5 h-5" />
                             </a>
-                            <a href="https://www.linkedin.com/in/hussein-tarhini-805b79195/" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.linkedin.com/company/handasiyan/" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <Linkedin className="w-5 h-5" />
                             </a>
 
-                            <a href="https://tiktok.com/@handasiyan"  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
+                            <a href="https://www.tiktok.com/@handasiyan.africa?_r=1&_t=ZS-95cFJi49Tei" target="_blank" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#d4af37] hover:text-black transition-all">
                                 <TiktokIcon className="w-5 h-5" />
                             </a>
                         </div>

@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMediaQuery } from '../hooks/useMediaQuery';
-import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook } from 'lucide-react';
+import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook, Sparkles } from 'lucide-react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
+
+
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
 const Particle = ({ delay, x, size, color }) => {
@@ -146,25 +148,25 @@ const MagneticBtn = ({ children, className, onClick }) => {
 };
 
 /* ─── Animated Floating Input ───────────────────────────────────── */
-const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', options }) => {
+const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', options, value, onChange, name, error }) => {
     const [focused, setFocused] = useState(false);
-    const [filled, setFilled] = useState(false);
     const Tag = as === 'textarea' ? 'textarea' : as === 'select' ? 'select' : 'input';
 
     const baseClass =
         'w-full bg-transparent border-b-2 pt-6 pb-2 text-white placeholder-transparent focus:outline-none transition-all duration-300 resize-none text-sm peer';
-    const borderClass = focused ? 'border-[#d4af37]' : filled ? 'border-white/30' : 'border-white/10';
+    const borderClass = error ? 'border-red-500/50' : focused ? 'border-[#d4af37]' : value ? 'border-white/30' : 'border-white/10';
 
     return (
         <div className="relative group">
             {as === 'select' ? (
                 <Tag
+                    name={name}
+                    value={value}
+                    onChange={onChange}
                     className={`${baseClass} ${borderClass} appearance-none cursor-pointer`}
                     style={{ background: 'transparent' }}
                     onFocus={() => setFocused(true)}
-                    onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
-                    onChange={(e) => setFilled(!!e.target.value)}
-                    defaultValue=""
+                    onBlur={() => setFocused(false)}
                 >
                     <option value="" disabled hidden></option>
                     {options?.map((o) => (
@@ -173,13 +175,15 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
                 </Tag>
             ) : (
                 <Tag
+                    name={name}
+                    value={value}
+                    onChange={onChange}
                     type={type}
                     placeholder={placeholder}
                     rows={as === 'textarea' ? 4 : undefined}
                     className={`${baseClass} ${borderClass}`}
                     onFocus={() => setFocused(true)}
-                    onBlur={(e) => { setFocused(false); setFilled(!!e.target.value); }}
-                    onChange={(e) => setFilled(!!e.target.value)}
+                    onBlur={() => setFocused(false)}
                 />
             )}
 
@@ -191,7 +195,7 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
 
             <label
                 className={`absolute left-0 transition-all duration-300 font-medium tracking-widest uppercase pointer-events-none
-                    ${focused || filled ? 'top-0 text-[10px] text-[#d4af37]' : 'top-6 text-xs text-white/40'}`}
+                    ${focused || value ? 'top-0 text-[10px] text-[#d4af37]' : 'top-6 text-xs text-white/40'}`}
                 style={{ fontFamily: "'Montserrat', sans-serif" }}
             >
                 {label}
@@ -204,19 +208,29 @@ const FloatingInput = ({ label, type = 'text', placeholder, as = 'input', option
                 style={{ originX: 0 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
             />
+            {error && (
+                <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-red-500/80 text-[10px] mt-1 font-medium montserrat uppercase tracking-wider"
+                >
+                    {error}
+                </motion.p>
+            )}
         </div>
     );
 };
 
 /* ─── Contact Info Card ─────────────────────────────────────────── */
-const InfoCard = ({ icon: Icon, title, value, index }) => (
-    <motion.div
+const InfoCard = ({ icon: Icon, title, value, index, href }) => (
+    <motion.a
+        href={href}
         initial={{ opacity: 0, x: -30 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ delay: index * 0.15, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         whileHover={{ x: 8 }}
-        className="flex items-center gap-5 group cursor-pointer"
+        className="flex items-center gap-5 group cursor-pointer no-underline"
     >
         <div className="relative">
             <motion.div
@@ -232,7 +246,7 @@ const InfoCard = ({ icon: Icon, title, value, index }) => (
             <p className="text-white/30 text-[10px] uppercase tracking-[0.2em] mb-1" style={{ fontFamily: "'Montserrat', sans-serif" }}>{title}</p>
             <p className="text-white font-medium text-sm tracking-wide" style={{ fontFamily: "'Montserrat', sans-serif" }}>{value}</p>
         </div>
-    </motion.div>
+    </motion.a>
 );
 
 /* ─── Social Link ───────────────────────────────────────────────── */
@@ -265,6 +279,15 @@ const SocialLink = ({ icon, name, href, index }) => (
 const ContactPage = () => {
     const [submitted, setSubmitted] = useState(false);
     const [sending, setSending] = useState(false);
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        service: '',
+        message: ''
+    });
+    const [errors, setErrors] = useState({});
+    const [formStatus, setFormStatus] = useState('');
+
     const heroRef = useRef(null);
     const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
     const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
@@ -280,10 +303,77 @@ const ContactPage = () => {
         color: i % 3 === 0 ? '#d4af37' : i % 3 === 1 ? '#ffffff' : '#064e3b',
     })), [isMobile]);
 
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+        setFormStatus('');
+    };
+
     const handleSend = () => {
+        // Check if form is completely empty
+        if (!formData.firstName && !formData.lastName && !formData.service && !formData.message) {
+            setFormStatus('The form is empty. Please fill in your details.');
+            return;
+        }
+
+        const newErrors = {};
+
+        // Regex patterns
+        const nameRegex = /^[A-Za-z\s]{2,50}$/;
+        const messageRegex = /^.{2,}$/; // At least 2 characters
+
+        if (!nameRegex.test(formData.firstName)) {
+            newErrors.firstName = 'Invalid first name';
+        }
+        if (!nameRegex.test(formData.lastName)) {
+            newErrors.lastName = 'Invalid last name';
+        }
+        if (!formData.service) {
+            newErrors.service = 'Please select a service';
+        }
+        if (!messageRegex.test(formData.message)) {
+            newErrors.message = 'Message must be at least 2 characters';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setFormStatus('Please correct the errors in the form.');
+            return;
+        }
+
         setSending(true);
-        setTimeout(() => { setSending(false); setSubmitted(true); }, 2000);
-        setTimeout(() => setSubmitted(false), 5000);
+        setFormStatus('');
+
+        // Formulate Gmail message
+        const recipient = "Handasiyan.2020@gmail.com";
+        const subject = "New Project Inquiry";
+        const messageBody = `Dear Handasiyan Team,
+
+I hope this email finds you well. 
+
+I am reaching out to inquire about your "${formData.service}" services. 
+
+${formData.message}
+
+I look forward to hearing from you.
+
+Best regards,\n\n${formData.firstName} ${formData.lastName}`;
+
+        const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${recipient}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(messageBody)}`;
+
+        setTimeout(() => {
+            setSending(false);
+            setSubmitted(true);
+            window.open(gmailUrl, '_blank');
+        }, 1800);
     };
 
 
@@ -294,10 +384,10 @@ const ContactPage = () => {
     );
 
     const socialLinks = [
-        { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/share/1CAPaHcGzd/?mibextid=wwXIfr', name: 'Facebook' },
-        { icon: <Instagram className="w-5 h-5" />, href: 'https://instagram.com/handasiyan', name: 'Instagram' },
-        { icon: <Linkedin className="w-5 h-5" />, href: 'https://www.linkedin.com/in/hussein-tarhini-805b79195/', name: 'LinkedIn' },
-        { icon: <TiktokIcon className="w-5 h-5" />, href: 'https://tiktok.com/@handasiyan', name: 'Tiktok' },
+        { icon: <Facebook className="w-5 h-5" />, href: 'https://www.facebook.com/share/18kL4KzpoY/?mibextid=wwXIfr', name: 'Facebook' },
+        { icon: <Instagram className="w-5 h-5" />, href: 'https://www.instagram.com/handasiyan?igsh=MXJoNjAwNWUyZWtvcw==', name: 'Instagram' },
+        { icon: <Linkedin className="w-5 h-5" />, href: 'https://www.linkedin.com/company/handasiyan/', name: 'LinkedIn' },
+        { icon: <TiktokIcon className="w-5 h-5" />, href: 'https://www.tiktok.com/@handasiyan.africa?_r=1&_t=ZS-95cFJi49Tei', name: 'Tiktok' },
 
     ];
 
@@ -478,13 +568,15 @@ const ContactPage = () => {
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
-                                        <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} />
+                                        <a href="tel:+233596399006" target='_blank' rel="noopener noreferrer">
+                                            <InfoCard icon={Phone} title="Phone" value="+233 596 399 006" index={0} href="tel:+233596399006" />
+                                        </a>
                                     </div>
                                     <a href="https://wa.me/233596399006" target="_blank" rel="noopener noreferrer" className="w-14 h-14 rounded-2xl bg-[#25D366]/10 border border-[#25D366]/20 flex flex-shrink-0 items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(37,211,102,0.15)] hover:shadow-[0_0_30px_rgba(37,211,102,0.4)] hover:scale-105" aria-label="WhatsApp">
                                         <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 3.825.001 6.938 3.113 6.939 6.938-.001 3.825-3.114 6.938-6.939 6.938z" /></svg>
                                     </a>
                                 </div>
-                                <InfoCard icon={Mail} title="Email" value="Handasiyan.2020@gmail.com" index={1} />
+                                <InfoCard icon={Mail} title="Email" value="Handasiyan.2020@gmail.com" index={1} href="mailto:Handasiyan.2020@gmail.com" />
                             </div>
 
                             <motion.div
@@ -556,19 +648,64 @@ const ContactPage = () => {
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <FloatingInput label="First Name" placeholder="John" />
-                                                <FloatingInput label="Last Name" placeholder="Doe" />
+                                                <FloatingInput
+                                                    label="First Name"
+                                                    name="firstName"
+                                                    placeholder="John"
+                                                    value={formData.firstName}
+                                                    onChange={handleChange}
+                                                    error={errors.firstName}
+                                                />
+                                                <FloatingInput
+                                                    label="Last Name"
+                                                    name="lastName"
+                                                    placeholder="Doe"
+                                                    value={formData.lastName}
+                                                    onChange={handleChange}
+                                                    error={errors.lastName}
+                                                />
                                             </div>
-
-                                            <FloatingInput label="Email Address" type="email" placeholder="email@example.com" />
 
                                             <FloatingInput
                                                 label="Service Interest"
+                                                name="service"
                                                 as="select"
-                                                options={['Full Interior Design', 'Architecture', 'Consultation', 'Project Management']}
+                                                value={formData.service}
+                                                onChange={handleChange}
+                                                error={errors.service}
+                                                options={[
+                                                    'Full Design',
+                                                    'Civil Engineering',
+                                                    'Architectural Design',
+                                                    'Interior Design',
+                                                    'Electrical & Mechanical Engineering (MEP)',
+                                                    '3D Visualization & Concept Design',
+                                                    'Construction & Build Management',
+                                                    'Custom Furniture & Joinery',
+                                                    'Project Management & Supervision',
+                                                    'Renovation & Remodeling'
+                                                ]}
                                             />
 
-                                            <FloatingInput label="Your Message" as="textarea" placeholder="Tell us about your project..." />
+                                            <FloatingInput
+                                                label="Your Message"
+                                                name="message"
+                                                as="textarea"
+                                                placeholder="Tell us about your project..."
+                                                value={formData.message}
+                                                onChange={handleChange}
+                                                error={errors.message}
+                                            />
+
+                                            {formStatus && (
+                                                <motion.p
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    className={`text-sm ${formStatus.includes('empty') || formStatus.includes('correct') ? 'text-red-500' : 'text-[#d4af37]'} font-medium montserrat`}
+                                                >
+                                                    {formStatus}
+                                                </motion.p>
+                                            )}
 
                                             <div className="flex items-center gap-6 pt-2">
                                                 <MagneticBtn
