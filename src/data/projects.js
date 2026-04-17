@@ -69,21 +69,21 @@ export const projects = [
     //     category: 'Interior Design',
     //     style: "Tropical Contemporary Style"
     // },
-    // {
-    //     name: 'Madame Vanessa',
-    //     folder: 'Project-11',
-    //     imageCount: 10,
-    //     category: 'Full Design',
-    //     style: "Industrial Style"
-    // },
+    {
+        name: 'Madame Vanessa',
+        folder: 'Project-11',
+        imageCount: 10,
+        category: 'Full Design',
+        style: "Industrial Style"
+    },
 
-    // {
-    //     name: 'Mr. Boakye Kensah',
-    //     folder: 'Project-12',
-    //     imageCount: 10,
-    //     category: 'Full Design',
-    //     style: "Project-12"
-    // },
+    {
+        name: 'Mr. Boakye Kensah',
+        folder: 'Project-12',
+        imageCount: 10,
+        category: 'Full Design',
+        style: "Project-12"
+    },
     // {
     //     name: 'Alhaji Habib',
     //     folder: 'Project-13',
