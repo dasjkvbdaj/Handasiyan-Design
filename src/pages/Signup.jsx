@@ -4,6 +4,9 @@ import { useAuth } from "../hooks/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMediaQuery } from "../hooks/useMediaQuery";
+import { db } from "../firebase/firebase";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import StatusModal from "../components/StatusModal";
 
 /**
  * Reusable animation variants
@@ -132,13 +135,42 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await signup(email, password);
-      navigate("/"); // redirect after signup
+      const userCredential = await signup(email, password);
+      const user = userCredential.user;
+
+      // Check if user document exists (it shouldn't for new signup, but safety first)
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          role: "user",
+          createdAt: serverTimestamp(),
+        });
+        navigate("/");
+      } else {
+        // If somehow they already existed in Firestore, check role
+        const userData = userSnap.data();
+        if (userData.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }
     } catch (err) {
-      setError(getFirebaseError(err.code));
+      if (err.code === "auth/email-already-in-use") {
+        setError("An account with this email already exists. Please sign in.");
+      } else {
+        setError(getFirebaseError(err.code));
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const closeModal = () => {
+    setError("");
   };
 
   const getFirebaseError = (code) => {
@@ -210,18 +242,12 @@ const Signup = () => {
             </motion.p>
           </div>
 
-          <AnimatePresence mode="wait">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 md:p-4 rounded-xl md:rounded-2xl mb-4 md:mb-6 text-xs md:text-sm text-center"
-              >
-                {error}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <StatusModal 
+            isOpen={!!error} 
+            type="error" 
+            message={error} 
+            onClose={closeModal} 
+          />
 
           <form onSubmit={handleSubmit} className="space-y-3 md:space-y-5">
             <motion.div variants={fadeInUp} custom={0.3}>
@@ -293,10 +319,30 @@ const Signup = () => {
               whileTap={{ scale: 0.98 }}
               onClick={async () => {
                 try {
-                  await signInWithGoogle();
-                  navigate("/");
+                  const userCredential = await signInWithGoogle();
+                  const user = userCredential.user;
+
+                  const userRef = doc(db, "users", user.uid);
+                  const userSnap = await getDoc(userRef);
+
+                  if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                      email: user.email,
+                      role: "user",
+                      createdAt: serverTimestamp(),
+                    });
+                    navigate("/");
+                  } else {
+                    const userData = userSnap.data();
+                    if (userData.role === "admin") {
+                      navigate("/admin");
+                    } else {
+                      navigate("/");
+                    }
+                  }
                 } catch (err) {
                   console.error(err);
+                  setError("Google authentication failed.");
                 }
               }}
               className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/80 py-3 md:py-4 rounded-xl md:rounded-2xl flex items-center justify-center gap-2 md:gap-3 transition-all duration-300"

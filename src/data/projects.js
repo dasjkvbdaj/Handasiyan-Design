@@ -1,3 +1,4 @@
+/*
 export const projects = [
     {
         name: 'Mohammad & Fatima Kitchen',
@@ -166,3 +167,4 @@ export const projects = [
 
 
 ];
+*/

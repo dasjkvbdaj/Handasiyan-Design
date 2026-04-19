@@ -3,7 +3,8 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { useRef, useState, useEffect, useCallback, useMemo, useTransition } from 'react';
 import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
-import { projects } from '../data/projects';
+import { db } from '../firebase/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
 
 /**
@@ -682,20 +683,31 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
     });
     const imageY = useTransform(scrollYProgress, [0, 1], (isMobile || isTablet) ? ['0%', '0%'] : ['0%', '12%']);
 
-    const images = useMemo(
-        () => {
-            // Reduced widths + dpr_auto for faster delivery
-            // Mobile width reduced from 600 to 512 for better memory management
-            const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
-            return project.images
-                ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${id}.png?_v=${__BUILD_TIMESTAMP__}`)
-                : Array.from(
-                    { length: project.imageCount },
-                    (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
-                );
-        },
-        [project, isMobile, isTablet]
-    );
+    const images = useMemo(() => {
+        // Optimized params — balance between quality and load speed
+        const params = isMobile
+            ? 'c_limit,w_800,f_auto,q_auto'
+            : (isTablet
+                ? 'c_limit,w_1200,f_auto,q_auto'
+                : 'c_limit,w_1600,f_auto,q_auto');
+
+        const baseUrl = `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}`;
+
+        // New dynamic projects (Firestore Public IDs)
+        if (project.images) {
+            return project.images.map(id => `${baseUrl}/${id}`);
+        }
+
+        // 3. Fallback for static/legacy projects (Folder-based)
+        if (project.imageUrls) {
+            return project.imageUrls.map(img => img.url);
+        }
+
+        return Array.from(
+            { length: project.imageCount },
+            (_, i) => `${baseUrl}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
+        );
+    }, [project, isMobile, isTablet]);
 
     const imageIndex = Math.abs(page % images.length);
 
@@ -932,8 +944,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                         <img
                             src={images[imageIndex]}
                             alt={project.style}
-                            loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
-                            fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
+                            loading={imageIndex === 0 ? 'eager' : 'lazy'}
+                            fetchPriority={imageIndex === 0 ? 'high' : 'auto'}
+                            sizes={project.images ? 'auto' : undefined}
                             draggable={false}
                             onContextMenu={(e) => e.preventDefault()}
                             style={{
@@ -974,8 +987,9 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                             <motion.img
                                 src={images[imageIndex]}
                                 alt={project.style}
-                                loading={index < 3 && imageIndex === 0 ? 'eager' : 'lazy'}
-                                fetchPriority={index < 3 && imageIndex === 0 ? 'high' : 'auto'}
+                                loading={imageIndex === 0 ? 'eager' : 'lazy'}
+                                fetchPriority={imageIndex === 0 ? 'high' : 'auto'}
+                                sizes={project.images ? 'auto' : undefined}
                                 draggable={false}
                                 onContextMenu={(e) => e.preventDefault()}
                                 style={{
@@ -1098,6 +1112,26 @@ export const Portfolio = ({ isPreview = false }) => {
     const categoryFilter = searchParams.get('category');
 
     const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
+    const [dynamicProjects, setDynamicProjects] = useState([]);
+
+    useEffect(() => {
+        const fetchDynamicProjects = async () => {
+            try {
+                const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                const projectsData = querySnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setDynamicProjects(projectsData);
+            } catch (err) {
+                console.error("Error fetching dynamic projects:", err);
+            }
+        };
+        fetchDynamicProjects();
+    }, []);
+
+    const allProjects = dynamicProjects;
     const [hoveredCategory, setHoveredCategory] = useState(null);
     const [isPending, startTransition] = useTransition();
     const [isChangingCategory, setIsChangingCategory] = useState(false);
@@ -1109,7 +1143,9 @@ export const Portfolio = ({ isPreview = false }) => {
         { id: 'Architectural Design' },
         { id: 'Interior Design' },
         { id: 'Civil Engineering' },
-        { id: 'Mechanical and Electrical Engineering' },
+        { id: 'Construction & Build Management' },
+        { id: 'MEP Engineering' },
+        { id: '3D Visualization' },
     ], []);
 
     useEffect(() => {
@@ -1127,33 +1163,27 @@ export const Portfolio = ({ isPreview = false }) => {
         if (isChangingCategory) return;
 
         const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
-        let nextIndex = currentIndex + 1;
+        
+        // Find the next category in sequence (looping back to index 0 if at the end)
+        const nextIndex = (currentIndex + 1) % CATEGORIES_DATA.length;
+        const nextCatId = CATEGORIES_DATA[nextIndex].id;
 
-        // Skip categories that don't have any projects to avoid immediate "stutter" skipping
-        while (nextIndex < CATEGORIES_DATA.length) {
-            const nextCat = CATEGORIES_DATA[nextIndex];
-            const hasProjects = projects.some(p => p.category === nextCat.id);
+        setIsChangingCategory(true);
+        setActiveCategory(nextCatId);
 
-            if (hasProjects) {
-                const nextCatId = nextCat.id;
+        startTransition(() => {
+            setSearchParams({ category: nextCatId }, { replace: true });
+        });
 
-                // Set cooldown to prevent skipping multiple categories in one scroll
-                setIsChangingCategory(true);
-                setActiveCategory(nextCatId);
-
-                startTransition(() => {
-                    setSearchParams({ category: nextCatId }, { replace: true });
-                });
-
-                // Reset cooldown after a delay to allow the new category to render and scroll
-                setTimeout(() => {
-                    setIsChangingCategory(false);
-                }, 1200);
-
-                return;
-            }
-            nextIndex++;
+        // Forced scroll to top of projects section
+        const element = document.getElementById('projects-section');
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
         }
+
+        setTimeout(() => {
+            setIsChangingCategory(false);
+        }, 800);
     }, [activeCategory, CATEGORIES_DATA, isChangingCategory, setSearchParams, startTransition]);
 
     const isFirstMount = useRef(true);
@@ -1177,26 +1207,18 @@ export const Portfolio = ({ isPreview = false }) => {
     // Calculate the next available category with projects
     const nextCategory = useMemo(() => {
         const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
-        let nextIndex = currentIndex + 1;
-        while (nextIndex < CATEGORIES_DATA.length) {
-            const nextCat = CATEGORIES_DATA[nextIndex];
-            if (projects.some(p => p.category === nextCat.id)) return nextCat;
-            nextIndex++;
-        }
-        return null;
+        const nextIndex = (currentIndex + 1) % CATEGORIES_DATA.length;
+        return CATEGORIES_DATA[nextIndex];
     }, [activeCategory, CATEGORIES_DATA]);
 
     const displayProjects = useMemo(() => {
         if (isPreview) {
-            // Specific projects for homepage featured section as requested
-            const featuredFolders = ['Project-2', 'Project-13', 'Project-8'];
-            return featuredFolders.map(folder =>
-                projects.find(p => p.folder === folder)
-            ).filter(Boolean);
+            // Show only the specific featured project for the homepage
+            return dynamicProjects.filter(p => p.id === 'nonOgyUnirP28WBdStIc');
         }
-        const allProjects = [...projects].reverse();
-        return allProjects.filter(p => p.category === activeCategory);
-    }, [isPreview, activeCategory]);
+        const filtered = allProjects.filter(p => p.category === activeCategory);
+        return filtered;
+    }, [isPreview, activeCategory, allProjects, dynamicProjects]);
 
     return (
         <>
@@ -1432,15 +1454,21 @@ const LightboxModal = ({ project, onClose }) => {
     const lbTouchRef = useRef({ startX: 0, startY: 0, startTime: 0, currentX: 0, isDragging: false, rafId: null, isScrolling: null });
 
     const images = useMemo(() => {
-        // Use the same params as ProjectCard so the browser cache is reused — no re-download!
-        // Mobile width reduced from 600 to 512 for better memory management
-        const params = isMobile ? 'f_auto,q_auto,dpr_auto,w_512' : (isTablet ? 'f_auto,q_auto,dpr_auto,w_900' : 'f_auto,q_auto,dpr_auto,w_1024');
-        return project.images
-            ? project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${id}.png?_v=${__BUILD_TIMESTAMP__}`)
-            : Array.from(
-                { length: project.imageCount },
-                (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
-            );
+        // Use the SAME params as ProjectCard so the browser cache is hit instantly
+        const params = isMobile
+            ? 'c_limit,w_800,f_auto,q_auto'
+            : (isTablet
+                ? 'c_limit,w_1200,f_auto,q_auto'
+                : 'c_limit,w_1600,f_auto,q_auto');
+
+        if (project.images) {
+            return project.images.map(id => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${id}`);
+        }
+
+        return Array.from(
+            { length: project.imageCount },
+            (_, i) => `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${params}/${project.folder}/image-${i + 1}.png?_v=${__BUILD_TIMESTAMP__}`
+        );
     }, [project, isMobile, isTablet]);
 
     const activeIndex = Math.abs(page % images.length);

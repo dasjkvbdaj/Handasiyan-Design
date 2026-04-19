@@ -13,7 +13,9 @@ import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 import DigitalCard from './pages/DigitalCard'
+import AdminPanel from './pages/AdminPanel'
 import NotFoundPage from './pages/NotFoundPage'
+import ProtectedRoute from './components/ProtectedRoute'
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -71,8 +73,24 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/reset-password" element={<ResetPassword/>} />
-                <Route path="/profile" element={<Profile/>} />
-                <Route path="/digitalCard" element={<DigitalCard/>} />
+                
+                {/* Protected Routes */}
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <Profile/>
+                  </ProtectedRoute>
+                } />
+                <Route path="/digitalCard" element={
+                  <ProtectedRoute>
+                    <DigitalCard/>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                  <ProtectedRoute adminOnly={true}>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                } />
+
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Layout>
