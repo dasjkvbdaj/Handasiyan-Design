@@ -13,13 +13,13 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-const provider = new GoogleAuthProvider();
+  const provider = new GoogleAuthProvider();
   const signup = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
   const signInWithGoogle = () => {
-  return signInWithPopup(auth, provider);
-};
+    return signInWithPopup(auth, provider);
+  };
 
   const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
