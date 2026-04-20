@@ -1199,23 +1199,7 @@ export const Portfolio = ({ isPreview = false }) => {
         }, 800);
     }, [activeCategory, CATEGORIES_DATA, isChangingCategory, setSearchParams, startTransition]);
 
-    const isFirstMount = useRef(true);
 
-    // Handle auto-scroll to top of projects section when category changes
-    useEffect(() => {
-        if (isPreview) return;
-
-        if (isFirstMount.current) {
-            isFirstMount.current = false;
-            return;
-        }
-
-        const element = document.getElementById('projects-section');
-        if (element) {
-            // Forced instant scroll to ensure we're at the top of the new category's projects
-            element.scrollIntoView({ behavior: 'auto' });
-        }
-    }, [activeCategory, isPreview]);
 
     // Calculate the next available category with projects
     const nextCategory = useMemo(() => {
