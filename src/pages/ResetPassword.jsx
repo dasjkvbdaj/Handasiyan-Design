@@ -59,7 +59,7 @@ const ResetPassword = () => {
       >
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-10 rounded-[2.5rem] shadow-2xl">
           <div className="text-center mb-10">
-            <motion.h2 
+            <motion.h2
               variants={fadeInUp}
               custom={0.1}
               className="text-4xl font-bold text-white mb-2"
@@ -67,7 +67,7 @@ const ResetPassword = () => {
             >
               Reset Password
             </motion.h2>
-            <motion.p 
+            <motion.p
               variants={fadeInUp}
               custom={0.2}
               className="text-white/50 text-sm tracking-wide"
@@ -82,11 +82,10 @@ const ResetPassword = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className={`${
-                  message.startsWith("Error") 
-                    ? "bg-red-500/10 border border-red-500/20 text-red-400" 
+                className={`${message.startsWith("Error")
+                    ? "bg-red-500/10 border border-red-500/20 text-red-400"
                     : "bg-[#d4af37]/10 border border-[#d4af37]/20 text-[#d4af37]"
-                } p-4 rounded-2xl mb-6 text-sm text-center font-medium`}
+                  } p-4 rounded-2xl mb-6 text-sm text-center font-medium`}
               >
                 {message}
               </motion.div>
@@ -115,18 +114,17 @@ const ResetPassword = () => {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 ${
-                loading 
-                  ? "bg-white/10 text-white/30 cursor-not-allowed" 
+              className={`w-full py-4 rounded-2xl font-bold tracking-widest uppercase text-xs transition-all duration-300 shadow-xl shadow-[#d4af37]/10 ${loading
+                  ? "bg-white/10 text-white/30 cursor-not-allowed"
                   : "bg-[#d4af37] text-black hover:bg-[#b8962d]"
-              }`}
+                }`}
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </motion.button>
           </form>
 
-          <motion.p 
-            variants={fadeInUp} 
+          <motion.p
+            variants={fadeInUp}
             custom={0.5}
             className="text-center mt-10 text-white/30 text-xs tracking-wider"
           >

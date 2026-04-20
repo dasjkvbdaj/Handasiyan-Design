@@ -154,8 +154,8 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete, onOpen }) => {
       const params = isMobile
         ? "c_limit,w_600,f_auto,q_auto"
         : isTablet
-        ? "c_limit,w_800,f_auto,q_auto"
-        : "c_limit,w_1000,f_auto,q_auto";
+          ? "c_limit,w_800,f_auto,q_auto"
+          : "c_limit,w_1000,f_auto,q_auto";
       return project.images.map(
         (id) => `https://res.cloudinary.com/${cloudName}/image/upload/${params}/${id}`
       );
@@ -242,9 +242,8 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete, onOpen }) => {
             {images.map((_, i) => (
               <div
                 key={i}
-                className={`w-1 h-1 rounded-full transition-all ${
-                  i === currentIdx ? "bg-[#d4af37] w-3" : "bg-white/30"
-                }`}
+                className={`w-1 h-1 rounded-full transition-all ${i === currentIdx ? "bg-[#d4af37] w-3" : "bg-white/30"
+                  }`}
               />
             ))}
           </div>
@@ -651,22 +650,20 @@ const AdminPanel = () => {
                 setActiveTab("list");
                 if (editingProject) cancelEdit();
               }}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeTab === "list"
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "list"
                   ? "bg-[#d4af37] text-black"
                   : "text-white/60 hover:text-white"
-              }`}
+                }`}
             >
               <ListIcon size={18} />
               Project List
             </button>
             <button
               onClick={() => setActiveTab("add")}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                activeTab === "add"
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "add"
                   ? "bg-[#d4af37] text-black"
                   : "text-white/60 hover:text-white"
-              }`}
+                }`}
             >
               <Plus size={18} />
               {editingProject ? "Edit Project" : "Add Project"}
@@ -688,11 +685,10 @@ const AdminPanel = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                  selectedCategory === cat
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${selectedCategory === cat
                     ? "bg-[#d4af37] text-black"
                     : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
-                }`}
+                  }`}
               >
                 {cat}
               </button>
