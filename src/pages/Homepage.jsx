@@ -1050,14 +1050,14 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
                 <div className="flex flex-col gap-1 pr-4">
-                    {/* {isPreview && (
+                    {isPreview && (
                         <motion.span
                             className="text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold"
                             animate={{ opacity: hovered ? 1 : 0.8 }}
                         >
                             {project.category}
                         </motion.span>
-                    )} */}
+                    )}
                     <motion.h3
                         className="text-white font-bold leading-tight"
                         style={{
@@ -1111,7 +1111,7 @@ export const Portfolio = ({ isPreview = false }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const categoryFilter = searchParams.get('category');
 
-    const [activeCategory, setActiveCategory] = useState(categoryFilter || 'Full Design');
+    const [activeCategory, setActiveCategory] = useState(categoryFilter || '');
     const [dynamicProjects, setDynamicProjects] = useState([]);
 
     useEffect(() => {
@@ -1138,15 +1138,26 @@ export const Portfolio = ({ isPreview = false }) => {
 
     const scrollContainerRef = useRef(null);
 
-    const CATEGORIES_DATA = useMemo(() => [
-        { id: 'Full Design' },
-        { id: 'Architectural Design' },
-        { id: 'Interior Design' },
-        { id: 'Civil Engineering' },
-        { id: 'Construction & Build Management' },
-        { id: 'MEP Engineering' },
-        { id: '3D Visualization' },
-    ], []);
+    const CATEGORIES_DATA = useMemo(() => {
+        const preferredOrder = ["Full Design", "Architectural Design", "Interior Design"];
+        const uniqueCategories = Array.from(new Set(dynamicProjects.map(p => p.category)))
+            .filter(Boolean)
+            .sort((a, b) => {
+                const idxA = preferredOrder.indexOf(a);
+                const idxB = preferredOrder.indexOf(b);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+        return uniqueCategories.map(cat => ({ id: cat }));
+    }, [dynamicProjects]);
+
+    useEffect(() => {
+        if (!activeCategory && CATEGORIES_DATA.length > 0) {
+            setActiveCategory(CATEGORIES_DATA[0].id);
+        }
+    }, [CATEGORIES_DATA, activeCategory]);
 
     useEffect(() => {
         if (categoryFilter) {
@@ -1213,8 +1224,9 @@ export const Portfolio = ({ isPreview = false }) => {
 
     const displayProjects = useMemo(() => {
         if (isPreview) {
-            // Show only the specific featured project for the homepage
-            return dynamicProjects.filter(p => p.id === 'nonOgyUnirP28WBdStIc');
+            // Show only the specific featured projects for the homepage
+            const featuredIds = ['nonOgyUnirP28WBdStIc', 'yxi1la7vgdXunavm7tJD', 'sYA2A9opQLaLVZQGkuz1'];
+            return featuredIds.map(id => dynamicProjects.find(p => p.id === id)).filter(Boolean);
         }
         const filtered = allProjects.filter(p => p.category === activeCategory);
         return filtered;
@@ -1446,7 +1458,7 @@ export const Portfolio = ({ isPreview = false }) => {
  * LightboxModal Component
  * Extracted for cleaner state management of the image index
  */
-const LightboxModal = ({ project, onClose }) => {
+export const LightboxModal = ({ project, onClose }) => {
     const [[page, direction], setPage] = useState([0, 0]);
     const isMobile = useMediaQuery('(max-width: 768px)');
     const isTablet = useMediaQuery('(max-width: 1024px)');

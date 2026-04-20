@@ -8,7 +8,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, isAdmin } = useAuth();
   const [openMenu, setOpenMenu] = useState(false);
 
   // Handle scroll for navbar visibility
@@ -66,6 +66,18 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
+
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`text-sm font-medium transition-all duration-300 ${isActive("/admin")
+                ? "text-[#d4af37] scale-105 blur-none"
+                : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
+                }`}
+            >
+              Dashboard
+            </Link>
+          )}
 
           {/* 🔥 AUTH PART */}
           {currentUser ? (
@@ -152,6 +164,18 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
+                className={`text-sm font-medium transition-all duration-300 ${isActive("/admin")
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                  }`}
+              >
+                Dashboard
+              </Link>
+            )}
             {/* AUTH MOBILE */}
             {currentUser ? (
               <>

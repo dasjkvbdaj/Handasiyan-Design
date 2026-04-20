@@ -27,9 +27,30 @@ import {
   List as ListIcon,
   ChevronRight,
   Upload,
+  GripVertical,
+  Eye,
 } from "lucide-react";
+import { LightboxModal } from "./Homepage";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import StatusModal from "../components/StatusModal";
+
+// ─── dnd-kit ────────────────────────────────────────────────────────────────
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+// ─────────────────────────────────────────────────────────────────────────────
 
 const CATEGORIES = [
   "Interior Design",
@@ -41,7 +62,88 @@ const CATEGORIES = [
   "3D Visualization",
 ];
 
-const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
+// ─── Sortable Image Item ─────────────────────────────────────────────────────
+const SortableImageItem = ({ item, index, onReplace, onRemove }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : "auto",
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="aspect-square rounded-2xl overflow-hidden relative group border border-white/10 bg-neutral-900 touch-none"
+    >
+      {/* Index badge */}
+      <div className="absolute top-2 left-2 z-10 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+        #{index + 1}
+      </div>
+
+      <img src={item.preview} alt="Preview" className="w-full h-full object-cover" />
+
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white/60 hover:text-[#d4af37] cursor-grab active:cursor-grabbing transition-all opacity-0 group-hover:opacity-100"
+        title="Drag to reorder"
+      >
+        <GripVertical size={14} />
+      </div>
+
+      {/* Edit / Remove buttons */}
+      <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <label className="p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white hover:bg-[#d4af37] hover:text-black transition-all cursor-pointer" title="Replace image">
+          <Edit2 size={12} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files?.[0]) onReplace(index, e.target.files[0]);
+            }}
+            className="hidden"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => onRemove(index)}
+          className="p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white hover:bg-red-500 transition-all"
+          title="Remove image"
+        >
+          <X size={12} />
+        </button>
+      </div>
+
+      {/* Status badge */}
+      {item.status === "replaced" && (
+        <div className="absolute bottom-2 left-2 bg-[#d4af37] text-black text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter">
+          Replaced
+        </div>
+      )}
+      {item.status === "new" && (
+        <div className="absolute bottom-2 left-2 bg-green-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter">
+          New
+        </div>
+      )}
+    </div>
+  );
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Admin Project Card ──────────────────────────────────────────────────────
+const AdminProjectCard = ({ project, index, onEdit, onDelete, onOpen }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -50,13 +152,15 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
   const images = useMemo(() => {
     if (project.images) {
       const params = isMobile
-        ? 'c_limit,w_600,f_auto,q_auto'
-        : (isTablet
-          ? 'c_limit,w_800,f_auto,q_auto'
-          : 'c_limit,w_1000,f_auto,q_auto');
-      return project.images.map(id => `https://res.cloudinary.com/${cloudName}/image/upload/${params}/${id}`);
+        ? "c_limit,w_600,f_auto,q_auto"
+        : isTablet
+        ? "c_limit,w_800,f_auto,q_auto"
+        : "c_limit,w_1000,f_auto,q_auto";
+      return project.images.map(
+        (id) => `https://res.cloudinary.com/${cloudName}/image/upload/${params}/${id}`
+      );
     }
-    return project.imageUrls?.map(img => img.url) || [];
+    return project.imageUrls?.map((img) => img.url) || [];
   }, [project, cloudName]);
 
   const paginate = (dir, e) => {
@@ -78,8 +182,8 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
             key={currentIdx}
             src={images[currentIdx]}
             alt={project.name}
-            loading={currentIdx === 0 ? 'eager' : 'lazy'}
-            fetchPriority={currentIdx === 0 ? 'high' : 'auto'}
+            loading={currentIdx === 0 ? "eager" : "lazy"}
+            fetchPriority={currentIdx === 0 ? "high" : "auto"}
             sizes="auto"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
@@ -96,7 +200,9 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
               onClick={(e) => paginate(-1, e)}
               className="p-1.5 bg-black/50 backdrop-blur-md rounded-full text-white hover:bg-[#d4af37] hover:text-black transition-all"
             >
-              <div className="rotate-180 flex items-center justify-center"><ChevronRight size={16} /></div>
+              <div className="rotate-180 flex items-center justify-center">
+                <ChevronRight size={16} />
+              </div>
             </button>
             <button
               onClick={(e) => paginate(1, e)}
@@ -110,6 +216,13 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         <div className="absolute top-4 right-4 flex gap-2 z-10">
+          <button
+            onClick={() => onOpen(project)}
+            className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-[#d4af37] hover:text-black transition-all"
+            title="View project"
+          >
+            <Eye size={16} />
+          </button>
           <button
             onClick={() => onEdit(project)}
             className="p-3 bg-white/10 backdrop-blur-md rounded-full text-white hover:bg-[#d4af37] hover:text-black transition-all"
@@ -129,7 +242,9 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
             {images.map((_, i) => (
               <div
                 key={i}
-                className={`w-1 h-1 rounded-full transition-all ${i === currentIdx ? 'bg-[#d4af37] w-3' : 'bg-white/30'}`}
+                className={`w-1 h-1 rounded-full transition-all ${
+                  i === currentIdx ? "bg-[#d4af37] w-3" : "bg-white/30"
+                }`}
               />
             ))}
           </div>
@@ -145,26 +260,27 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete }) => {
         <h3 className="text-xl font-bold mb-1 truncate">{project.name}</h3>
         <p className="text-white/40 text-sm mb-4 line-clamp-1">{project.style}</p>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-white/20 italic">
-            {images.length} Images
-          </span>
+          <span className="text-xs text-white/20 italic">{images.length} Images</span>
           <div className="w-8 h-px bg-white/10" />
         </div>
       </div>
     </motion.div>
   );
 };
+// ─────────────────────────────────────────────────────────────────────────────
 
 const AdminPanel = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("list");
   const [editingProject, setEditingProject] = useState(null);
-  
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [lightboxProject, setLightboxProject] = useState(null);
+
   const [status, setStatus] = useState({
     isOpen: false,
-    type: 'loading',
-    message: ''
+    type: "loading",
+    message: "",
   });
 
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -172,13 +288,23 @@ const AdminPanel = () => {
   // Form State
   const [formData, setFormData] = useState({
     name: "",
-    category: CATEGORIES[0],
+    category: "",
     style: "",
   });
 
-  // imageItems: { id: string, preview: string, file: File | null, publicId: string | null, status: 'existing' | 'new' | 'replaced', oldPublicId?: string }
+  // imageItems structure:
+  // { id: string, preview: string, file: File | null, publicId: string | null,
+  //   status: 'existing' | 'new' | 'replaced', oldPublicId?: string }
   const [imageItems, setImageItems] = useState([]);
   const [deletedPublicIds, setDeletedPublicIds] = useState([]);
+
+  // Track which item is being dragged (for overlay)
+  const [activeId, setActiveId] = useState(null);
+
+  // dnd-kit sensors — require 8 px movement to distinguish drag from click
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   useEffect(() => {
     fetchProjects();
@@ -196,10 +322,10 @@ const AdminPanel = () => {
       setProjects(docs);
     } catch (err) {
       console.error("Error fetching projects:", err);
-      setStatus({ 
-        isOpen: true, 
-        type: 'error', 
-        message: 'Failed to load projects.' 
+      setStatus({
+        isOpen: true,
+        type: "error",
+        message: "Failed to load projects.",
       });
     } finally {
       setLoading(false);
@@ -213,28 +339,29 @@ const AdminPanel = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const newItems = files.map(file => ({
+    const newItems = files.map((file) => ({
       id: Math.random().toString(36).substr(2, 9),
       preview: URL.createObjectURL(file),
       file: file,
       publicId: null,
-      status: 'new'
+      status: "new",
     }));
-    setImageItems(prev => [...prev, ...newItems]);
+    setImageItems((prev) => [...prev, ...newItems]);
   };
 
   const handleReplaceImage = (index, file) => {
     const item = imageItems[index];
     const newPreview = URL.createObjectURL(file);
 
-    setImageItems(prev => {
+    setImageItems((prev) => {
       const updated = [...prev];
       updated[index] = {
         ...item,
         preview: newPreview,
         file: file,
-        status: item.status === 'existing' ? 'replaced' : item.status,
-        oldPublicId: item.status === 'existing' ? item.publicId : item.oldPublicId
+        status: item.status === "existing" ? "replaced" : item.status,
+        oldPublicId:
+          item.status === "existing" ? item.publicId : item.oldPublicId,
       };
       return updated;
     });
@@ -242,26 +369,44 @@ const AdminPanel = () => {
 
   const removePreviewImage = (index) => {
     const item = imageItems[index];
-    if (item.status === 'existing' || item.status === 'replaced') {
-      const idToDestroy = item.status === 'existing' ? item.publicId : item.oldPublicId;
+    // Queue existing/replaced images for Cloudinary deletion on Update click
+    if (item.status === "existing" || item.status === "replaced") {
+      const idToDestroy =
+        item.status === "existing" ? item.publicId : item.oldPublicId;
       if (idToDestroy) {
-        setDeletedPublicIds(prev => [...prev, idToDestroy]);
+        setDeletedPublicIds((prev) => [...prev, idToDestroy]);
       }
     }
-    setImageItems(prev => prev.filter((_, i) => i !== index));
+    setImageItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Helper to generate SHA-1 signature for Cloudinary destruction
+  // ── Drag & Drop handlers ───────────────────────────────────────────────────
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over || active.id === over.id) return;
+
+    setImageItems((items) => {
+      const oldIndex = items.findIndex((i) => i.id === active.id);
+      const newIndex = items.findIndex((i) => i.id === over.id);
+      return arrayMove(items, oldIndex, newIndex);
+    });
+  };
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ── Cloudinary helpers ────────────────────────────────────────────────────
   const generateSignature = async (publicId, timestamp) => {
     const apiSecret = import.meta.env.VITE_CLOUDINARY_API_SECRET;
     const signatureStr = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-
-    // Use Web Crypto API for SHA-1 (no external library needed)
     const encoder = new TextEncoder();
     const data = encoder.encode(signatureStr);
     const hashBuffer = await crypto.subtle.digest("SHA-1", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   };
 
   const destroyOnCloudinary = async (publicId) => {
@@ -271,25 +416,23 @@ const AdminPanel = () => {
 
     try {
       const signature = await generateSignature(publicId, timestamp);
-      const formData = new FormData();
-      formData.append("public_id", publicId);
-      formData.append("timestamp", timestamp);
-      formData.append("api_key", apiKey);
-      formData.append("signature", signature);
+      const fd = new FormData();
+      fd.append("public_id", publicId);
+      fd.append("timestamp", timestamp);
+      fd.append("api_key", apiKey);
+      fd.append("signature", signature);
 
       await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`,
-        formData
+        fd
       );
     } catch (err) {
       console.error(`Failed to destroy asset ${publicId}:`, err);
-      // We don't throw here to allow the loop to continue for other images
     }
   };
 
   const deleteAssetsSequentially = async (publicIds) => {
     if (!publicIds || publicIds.length === 0) return;
-    // Loop through each public ID and remove it in Cloudinary as requested
     for (const id of publicIds) {
       await destroyOnCloudinary(id);
     }
@@ -299,55 +442,57 @@ const AdminPanel = () => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = "handasiyan_preset";
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", uploadPreset);
-    formData.append("folder", "handasiyan_project_images");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("upload_preset", uploadPreset);
+    fd.append("folder", "handasiyan_project_images");
 
     const response = await axios.post(
       `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
-      formData
+      fd
     );
     return response.data.public_id;
   };
+  // ──────────────────────────────────────────────────────────────────────────
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus({ 
-      isOpen: true, 
-      type: 'loading', 
-      message: editingProject ? "Updating project..." : "Publishing project..." 
+    setStatus({
+      isOpen: true,
+      type: "loading",
+      message: editingProject ? "Updating project..." : "Publishing project...",
     });
 
     try {
+      // 1. Upload new / replaced images → collect final ordered public IDs
       const finalPublicIds = [];
-      const idsToDelete = [];
+      const idsToDeleteFromReplaced = [];
 
       for (let item of imageItems) {
-        if (item.status === 'new' || item.status === 'replaced') {
-          // Upload new file
+        if (item.status === "new" || item.status === "replaced") {
+          // Upload replacement/new file to handasiyan_project_images
           const newId = await uploadToCloudinary(item.file);
           finalPublicIds.push(newId);
 
-          // Queue old one for deletion
-          if (item.status === 'replaced' && item.oldPublicId) {
-            idsToDelete.push(item.oldPublicId);
+          // Queue the old Cloudinary asset for deletion (replaced case)
+          if (item.status === "replaced" && item.oldPublicId) {
+            idsToDeleteFromReplaced.push(item.oldPublicId);
           }
         } else {
-          // Keep existing
+          // Keep existing — just preserve its current publicId (order respected)
           finalPublicIds.push(item.publicId);
         }
       }
 
-      // Add manually removed images to the deletion queue
-      const allDeletions = [...idsToDelete, ...deletedPublicIds];
-
-      // Execute secure deletion
+      // 2. Delete all queued images from Cloudinary
+      //    - images removed via X button  → deletedPublicIds
+      //    - images replaced via pencil   → idsToDeleteFromReplaced
+      const allDeletions = [...idsToDeleteFromReplaced, ...deletedPublicIds];
       if (allDeletions.length > 0) {
         await deleteAssetsSequentially(allDeletions);
       }
 
-      // 2. Save to Firestore
+      // 3. Save to Firestore with the final ordered array
       if (editingProject) {
         await updateDoc(doc(db, "projects", editingProject.id), {
           ...formData,
@@ -356,8 +501,8 @@ const AdminPanel = () => {
         });
         setStatus({
           isOpen: true,
-          type: 'success',
-          message: "Project updated successfully!"
+          type: "success",
+          message: "Project updated successfully!",
         });
       } else {
         await addDoc(collection(db, "projects"), {
@@ -367,13 +512,13 @@ const AdminPanel = () => {
         });
         setStatus({
           isOpen: true,
-          type: 'success',
-          message: "Project added successfully!"
+          type: "success",
+          message: "Project added successfully!",
         });
       }
 
-      // Reset
-      setFormData({ name: "", category: CATEGORIES[0], style: "" });
+      // Reset state
+      setFormData({ name: "", category: "", style: "" });
       setImageItems([]);
       setDeletedPublicIds([]);
       setEditingProject(null);
@@ -382,34 +527,29 @@ const AdminPanel = () => {
     } catch (err) {
       console.error("Error saving project:", err);
 
-      // Extract specific error from Cloudinary if available
       let errorMessage = "Failed to save project. Please try again.";
-
       if (err.response?.data?.error?.message) {
         errorMessage = `Cloudinary Error: ${err.response.data.error.message}`;
-      } else if (err.config?.url?.includes('cloudinary')) {
-        errorMessage = "Image upload failed. Ensure your files are within Cloudinary's size limits for your plan.";
+      } else if (err.config?.url?.includes("cloudinary")) {
+        errorMessage =
+          "Image upload failed. Ensure your files are within Cloudinary's size limits for your plan.";
       }
 
-      setStatus({
-        isOpen: true,
-        type: 'error',
-        message: errorMessage
-      });
+      setStatus({ isOpen: true, type: "error", message: errorMessage });
     }
   };
 
   const handleDelete = async (project) => {
-    if (!window.confirm(`Are you sure you want to delete "${project.name}"?`)) return;
+    if (!window.confirm(`Are you sure you want to delete "${project.name}"?`))
+      return;
 
     setStatus({
       isOpen: true,
-      type: 'loading',
-      message: `Deleting "${project.name}"...`
+      type: "loading",
+      message: `Deleting "${project.name}"...`,
     });
 
     try {
-      // Cleanup all images from Cloudinary via secure API
       const imagesToDelete = project.images || [];
       if (imagesToDelete.length > 0) {
         await deleteAssetsSequentially(imagesToDelete);
@@ -418,16 +558,16 @@ const AdminPanel = () => {
       await deleteDoc(doc(db, "projects", project.id));
       setStatus({
         isOpen: true,
-        type: 'success',
-        message: "Project deleted successfully!"
+        type: "success",
+        message: "Project deleted successfully!",
       });
       fetchProjects();
     } catch (err) {
       console.error("Error deleting project:", err);
       setStatus({
         isOpen: true,
-        type: 'error',
-        message: "Failed to delete project."
+        type: "error",
+        message: "Failed to delete project.",
       });
     }
   };
@@ -441,37 +581,52 @@ const AdminPanel = () => {
     });
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
-    // Normalize existing data to imageItems structure
     let initialItems = [];
     if (project.images) {
-      initialItems = project.images.map(id => ({
+      initialItems = project.images.map((id) => ({
         id: Math.random().toString(36).substr(2, 9),
         preview: `https://res.cloudinary.com/${cloudName}/image/upload/f_auto,q_auto/${id}`,
         file: null,
         publicId: id,
-        status: 'existing'
+        status: "existing",
       }));
     } else if (project.imageUrls) {
-      // Legacy fallback
-      initialItems = project.imageUrls.map(img => ({
+      initialItems = project.imageUrls.map((img) => ({
         id: Math.random().toString(36).substr(2, 9),
         preview: img.url,
         file: null,
-        publicId: null, // Legacy images don't have IDs for destroy
-        status: 'existing'
+        publicId: null,
+        status: "existing",
       }));
     }
 
     setImageItems(initialItems);
+    setDeletedPublicIds([]);
     setActiveTab("add");
   };
 
   const cancelEdit = () => {
     setEditingProject(null);
-    setFormData({ name: "", category: CATEGORIES[0], style: "" });
+    setFormData({ name: "", category: "", style: "" });
     setImageItems([]);
+    setDeletedPublicIds([]);
     setActiveTab("list");
   };
+
+  // The dragged item (for DragOverlay)
+  const activeItem = activeId ? imageItems.find((i) => i.id === activeId) : null;
+
+  const filteredProjects = useMemo(() => {
+    if (selectedCategory === "All") return projects;
+    return projects.filter((p) => p.category === selectedCategory);
+  }, [projects, selectedCategory]);
+
+  const dynamicCategories = useMemo(() => {
+    const cats = Array.from(new Set(projects.map((p) => p.category)))
+      .filter(Boolean)
+      .sort();
+    return ["All", ...cats];
+  }, [projects]);
 
   return (
     <div className="min-h-screen bg-[#030f0a] text-white pt-24 pb-12 px-4 md:px-8">
@@ -479,25 +634,39 @@ const AdminPanel = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+            <h1
+              className="text-4xl md:text-5xl font-bold mb-2"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
               Admin <span className="text-[#d4af37]">Dashboard</span>
             </h1>
-            <p className="text-white/50 text-sm tracking-widest uppercase">Manage your architectural masterpieces</p>
+            <p className="text-white/50 text-sm tracking-widest uppercase">
+              Manage your architectural masterpieces
+            </p>
           </div>
 
           <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 self-start">
             <button
-              onClick={() => { setActiveTab("list"); if (editingProject) cancelEdit(); }}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "list" ? "bg-[#d4af37] text-black" : "text-white/60 hover:text-white"
-                }`}
+              onClick={() => {
+                setActiveTab("list");
+                if (editingProject) cancelEdit();
+              }}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === "list"
+                  ? "bg-[#d4af37] text-black"
+                  : "text-white/60 hover:text-white"
+              }`}
             >
               <ListIcon size={18} />
               Project List
             </button>
             <button
               onClick={() => setActiveTab("add")}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "add" ? "bg-[#d4af37] text-black" : "text-white/60 hover:text-white"
-                }`}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                activeTab === "add"
+                  ? "bg-[#d4af37] text-black"
+                  : "text-white/60 hover:text-white"
+              }`}
             >
               <Plus size={18} />
               {editingProject ? "Edit Project" : "Add Project"}
@@ -512,6 +681,25 @@ const AdminPanel = () => {
           onClose={() => setStatus({ ...status, isOpen: false })}
         />
 
+        {/* Category Filter */}
+        {activeTab === "list" && projects.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-8">
+            {dynamicCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                  selectedCategory === cat
+                    ? "bg-[#d4af37] text-black"
+                    : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Main Content */}
         {activeTab === "list" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -520,19 +708,20 @@ const AdminPanel = () => {
                 <Loader2 className="w-10 h-10 animate-spin mb-4" />
                 <p>Loading projects...</p>
               </div>
-            ) : projects.length === 0 ? (
+            ) : filteredProjects.length === 0 ? (
               <div className="col-span-full py-20 text-center bg-white/5 rounded-[2rem] border border-white/5">
                 <ImageIcon className="mx-auto w-12 h-12 text-white/10 mb-4" />
-                <p className="text-white/40">No projects found. Add your first one!</p>
+                <p className="text-white/40">No projects found. Try a different filter or add one!</p>
               </div>
             ) : (
-              projects.map((project, index) => (
+              filteredProjects.map((project, index) => (
                 <AdminProjectCard
                   key={project.id}
                   project={project}
                   index={index}
                   onEdit={startEdit}
                   onDelete={handleDelete}
+                  onOpen={setLightboxProject}
                 />
               ))
             )}
@@ -567,18 +756,21 @@ const AdminPanel = () => {
                   <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium ml-1">
                     Category
                   </label>
-                  <select
+                  <input
+                    type="text"
                     name="category"
                     value={formData.category}
                     onChange={handleInputChange}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all appearance-none cursor-pointer"
-                  >
+                    list="category-suggestions"
+                    placeholder="e.g. Interior Design"
+                    required
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#d4af37]/50 focus:bg-white/10 transition-all placeholder:text-white/10"
+                  />
+                  <datalist id="category-suggestions">
                     {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat} className="bg-[#030f0a]">
-                        {cat}
-                      </option>
+                      <option key={cat} value={cat} />
                     ))}
-                  </select>
+                  </datalist>
                 </div>
               </div>
 
@@ -597,63 +789,80 @@ const AdminPanel = () => {
                 />
               </div>
 
+              {/* ── Sortable Image Grid ─────────────────────────────────── */}
               <div className="space-y-4">
-                <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium ml-1">
-                  Project Images
-                </label>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {imageItems.map((item, i) => (
-                    <div key={item.id} className="aspect-square rounded-2xl overflow-hidden relative group border border-white/10 bg-neutral-900">
-                      <img src={item.preview} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute top-2 right-2 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <label className="p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white hover:bg-[#d4af37] hover:text-black transition-all cursor-pointer">
-                          <Edit2 size={12} />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              if (e.target.files?.[0]) handleReplaceImage(i, e.target.files[0]);
-                            }}
-                            className="hidden"
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => removePreviewImage(i)}
-                          className="p-1.5 bg-black/60 backdrop-blur-md rounded-full text-white hover:bg-red-500 transition-all"
-                        >
-                          <X size={12} />
-                        </button>
-                      </div>
-                      {item.status === 'replaced' && (
-                        <div className="absolute bottom-2 left-2 bg-[#d4af37] text-black text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter">
-                          Replaced
-                        </div>
-                      )}
-                    </div>
-                  ))}
-
-                  <label className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-[#d4af37]/50 hover:bg-white/5 transition-all text-white/30 hover:text-[#d4af37]">
-                    <Upload size={24} className="mb-2" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Upload</span>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
+                <div className="flex items-center justify-between ml-1">
+                  <label className="block text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium">
+                    Project Images
                   </label>
+                  {imageItems.length > 1 && (
+                    <span className="text-white/30 text-[10px] flex items-center gap-1">
+                      <GripVertical size={10} />
+                      Drag to reorder
+                    </span>
+                  )}
                 </div>
+
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={imageItems.map((i) => i.id)}
+                    strategy={rectSortingStrategy}
+                  >
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {imageItems.map((item, i) => (
+                        <SortableImageItem
+                          key={item.id}
+                          item={item}
+                          index={i}
+                          onReplace={handleReplaceImage}
+                          onRemove={removePreviewImage}
+                        />
+                      ))}
+
+                      {/* Upload button */}
+                      <label className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-[#d4af37]/50 hover:bg-white/5 transition-all text-white/30 hover:text-[#d4af37]">
+                        <Upload size={24} className="mb-2" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest">
+                          Upload
+                        </span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </SortableContext>
+
+                  {/* Drag overlay — shown while dragging */}
+                  <DragOverlay>
+                    {activeItem ? (
+                      <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#d4af37] shadow-[0_0_30px_rgba(212,175,55,0.4)] rotate-3 scale-105">
+                        <img
+                          src={activeItem.preview}
+                          alt="Dragging"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : null}
+                  </DragOverlay>
+                </DndContext>
               </div>
+              {/* ────────────────────────────────────────────────────────── */}
 
               <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button
                   type="submit"
                   className="flex-1 bg-[#d4af37] text-black font-bold uppercase tracking-widest py-4 rounded-2xl hover:bg-[#b8962d] transition-all flex items-center justify-center gap-2 shadow-[0_10px_30px_rgba(212,175,55,0.2)]"
                 >
-                  {status.isOpen && status.type === 'loading' ? (
+                  {status.isOpen && status.type === "loading" ? (
                     <>
                       <Loader2 size={20} className="animate-spin" />
                       Saving...
@@ -679,6 +888,15 @@ const AdminPanel = () => {
           </motion.div>
         )}
       </div>
+
+      <AnimatePresence>
+        {lightboxProject && (
+          <LightboxModal
+            project={lightboxProject}
+            onClose={() => setLightboxProject(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
