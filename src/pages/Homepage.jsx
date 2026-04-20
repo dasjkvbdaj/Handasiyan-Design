@@ -278,6 +278,7 @@ export const Hero = () => {
                     loop
                     playsInline
                     preload="auto"
+                    title="Handasiyan Architectural Design - Showcasing our vision and craft"
                     className="absolute min-w-full min-h-full object-cover"
                     onPause={(e) => {
                         if (!document.hidden) {
@@ -303,6 +304,7 @@ export const Hero = () => {
 
 
             {/* Content Overlay */}
+            <h1 className="sr-only">Handasiyan | Expert Architecture & Interior Design</h1>
             <div className="relative z-20 flex flex-col items-center gap-0 px-6 mt-[-5vh] sm:mt-0">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -943,7 +945,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                     >
                         <img
                             src={images[imageIndex]}
-                            alt={project.style}
+                            alt={`${project.style} - ${project.category} project by Handasiyan`}
                             loading={imageIndex === 0 ? 'eager' : 'lazy'}
                             fetchPriority={imageIndex === 0 ? 'high' : 'auto'}
                             sizes={project.images ? 'auto' : undefined}
@@ -986,7 +988,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                         >
                             <motion.img
                                 src={images[imageIndex]}
-                                alt={project.style}
+                                alt={`${project.style} - ${project.category} project view`}
                                 loading={imageIndex === 0 ? 'eager' : 'lazy'}
                                 fetchPriority={imageIndex === 0 ? 'high' : 'auto'}
                                 sizes={project.images ? 'auto' : undefined}
@@ -1652,7 +1654,7 @@ export const LightboxModal = ({ project, onClose }) => {
                         >
                             <img
                                 src={images[activeIndex]}
-                                alt={project.style}
+                                alt={`${project.style} detailed view - ${project.category}`}
                                 loading="eager"
                                 fetchPriority="high"
                                 draggable={false}
