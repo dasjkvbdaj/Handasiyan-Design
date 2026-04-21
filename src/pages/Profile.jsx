@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { updateProfile } from "firebase/auth";
 import { useAuth } from "../hooks/useAuth";
+import { sanitizeText } from "../lib/sanitize";
 
 const Profile = () => {
   const { currentUser } = useAuth();
@@ -9,8 +10,9 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     try {
+      const cleanName = sanitizeText(name, 50);
       await updateProfile(currentUser, {
-        displayName: name,
+        displayName: cleanName,
       });
 
       alert("Profile updated!");
