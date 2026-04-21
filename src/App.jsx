@@ -81,9 +81,7 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/digitalCard" element={
-                  <ProtectedRoute>
                     <DigitalCard/>
-                  </ProtectedRoute>
                 } />
                 <Route path="/admin" element={
                   <ProtectedRoute adminOnly={true}>
