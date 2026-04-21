@@ -403,22 +403,28 @@ const AdminPanel = () => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
     try {
-      // Call new serverless endpoint
+      // Call serverless endpoint to get signature and the exact sanitized public_id used for signing
       const response = await axios.post('/api/cloudinary-signature', { public_id: publicId });
-      const { signature, timestamp, apiKey } = response.data;
+      const { signature, timestamp, apiKey, public_id: signedPublicId } = response.data;
 
       const fd = new FormData();
-      fd.append("public_id", publicId);
+      fd.append("public_id", signedPublicId);
       fd.append("timestamp", timestamp);
       fd.append("api_key", apiKey);
       fd.append("signature", signature);
 
-      await axios.post(
+      const destroyRes = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`,
         fd
       );
+
+      if (destroyRes.data.result !== "ok" && destroyRes.data.result !== "not found") {
+        console.error(`Cloudinary deletion failed for ${signedPublicId}:`, destroyRes.data);
+      } else {
+        console.log(`Successfully removed ${signedPublicId} from Cloudinary`);
+      }
     } catch (err) {
-      console.error(`Failed to destroy asset ${publicId}:`, err);
+      console.error(`Failed to destroy asset ${publicId}:`, err.response?.data || err.message);
     }
   };
 
