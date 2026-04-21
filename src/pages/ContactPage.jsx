@@ -3,6 +3,10 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Phone, Mail, Instagram, Linkedin, Send, ChevronDown, Facebook, Sparkles } from 'lucide-react';
 import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion';
 import emailjs from '@emailjs/browser';
+import { sanitizeText, sanitizePhone } from '../lib/sanitize';
+import { createRateLimiter } from '../lib/rateLimit';
+
+const contactLimiter = createRateLimiter('contact', 3, 10 * 60 * 1000);
 
 
 
@@ -322,8 +326,22 @@ const ContactPage = () => {
     };
 
     const handleSend = () => {
+        // Rate matching
+        if (!contactLimiter.check()) {
+            const waitTime = contactLimiter.getRemainingTimeSeconds();
+            setFormStatus(`Please wait ${Math.ceil(waitTime / 60)} minutes before sending another message.`);
+            return;
+        }
+
+        // Sanitize existing fields
+        const cleanFirstName = sanitizeText(formData.firstName, 50);
+        const cleanLastName = sanitizeText(formData.lastName, 50);
+        const cleanPhone = sanitizePhone(formData.phone);
+        const cleanService = sanitizeText(formData.service, 50);
+        const cleanMessage = sanitizeText(formData.message, 2000);
+
         // Check if form is completely empty
-        if (!formData.firstName && !formData.lastName && !formData.phone && !formData.service && !formData.message) {
+        if (!cleanFirstName && !cleanLastName && !cleanPhone && !cleanService && !cleanMessage) {
             setFormStatus('The form is empty. Please fill in your details.');
             return;
         }
@@ -334,19 +352,19 @@ const ContactPage = () => {
         const nameRegex = /^[A-Za-z\s]{2,50}$/;
         const messageRegex = /^.{2,}$/; // At least 2 characters
 
-        if (!nameRegex.test(formData.firstName)) {
+        if (!nameRegex.test(cleanFirstName)) {
             newErrors.firstName = 'Invalid first name';
         }
-        if (!nameRegex.test(formData.lastName)) {
+        if (!nameRegex.test(cleanLastName)) {
             newErrors.lastName = 'Invalid last name';
         }
-        if (!formData.phone) {
+        if (!cleanPhone) {
             newErrors.phone = 'Phone number is required';
         }
-        if (!formData.service) {
+        if (!cleanService) {
             newErrors.service = 'Please select a service';
         }
-        if (!messageRegex.test(formData.message)) {
+        if (!messageRegex.test(cleanMessage)) {
             newErrors.message = 'Message must be at least 2 characters';
         }
 
@@ -356,17 +374,34 @@ const ContactPage = () => {
             return;
         }
 
+        // --- CREDIT PROTECTION (BLACKHOLING) ---
+        // If the sanitized version is different from the original, it means the user tried 
+        // to send HTML tags or scripts. We skip EmailJS but pretend it worked.
+        const originalData = formData.firstName + formData.lastName + formData.phone + formData.message;
+        const sanitizedData = cleanFirstName + cleanLastName + cleanPhone + cleanMessage;
+
+        if (originalData !== sanitizedData) {
+            console.warn("Security Event: Malicious tags detected and blocked. Skipping EmailJS to save credits.");
+            // Fake the success so the hacker thinks it worked and leaves
+            setTimeout(() => {
+                setSending(false);
+                setSubmitted(true);
+            }, 1000);
+            return;
+        }
+        // ----------------------------------------
+
         setSending(true);
         setFormStatus('');
 
         // Prepare EmailJS parameters
         // We include multiple common recipient field names to resolve the 422 error
         const templateParams = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            phone: formData.phone,
-            service: formData.service,
-            message: formData.message,
+            firstName: cleanFirstName,
+            lastName: cleanLastName,
+            phone: cleanPhone,
+            service: cleanService,
+            message: cleanMessage,
             to_email: 'Handasiyan.2020@gmail.com', // Primary
             email: 'Handasiyan.2020@gmail.com',    // Fallback 1
             user_email: 'Handasiyan.2020@gmail.com',// Fallback 2
@@ -381,21 +416,22 @@ const ContactPage = () => {
             templateParams,
             import.meta.env.VITE_EMAILJS_PUBLIC_KEY
         )
-        .then((response) => {
-            console.log('SUCCESS!', response.status, response.text);
-            setSending(false);
-            setSubmitted(true);
-        })
-        .catch((err) => {
-            console.error('FAILED...', err);
-            setSending(false);
-            
-            if (err?.status === 422) {
-                setFormStatus('There was an issue sending the email. Please try again or contact us directly.');
-            } else {
-                setFormStatus('Something went wrong. Please try again later.');
-            }
-        });
+            .then((response) => {
+                console.log('SUCCESS!', response.status, response.text);
+                setSending(false);
+                setSubmitted(true);
+                contactLimiter.reset(); // Reset on clear success, or maybe let timeout restrict total spams regardless of success to be safer.
+            })
+            .catch((err) => {
+                console.error('FAILED...', err);
+                setSending(false);
+
+                if (err?.status === 422) {
+                    setFormStatus('There was an issue sending the email. Please try again or contact us directly.');
+                } else {
+                    setFormStatus('Something went wrong. Please try again later.');
+                }
+            });
     };
 
 
@@ -590,11 +626,11 @@ const ContactPage = () => {
                             <div className="space-y-8">
                                 <div className="flex items-center gap-4">
                                     <div className="flex-1">
-                                        <InfoCard 
-                                            icon={Phone} 
-                                            title="Phone" 
-                                            value="+233 596 399 006" 
-                                            index={0} 
+                                        <InfoCard
+                                            icon={Phone}
+                                            title="Phone"
+                                            value="+233 596 399 006"
+                                            index={0}
                                             href="tel:+233596399006"
                                             target="_blank"
                                             rel="noopener noreferrer"

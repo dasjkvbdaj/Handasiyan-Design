@@ -9,6 +9,10 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { db } from "../firebase/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import StatusModal from "../components/StatusModal";
+import { sanitizeEmail } from "../lib/sanitize";
+import { createRateLimiter } from "../lib/rateLimit";
+
+const loginLimiter = createRateLimiter('login', 5, 15 * 60 * 1000);
 
 // ─────────────────────────────────────────────
 // Canvas Reveal Effect (ported from 21st.dev)
@@ -240,6 +244,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!loginLimiter.check()) {
+      const waitTime = loginLimiter.getRemainingTimeSeconds();
+      setError(`Too many attempts. Please try again in ${Math.ceil(waitTime / 60)} minutes.`);
+      return;
+    }
+
+    const cleanEmail = sanitizeEmail(email);
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password is required.");
+      return;
+    }
+
     setLoading(true);
 
     // Trigger the reverse (outro) canvas animation on submit
@@ -247,8 +269,10 @@ const Login = () => {
     setTimeout(() => setInitialCanvasVisible(false), 50);
 
     try {
-      const userCredential = await login(email, password);
+      const userCredential = await login(cleanEmail, password);
       const user = userCredential.user;
+
+      loginLimiter.reset();
 
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);

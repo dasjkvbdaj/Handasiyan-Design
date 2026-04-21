@@ -33,6 +33,7 @@ import {
 import { LightboxModal } from "./Homepage";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import StatusModal from "../components/StatusModal";
+import { sanitizeText } from "../lib/sanitize";
 
 // ─── dnd-kit ────────────────────────────────────────────────────────────────
 import {
@@ -398,23 +399,14 @@ const AdminPanel = () => {
   // ──────────────────────────────────────────────────────────────────────────
 
   // ── Cloudinary helpers ────────────────────────────────────────────────────
-  const generateSignature = async (publicId, timestamp) => {
-    const apiSecret = import.meta.env.VITE_CLOUDINARY_API_SECRET;
-    const signatureStr = `public_id=${publicId}&timestamp=${timestamp}${apiSecret}`;
-    const encoder = new TextEncoder();
-    const data = encoder.encode(signatureStr);
-    const hashBuffer = await crypto.subtle.digest("SHA-1", data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  };
-
   const destroyOnCloudinary = async (publicId) => {
     const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const apiKey = import.meta.env.VITE_CLOUDINARY_API_KEY;
-    const timestamp = Math.round(new Date().getTime() / 1000);
 
     try {
-      const signature = await generateSignature(publicId, timestamp);
+      // Call new serverless endpoint
+      const response = await axios.post('/api/cloudinary-signature', { public_id: publicId });
+      const { signature, timestamp, apiKey } = response.data;
+
       const fd = new FormData();
       fd.append("public_id", publicId);
       fd.append("timestamp", timestamp);
@@ -492,9 +484,15 @@ const AdminPanel = () => {
       }
 
       // 3. Save to Firestore with the final ordered array
+      const sanitizedData = {
+        name: sanitizeText(formData.name),
+        category: sanitizeText(formData.category),
+        style: sanitizeText(formData.style),
+      };
+
       if (editingProject) {
         await updateDoc(doc(db, "projects", editingProject.id), {
-          ...formData,
+          ...sanitizedData,
           images: finalPublicIds,
           updatedAt: serverTimestamp(),
         });
@@ -505,7 +503,7 @@ const AdminPanel = () => {
         });
       } else {
         await addDoc(collection(db, "projects"), {
-          ...formData,
+          ...sanitizedData,
           images: finalPublicIds,
           createdAt: serverTimestamp(),
         });

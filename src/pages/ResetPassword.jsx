@@ -3,6 +3,10 @@ import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import { sanitizeEmail } from "../lib/sanitize";
+import { createRateLimiter } from "../lib/rateLimit";
+
+const resetLimiter = createRateLimiter('resetPassword', 3, 15 * 60 * 1000);
 
 /**
  * Reusable animation variants
@@ -21,16 +25,48 @@ const ResetPassword = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getFirebaseError = (code) => {
+    switch (code) {
+      case "auth/user-not-found":
+        return "If this email is registered, a reset link will be sent."; // Avoid leaking user existence
+      case "auth/invalid-email":
+        return "Please enter a valid email address.";
+      case "auth/too-many-requests":
+        return "Too many attempts. Try again later.";
+      default:
+        return "Failed to send reset email. Please try again.";
+    }
+  };
+
   const handleReset = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setMessage("");
 
+    if (!resetLimiter.check()) {
+      const waitTime = resetLimiter.getRemainingTimeSeconds();
+      setMessage(`Error: Too many attempts. Please try again in ${Math.ceil(waitTime / 60)} minutes.`);
+      return;
+    }
+
+    const cleanEmail = sanitizeEmail(email);
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setMessage("Error: Please enter a valid email address.");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, cleanEmail);
       setMessage("Success: Check your email for reset instructions.");
+      resetLimiter.reset();
     } catch (err) {
-      setMessage("Error: " + err.message);
+      if (err.code === "auth/user-not-found") {
+        // Prevent user enumeration attacks
+        setMessage("Success: Check your email for reset instructions.");
+      } else {
+        setMessage("Error: " + getFirebaseError(err.code));
+      }
     } finally {
       setLoading(false);
     }

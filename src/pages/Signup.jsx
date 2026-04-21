@@ -7,6 +7,10 @@ import { useMediaQuery } from "../hooks/useMediaQuery";
 import { db } from "../firebase/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import StatusModal from "../components/StatusModal";
+import { sanitizeEmail } from "../lib/sanitize";
+import { createRateLimiter } from "../lib/rateLimit";
+
+const signupLimiter = createRateLimiter('signup', 5, 15 * 60 * 1000);
 
 /**
  * Reusable animation variants
@@ -123,20 +127,33 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
+    if (!signupLimiter.check()) {
+      const waitTime = signupLimiter.getRemainingTimeSeconds();
+      return setError(`Too many attempts. Please try again in ${Math.ceil(waitTime / 60)} minutes.`);
+    }
+
+    const cleanEmail = sanitizeEmail(email);
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return setError("Please enter a valid email address.");
+    }
+
     // Client-side validation
     if (password !== confirmPassword) {
       return setError("Passwords do not match.");
     }
 
-    if (password.length < 6) {
-      return setError("Password must be at least 6 characters.");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d\w\W]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return setError("Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, and a number.");
     }
 
     setLoading(true);
 
     try {
-      const userCredential = await signup(email, password);
+      const userCredential = await signup(cleanEmail, password);
       const user = userCredential.user;
+
+      signupLimiter.reset();
 
       // Check if user document exists (it shouldn't for new signup, but safety first)
       const userRef = doc(db, "users", user.uid);
