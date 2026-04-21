@@ -19,7 +19,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
-  
+
   useEffect(() => {
     if (hash) {
       const id = hash.replace('#', '');
@@ -57,7 +57,7 @@ function App() {
     <Router>
       <ScrollToTop />
       <Routes>
-        
+
         {/* All other routes wrapped in Layout */}
         <Route
           path="*"
@@ -72,17 +72,17 @@ function App() {
                 <Route path="/ai-design" element={<AIDesignPage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
-                <Route path="/reset-password" element={<ResetPassword/>} />
-                
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/digitalCard" element={<DigitalCard />} />
+
+
                 {/* Protected Routes */}
                 <Route path="/profile" element={
                   <ProtectedRoute>
-                    <Profile/>
+                    <Profile />
                   </ProtectedRoute>
                 } />
-                <Route path="/digitalCard" element={
-                    <DigitalCard/>
-                } />
+
                 <Route path="/admin" element={
                   <ProtectedRoute adminOnly={true}>
                     <AdminPanel />
