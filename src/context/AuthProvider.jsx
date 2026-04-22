@@ -5,11 +5,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebase";
 import { AuthContext } from "./authContext";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // Only ONE component export in this file ✅
 export const AuthProvider = ({ children }) => {
@@ -17,6 +18,7 @@ export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
 
   const signup = (email, password) => {
     return createUserWithEmailAndPassword(auth, email, password);
@@ -40,14 +42,25 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         try {
           const userRef = doc(db, "users", user.uid);
-          const userSnap = await getDoc(userRef);
+          let userSnap = await getDoc(userRef);
+
+          if (!userSnap.exists()) {
+            // Centralized user document creation (works for both Signup and Google Sign-In)
+            await setDoc(userRef, {
+              email: user.email,
+              role: "user",
+              createdAt: serverTimestamp(),
+            });
+            userSnap = await getDoc(userRef);
+          }
+
           if (userSnap.exists()) {
             setUserData(userSnap.data());
           } else {
             setUserData(null);
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Error fetching/creating user data:", error);
           setUserData(null);
         }
       } else {
@@ -55,6 +68,7 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     });
+
     return unsubscribe;
   }, []);
 
