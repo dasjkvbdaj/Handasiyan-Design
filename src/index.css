@@ -8,6 +8,15 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 80px;
+    position: relative;
+}
+
+body {
+    position: relative;
+}
+
+#root {
+    position: relative;
 }
 
 @keyframes fadeIn {

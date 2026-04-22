@@ -676,7 +676,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
     // Reset pagination when project changes to prevent state bleeding between reused cards
     useEffect(() => {
         setPage([0, 0]);
-    }, [project.folder]);
+    }, [project.id]);
 
     // Parallax scroll effect on the inner image — SKIP on mobile/tablet to avoid idle scroll listeners
     const { scrollYProgress } = useScroll({
@@ -1036,7 +1036,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             {/* ── Top-right: image counter badge ── */}
             {images.length > 1 && (
                 <div className="absolute top-6 right-7 z-10 flex items-center">
-                    <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+                    <div className="relative bg-black/40 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
                         <span className="text-[10px] font-bold text-[#d4af37] tabular-nums">
                             {imageIndex + 1}
                         </span>
@@ -1312,12 +1312,12 @@ export const Portfolio = ({ isPreview = false }) => {
                     <div
                         key={activeCategory} // Force unmount/remount of project list for a clean state reset between categories
                         ref={scrollContainerRef}
-                        className="flex flex-col gap-16 md:gap-24 w-full pt-2"
+                        className="flex flex-col gap-16 md:gap-24 w-full pt-2 relative"
                     >
                         {displayProjects.length > 0 ? (
                             displayProjects.map((project, index) => (
                                 <ProjectCard
-                                    key={project.folder}
+                                    key={project.id || project.folder || index}
                                     project={project}
                                     index={index}
                                     onOpen={setLightbox}

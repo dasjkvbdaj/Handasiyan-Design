@@ -788,7 +788,7 @@ const MissionVisionSection = () => {
 ───────────────────────────────────────────── */
 const AboutPage = () => {
     return (
-        <div className="pt-20 bg-black">
+        <div className="pt-20 bg-black relative">
             <HeroSection />
 
             <motion.div

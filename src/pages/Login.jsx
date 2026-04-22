@@ -328,37 +328,18 @@ const Login = () => {
       {/* ── Background Layer ── */}
       <div className="absolute inset-0 z-0">
         {!isMobile ? (
-          <>
-            {initialCanvasVisible && (
-              <div className="absolute inset-0">
-                <CanvasRevealEffect
-                  animationSpeed={3}
-                  colors={[
-                    [212, 175, 55],   // #d4af37 gold
-                    [6, 78, 75],      // #064e4b deep teal
-                  ]}
-                  dotSize={5}
-                  reverse={false}
-                  showGradient={true}
-                />
-              </div>
-            )}
-
-            {reverseCanvasVisible && (
-              <div className="absolute inset-0">
-                <CanvasRevealEffect
-                  animationSpeed={4}
-                  colors={[
-                    [212, 175, 55],
-                    [6, 78, 75],
-                  ]}
-                  dotSize={5}
-                  reverse={true}
-                  showGradient={true}
-                />
-              </div>
-            )}
-          </>
+          <div className="absolute inset-0">
+            <CanvasRevealEffect
+              animationSpeed={loading ? 4 : 3}
+              colors={[
+                [212, 175, 55],   // #d4af37 gold
+                [6, 78, 75],      // #064e4b deep teal
+              ]}
+              dotSize={5}
+              reverse={reverseCanvasVisible}
+              showGradient={true}
+            />
+          </div>
         ) : (
           /* High-performance CSS gradient for mobile */
           <div

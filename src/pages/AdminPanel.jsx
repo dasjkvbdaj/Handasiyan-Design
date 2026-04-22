@@ -175,7 +175,7 @@ const AdminProjectCard = ({ project, index, onEdit, onDelete, onOpen }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden group hover:border-[#d4af37]/30 transition-all duration-500"
+      className="bg-white/5 border border-white/10 rounded-[2rem] overflow-hidden group hover:border-[#d4af37]/30 transition-all duration-500 relative"
     >
       <div className="aspect-[4/3] bg-neutral-900 relative overflow-hidden">
         {images.length > 0 ? (
@@ -632,7 +632,7 @@ const AdminPanel = () => {
   }, [projects]);
 
   return (
-    <div className="min-h-screen bg-[#030f0a] text-white pt-24 pb-12 px-4 md:px-8">
+    <div className="min-h-screen bg-[#030f0a] text-white pt-24 pb-12 px-4 md:px-8 relative">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
@@ -702,7 +702,7 @@ const AdminPanel = () => {
 
         {/* Main Content */}
         {activeTab === "list" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
             {loading ? (
               <div className="col-span-full py-20 flex flex-col items-center justify-center text-white/30">
                 <Loader2 className="w-10 h-10 animate-spin mb-4" />
