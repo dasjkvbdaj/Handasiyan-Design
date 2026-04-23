@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://handasiyan-design.vercel.app/sitemap.xml
+Sitemap: https://handasiyan.com/sitemap.xml

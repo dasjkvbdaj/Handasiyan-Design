@@ -7,13 +7,15 @@ import AboutPage from './pages/AboutPage'
 import ServicesPage from './pages/ServicesPage'
 import PortfolioPage from './pages/PortfolioPage'
 import ContactPage from './pages/ContactPage'
-import AIDesignPage from './pages/AIDesignPage'
+// import AIDesignPage from './pages/AIDesignPage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Profile from './pages/Profile'
 import ResetPassword from './pages/ResetPassword'
 import DigitalCard from './pages/DigitalCard'
 import AdminPanel from './pages/AdminPanel'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -74,6 +76,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/digitalCard" element={<DigitalCard />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
 
 
                 {/* Protected Routes */}
