@@ -69,7 +69,7 @@ function App() {
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/portfolio" element={<PortfolioPage />} />
                 <Route path="/contact" element={<ContactPage />} />
-                <Route path="/ai-design" element={<AIDesignPage />} />
+                {/* <Route path="/ai-design" element={<AIDesignPage />} /> */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
