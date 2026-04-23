@@ -1,6 +1,7 @@
 import React from 'react';
 
 const PrivacyPolicy = () => {
+    
     return (
         <div className="min-h-screen bg-black text-white pt-32 pb-16 px-6">
             <div className="max-w-4xl mx-auto space-y-8">
