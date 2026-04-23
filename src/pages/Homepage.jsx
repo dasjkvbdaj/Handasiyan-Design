@@ -1049,12 +1049,12 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
             )}
 
             {/* ── Bottom content ── */}
-            <div className="absolute bottom-0 left-0 right-0 z-10 px-6 sm:px-3 pb-6 sm:pb-8 pt-14 flex items-end justify-between">
+            <div className="absolute bottom-0 left-0 right-0 z-10 px-4 sm:px-8 pb-5 sm:pb-8 pt-14 flex items-end justify-between">
                 {/* Title + subtitle */}
                 <div className="flex flex-col gap-1 pr-4">
                     {isPreview && (
                         <motion.span
-                            className="text-[#d4af37] text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold"
+                            className="text-[#d4af37] text-[9px] md:text-xs uppercase tracking-[0.3em] font-bold"
                             animate={{ opacity: hovered ? 1 : 0.8 }}
                         >
                             {project.category}
@@ -1064,7 +1064,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                         className="text-white font-bold leading-tight"
                         style={{
                             fontFamily: "'Cormorant Garamond', serif",
-                            fontSize: isMobile ? '1.1rem' : 'clamp(1rem, 2vw, 1.6rem)',
+                            fontSize: isMobile ? '1rem' : 'clamp(1rem, 2vw, 1.6rem)',
                         }}
                         animate={{ y: hovered ? -4 : 0 }}
                         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -1074,15 +1074,15 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                     {/* Quick View (Lightbox) */}
                     <motion.button
                         onClick={(e) => { e.stopPropagation(); onOpen(project); }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold rounded-full tracking-wider uppercase transition-all hover:bg-white/20 ${isMobile ? 'px-3 py-2' : 'px-6 py-3.5 text-xs'}`}
+                        className={`group cursor-pointer flex items-center justify-center gap-1 bg-black/40 backdrop-blur-md border border-white/20 text-white font-bold rounded-full tracking-wider uppercase transition-all hover:bg-white/20 ${isMobile ? 'px-2.5 py-1.5' : 'px-6 py-3.5 text-xs'}`}
                     >
-                        <Eye className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-[#d4af37]`} />
+                        <Eye className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-[#d4af37]`} />
                         <span className={`${isMobile ? 'text-[8px]' : 'text-[10px]'} leading-none`}>
                             {isMobile ? 'Images' : 'View Project'}
                         </span>
@@ -1092,12 +1092,12 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                     {isPreview && (
                         <Link
                             to={`/portfolio?category=${encodeURIComponent(project.category)}#projects-section`}
-                            className={`group cursor-pointer flex items-center justify-center gap-1.5 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all hover:bg-[#c49f27] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.2)] ${isMobile ? 'px-3 py-2' : 'px-8 py-3.5 text-sm'}`}
+                            className={`group cursor-pointer flex items-center justify-center gap-1 bg-[#d4af37] text-black font-bold rounded-full tracking-wider uppercase transition-all hover:bg-[#c49f27] hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(212,175,55,0.25)] ${isMobile ? 'px-2.5 py-1.5' : 'px-8 py-3.5 text-sm'}`}
                         >
                             <span className={`${isMobile ? 'text-[8px]' : 'text-xs'} leading-none`}>
                                 {isMobile ? 'Explore' : 'View More'}
                             </span>
-                            <ArrowRight className={`${isMobile ? 'w-3.5 h-3.5' : 'w-5 h-5'} transition-transform duration-300 group-hover:translate-x-1`} />
+                            <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-5 h-5'} transition-transform duration-300 group-hover:translate-x-1`} />
                         </Link>
                     )}
                 </div>
