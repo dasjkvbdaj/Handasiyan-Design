@@ -15,7 +15,7 @@ import ResetPassword from './pages/ResetPassword'
 import DigitalCard from './pages/DigitalCard'
 import AdminPanel from './pages/AdminPanel'
 import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfService from './pages/TermsOfService'
+import TermsAndConditions from './pages/TermsOfService'
 import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -77,7 +77,7 @@ function App() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/digitalCard" element={<DigitalCard />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
 
 
                 {/* Protected Routes */}

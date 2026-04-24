@@ -51,6 +51,8 @@ const Footer = () => {
                             <li><Link to="/contact" className="text-sm text-white/60 hover:text-white transition-colors">Contact</Link></li>
                             <li><Link to="/login" className="text-sm text-white/60 hover:text-white transition-colors">Login</Link></li>
                             <li><Link to="/signup" className="text-sm text-white/60 hover:text-white transition-colors">Signup</Link></li>
+                            <li><Link to="/privacy-policy" className="text-sm text-white/60 hover:text-white transition-colors">Privacy Policy</Link></li>
+                            <li><Link to="/terms-and-conditions" className="text-sm text-white/60 hover:text-white transition-colors">Terms & Conditions</Link></li>
 
                         </ul>
                     </div>
@@ -76,12 +78,9 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-white/40 text-sm space-y-4 md:space-y-0">
+                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-center items-center text-white/40 text-sm space-y-4 md:space-y-0">
                     <p>&copy; {new Date().getFullYear()} Handasiyan. All rights reserved.</p>
-                    <div className="flex space-x-6">
-                        <Link to="/privacy-policy" className="hover:text-[#d4af37] transition-colors">Privacy Policy</Link>
-                        <Link to="/terms" className="hover:text-[#d4af37] transition-colors">Terms of Service</Link>
-                    </div>
+                    
                 </div>
             </div>
         </footer>

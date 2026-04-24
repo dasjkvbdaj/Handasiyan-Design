@@ -437,10 +437,10 @@ const HeroSection = () => {
                     <Typewriter
                         className="montserrat text-white/50 text-base"
                         phrases={[
-                            'A legacy built on discipline.',
-                            'Honesty and respect for the craft.',
-                            'Every drawing is a promise.',
-                            'Building trust',
+                            'Designing for real living.',
+                            'Precision in every detail.',
+                            'Architecture, Engineering, Interiors.',
+                            'Your vision, our execution.',
                         ]}
                     />
                 </div>
@@ -585,9 +585,9 @@ const FounderSection = () => {
                         className="space-y-6 text-white/60 text-lg leading-relaxed mt-8"
                     >
                         {[
-                            'Handasiyan was founded in 2020 by Hussein Tarhini, whose passion for construction was shaped from an early age while working alongside his father, a skilled landscape designer. From him, Hussein learned that every drawing is a promise and that true quality lies in careful execution and attention to detail.',
-                            "After his father's passing, Hussein began his own journey in Lebanon, delivering high-end designs for international clients while managing local projects. A villa project later brought him to Ghana, where he recognized the country's potential and the need for higher construction standards.",
-                            'Choosing to stay, he built Handasiyan step by step through small projects, hands-on training, and a commitment to quality—laying the foundation for a company built on trust, discipline, and lasting results.',
+                            'At Handasiyan, we don’t just build spaces — we create environments designed for real living.',
+                            'Based in Accra, Ghana, Handasiyan is a multidisciplinary company specializing in design, planning, and construction. Our work covers every stage of the process, from the first concept to the final details, ensuring that every project is delivered with precision and purpose.',
+                            'We combine architecture, engineering, and interior design into one seamless experience. This allows us to control quality, maintain consistency, and bring each vision to life exactly as it was imagined.',
                         ].map((text, i) => (
                             <motion.p
                                 key={i}
@@ -611,11 +611,11 @@ const MissionVisionSection = () => {
     const isMobile = useIsMobile();
 
     const missionItems = [
-        'Deliver high-quality construction and design services with precision and care.',
-        'Maintain full transparency and honest communication with clients.',
-        "Protect clients' investments by ensuring durable, well-executed results.",
-        'Lead projects hands-on and ensure proper execution on site.',
-        'Continue a legacy built on discipline, integrity, and excellence.',
+        'Architectural Design',
+        'Construction & Project Execution',
+        'Interior Design & Space Planning',
+        'Mechanical & Electrical Engineering',
+        'Landscape Design & Finishing',
     ];
 
     const marqueeItems = [
@@ -662,7 +662,7 @@ const MissionVisionSection = () => {
                         charClassName="text-white"
                         style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
-                        Principles We Live By
+                        What We Do
                     </WaveText>
                 </motion.div>
 
@@ -756,14 +756,7 @@ const MissionVisionSection = () => {
                                 className="space-y-6"
                             >
                                 <motion.p variants={staggerItem} className="text-white/60 leading-relaxed text-lg">
-                                    Handasiyan envisions a construction industry where clients receive honest service,
-                                    fair value, and work that lasts. We aim to raise professional standards by proving
-                                    that excellence, transparency, and attention to detail should be the norm, not the exception.
-                                </motion.p>
-                                <motion.p variants={staggerItem} className="text-white/60 leading-relaxed text-lg">
-                                    By combining strong engineering principles with respect for craftsmanship, Handasiyan
-                                    seeks to contribute to sustainable development and become a trusted reference for
-                                    quality construction in Ghana and beyond.
+                                    To become a trusted name in Ghana’s construction and design industry by delivering projects that combine function, durability, and refined aesthetics.
                                 </motion.p>
 
                                 <motion.div
@@ -777,6 +770,65 @@ const MissionVisionSection = () => {
                             </motion.div>
                         </div>
                     </motion.div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+/* ─────────────────────────────────────────────
+   Why Handasiyan Section
+───────────────────────────────────────────── */
+const WhyHandasiyan = () => {
+    const reasons = [
+        'Integrated design and construction under one roof',
+        'Focus on detail and execution quality',
+        'Professional project management',
+        'Reliable timelines and structured workflow',
+    ];
+
+    return (
+        <section className="py-24 bg-black border-t border-white/5">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                    <div>
+                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                            Why <span className="text-[#d4af37]">Handasiyan</span>
+                        </h2>
+                        <div className="space-y-6">
+                            {reasons.map((reason, i) => (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    whileInView={{ opacity: 1, x: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="flex items-center gap-4"
+                                >
+                                    <div className="w-2 h-2 rounded-full bg-[#d4af37]" />
+                                    <p className="text-white/70 text-lg">{reason}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="bg-[#064e3b]/10 p-12 rounded-3xl border border-[#d4af37]/20 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 blur-3xl rounded-full" />
+                        <h3 className="text-2xl font-bold text-white mb-6" style={{ fontFamily: "'Cormorant Garamond', serif" }}>Contact</h3>
+                        <div className="space-y-4 text-white/60">
+                            <p className="flex items-center gap-3">
+                                <span className="text-[#d4af37]">📍</span> Accra, Ghana
+                            </p>
+                            <p className="flex items-center gap-3">
+                                <span className="text-[#d4af37]">📞</span> +233 59 639 9006
+                            </p>
+                            <p className="flex items-center gap-3">
+                                <span className="text-[#d4af37]">📧</span> handasiyan.2020@gmail.com
+                            </p>
+                            {/* <p className="flex items-center gap-3">
+                                <span className="text-[#d4af37]">🌐</span> www.handasiyan.com
+                            </p> */}
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -812,6 +864,8 @@ const AboutPage = () => {
             >
                 <Process />
             </motion.div>
+
+            <WhyHandasiyan />
         </div>
     );
 };
