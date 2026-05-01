@@ -629,7 +629,7 @@ const ContactPage = () => {
                                         <InfoCard
                                             icon={Phone}
                                             title="Phone"
-                                            value="+233 596 399 006"
+                                            value="+233 59 639 9006"
                                             index={0}
                                             href="tel:+233596399006"
                                             target="_blank"

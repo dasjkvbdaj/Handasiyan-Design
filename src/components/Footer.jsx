@@ -29,12 +29,16 @@ const Footer = () => {
                         <div className="space-y-4">
                             <a href="tel:+233596399006" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors">
                                 <Phone className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
-                                <span>+233 596 399 006</span>
+                                <span>+233 59 639 9006</span>
                             </a>
                             <a href="mailto:Handasiyan.2020@gmail.com" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors">
                                 <Mail className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
                                 <span>Handasiyan.2020@gmail.com</span>
                             </a>
+                            <div className="flex items-start space-x-3 text-white/60 text-sm">
+                                <MapPin className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
+                                <span>Spintex Road, Accra, Ghana</span>
+                            </div>
                         </div>
                     </div>
 
@@ -79,8 +83,7 @@ const Footer = () => {
                 </div>
 
                 <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-center items-center text-white/40 text-sm space-y-4 md:space-y-0">
-                    <p>&copy; {new Date().getFullYear()} Handasiyan. All rights reserved.</p>
-                    
+                    <p>&copy; {new Date().getFullYear()} Handasiyan Construction Ltd. All rights reserved.</p>
                 </div>
             </div>
         </footer>
