@@ -3,6 +3,7 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 import { Portfolio, CTA } from './Homepage';
 import { ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useSEO } from '../hooks/useSEO';
 
 // ─── Floating SVG path background ───────────────────────────────────────────
 function FloatingPaths({ position, className = '' }) {
@@ -191,6 +192,11 @@ function PortfolioHero() {
 }
 
 const PortfolioPage = () => {
+    useSEO({
+        title: 'Portfolio - Handasiyan',
+        description: 'View Handasiyan\'s portfolio of expert architectural and interior design projects. See how we elevate living experiences and craft spaces with precision.'
+    });
+
     return (
         <div className="pt-20 bg-black overflow-x-hidden">
             <style>{`

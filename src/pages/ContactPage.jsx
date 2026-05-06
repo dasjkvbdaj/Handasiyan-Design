@@ -5,6 +5,7 @@ import { useScroll, useTransform, motion, AnimatePresence } from 'framer-motion'
 import emailjs from '@emailjs/browser';
 import { sanitizeText, sanitizePhone } from '../lib/sanitize';
 import { createRateLimiter } from '../lib/rateLimit';
+import { useSEO } from '../hooks/useSEO';
 
 const contactLimiter = createRateLimiter('contact', 3, 10 * 60 * 1000);
 
@@ -284,6 +285,11 @@ const SocialLink = ({ icon, name, href, index }) => (
    MAIN CONTACT PAGE
 ══════════════════════════════════════════════════════════════════ */
 const ContactPage = () => {
+    useSEO({
+        title: 'Contact - Handasiyan',
+        description: 'Contact Handasiyan to start your project. Get in touch with us to discuss your vision, tell us about your needs, and let\'s create something extraordinary.'
+    });
+
     const [submitted, setSubmitted] = useState(false);
     const [sending, setSending] = useState(false);
     const [formData, setFormData] = useState({

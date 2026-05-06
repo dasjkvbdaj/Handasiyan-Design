@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import { Services } from './Homepage';
 import { Check } from 'lucide-react';
 import { CTA } from './Homepage';
+import { useSEO } from '../hooks/useSEO';
 
 /* ─── Floating Particle ─────────────────────────────────────────── */
 const Particle = ({ delay, x, size, color }) => {
@@ -156,6 +157,11 @@ const underlineVariants = (index) => ({
 });
 
 const ServicesPage = () => {
+    useSEO({
+        title: 'Services - Handasiyan',
+        description: 'Explore Handasiyan\'s comprehensive design solutions, including Civil Engineering, Architectural Design, Interior Design, and end-to-end Construction Management.'
+    });
+
     const heroRef = useRef(null);
     const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
     const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);

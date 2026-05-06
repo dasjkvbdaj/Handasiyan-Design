@@ -5,6 +5,7 @@ import husseinImg from '../assets/hussein.avif';
 import { ChevronDown } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, motion, useInView } from 'framer-motion';
+import { useSEO } from '../hooks/useSEO';
 
 /* ─────────────────────────────────────────────
    Reusable animation variants
@@ -839,6 +840,11 @@ const WhyHandasiyan = () => {
    Main AboutPage
 ───────────────────────────────────────────── */
 const AboutPage = () => {
+    useSEO({
+        title: 'About - Handasiyan',
+        description: 'Discover Handasiyan\'s founding story. Based in Accra, Ghana, we are a multidisciplinary company specializing in design, planning, and construction excellence.'
+    });
+
     return (
         <div className="pt-20 bg-black relative">
             <HeroSection />

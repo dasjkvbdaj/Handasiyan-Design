@@ -5,6 +5,7 @@ import { useScroll, useTransform, motion, AnimatePresence, useInView } from 'fra
 import { Link, useSearchParams } from 'react-router-dom';
 import { db } from '../firebase/firebase';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { useSEO } from '../hooks/useSEO';
 
 
 /**
@@ -1730,6 +1731,11 @@ export const LightboxModal = ({ project, onClose }) => {
 
 /* ─── HOME PAGE ───────────────────────────────────────────────────────────── */
 const HomePage = () => {
+    useSEO({
+        title: 'Handasiyan | Expert Architecture & Interior Design',
+        description: 'Welcome to Handasiyan. We specialize in high-end architectural design, engineering, and interior design built on trust, discipline, and lasting results.'
+    });
+
     return (
         <>
             <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');`}</style>
