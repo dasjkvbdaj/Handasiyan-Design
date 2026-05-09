@@ -1,6 +1,12 @@
 import React from 'react';
+import { useSEO } from '../hooks/useSEO';
 
 const PrivacyPolicy = () => {
+    useSEO({
+        title: 'Privacy Policy',
+        description: 'Read Handasiyan\'s Privacy Policy to understand how we collect, use, and protect your personal information while you use our services.'
+    });
+
     return (
         <div className="min-h-screen bg-black text-white pt-32 pb-16 px-6">
             <div className="max-w-4xl mx-auto space-y-8">

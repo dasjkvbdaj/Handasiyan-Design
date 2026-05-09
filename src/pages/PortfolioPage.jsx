@@ -193,7 +193,7 @@ function PortfolioHero() {
 
 const PortfolioPage = () => {
     useSEO({
-        title: 'Portfolio - Handasiyan',
+        title: 'Portfolio',
         description: 'View Handasiyan\'s portfolio of expert architectural and interior design projects. See how we elevate living experiences and craft spaces with precision.'
     });
 

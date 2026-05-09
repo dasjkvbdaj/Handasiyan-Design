@@ -841,7 +841,7 @@ const WhyHandasiyan = () => {
 ───────────────────────────────────────────── */
 const AboutPage = () => {
     useSEO({
-        title: 'About - Handasiyan',
+        title: 'About Us',
         description: 'Discover Handasiyan\'s founding story. Based in Accra, Ghana, we are a multidisciplinary company specializing in design, planning, and construction excellence.'
     });
 

@@ -158,7 +158,7 @@ const underlineVariants = (index) => ({
 
 const ServicesPage = () => {
     useSEO({
-        title: 'Services - Handasiyan',
+        title: 'Services',
         description: 'Explore Handasiyan\'s comprehensive design solutions, including Civil Engineering, Architectural Design, Interior Design, and end-to-end Construction Management.'
     });
 

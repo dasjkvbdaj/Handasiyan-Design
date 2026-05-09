@@ -286,7 +286,7 @@ const SocialLink = ({ icon, name, href, index }) => (
 ══════════════════════════════════════════════════════════════════ */
 const ContactPage = () => {
     useSEO({
-        title: 'Contact - Handasiyan',
+        title: 'Contact Us',
         description: 'Contact Handasiyan to start your project. Get in touch with us to discuss your vision, tell us about your needs, and let\'s create something extraordinary.'
     });
 

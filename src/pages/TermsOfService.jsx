@@ -1,6 +1,12 @@
 import React from 'react';
+import { useSEO } from '../hooks/useSEO';
 
 const TermsAndConditions = () => {
+    useSEO({
+        title: 'Terms and Conditions',
+        description: 'Read the terms and conditions for using Handasiyan\'s website and services. These terms outline your rights and responsibilities.'
+    });
+
     return (
         <div className="min-h-screen bg-black text-white pt-32 pb-16 px-6">
             <div className="max-w-4xl mx-auto space-y-8">
