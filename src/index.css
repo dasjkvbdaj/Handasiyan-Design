@@ -66,12 +66,14 @@ body {
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }
+
 .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
 
-button, .cursor-pointer {
+button,
+.cursor-pointer {
     cursor: pointer !important;
 }
 
@@ -86,4 +88,12 @@ button, .cursor-pointer {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
-}
+}
+
+.portfolio-scroll {
+    scrollbar-width: none;
+}
+
+.portfolio-scroll::-webkit-scrollbar {
+    display: none;
+}

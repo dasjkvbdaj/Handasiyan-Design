@@ -1085,7 +1085,7 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                     >
                         <Eye className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-[#d4af37]`} />
                         <span className={`${isMobile ? 'text-[8px]' : 'text-[10px]'} leading-none`}>
-                            {isMobile ? 'Images' : 'View Project'}
+                            {isMobile ? 'Images' : 'Expand View'}
                         </span>
                     </motion.button>
 
@@ -1177,7 +1177,7 @@ export const Portfolio = ({ isPreview = false }) => {
         if (isChangingCategory) return;
 
         const currentIndex = CATEGORIES_DATA.findIndex(c => c.id === activeCategory);
-        
+
         // Find the next category in sequence (looping back to index 0 if at the end)
         const nextIndex = (currentIndex + 1) % CATEGORIES_DATA.length;
         const nextCatId = CATEGORIES_DATA[nextIndex].id;
