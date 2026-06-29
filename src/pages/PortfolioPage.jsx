@@ -168,7 +168,6 @@ function PortfolioHero() {
                         />
                     </div>
 
-                    {/* Scroll indicator - integrated into content flow like Contact page */}
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -194,7 +193,7 @@ function PortfolioHero() {
 const PortfolioPage = () => {
     useSEO({
         title: 'Portfolio',
-        description: 'View Handasiyan\'s portfolio of expert architectural and interior design projects. See how we elevate living experiences and craft spaces with precision.'
+        description: "View Handasiyan's portfolio of expert architectural and interior design projects. See how we elevate living experiences and craft spaces with precision."
     });
 
     return (

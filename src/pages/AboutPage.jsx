@@ -575,8 +575,8 @@ const FounderSection = () => {
                         className="text-4xl md:text-5xl font-bold text-white mb-8 leading-tight"
                         style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
-                        A Legacy Passed from{' '}
-                        <PulseGlowText>Father to Son</PulseGlowText>
+                        Built on Legacy{' '}
+                        <PulseGlowText>Defined by Detail</PulseGlowText>
                     </motion.h2>
 
                     <GoldLine />
