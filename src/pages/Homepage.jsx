@@ -48,13 +48,12 @@ const BreathingLabel = ({ children, className = '' }) => {
     return (
         <motion.span
             className={`text-[#d4af37] font-semibold uppercase text-xs tracking-[0.22em] ${className}`}
-            animate={isMobile ? {
-                opacity: [0.7, 1, 0.7],
-            } : {
+            animate={isMobile ? undefined : {
                 letterSpacing: ['0.22em', '0.33em', '0.22em'],
                 opacity: [0.65, 1, 0.65],
             }}
-            transition={{ duration: isMobile ? 4.5 : 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            transition={isMobile ? undefined : { duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={isMobile ? { opacity: 0.85 } : undefined}
         >
             {children}
         </motion.span>
@@ -69,14 +68,12 @@ const PulsingLine = ({ delay = 0 }) => {
     return (
         <motion.span
             className="block h-px bg-[#d4af37]/50"
-            animate={isMobile ? {
-                opacity: [0.4, 0.8, 0.4]
-            } : {
+            animate={isMobile ? undefined : {
                 width: ['24px', '52px', '24px'],
                 opacity: [0.35, 0.85, 0.35]
             }}
-            transition={{ duration: isMobile ? 4 : 3.2, repeat: Infinity, ease: 'easeInOut', delay }}
-            style={{ display: 'inline-block', width: isMobile ? '32px' : 'auto' }}
+            transition={isMobile ? undefined : { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay }}
+            style={{ display: 'inline-block', width: isMobile ? '32px' : 'auto', opacity: isMobile ? 0.6 : undefined }}
         />
     );
 };
@@ -839,10 +836,10 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
     return (
         <motion.div
             ref={cardRef}
-            variants={scaleIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            variants={(isMobile || isTablet) ? undefined : scaleIn}
+            initial={(isMobile || isTablet) ? "visible" : "hidden"}
+            whileInView={(isMobile || isTablet) ? undefined : "visible"}
+            viewport={(isMobile || isTablet) ? undefined : { once: true, margin: '-60px' }}
             custom={index % 4}
             className="group relative w-full overflow-hidden bg-transparent"
             style={{
@@ -1133,6 +1130,9 @@ const CATEGORY_ORDER = ['Full Design', 'Architectural Design', 'Interior Design'
 export const Portfolio = ({ isPreview = false }) => {
     const [lightbox, setLightbox] = useState(null);
     const [dynamicProjects, setDynamicProjects] = useState([]);
+    const isMobile = useMediaQuery('(max-width: 768px)');
+    const isTablet = useMediaQuery('(max-width: 1024px)');
+    const isMobileOrTablet = isMobile || isTablet;
 
     useEffect(() => {
         const fetchDynamicProjects = async () => {
@@ -1201,7 +1201,10 @@ export const Portfolio = ({ isPreview = false }) => {
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
                         <div className="px-5">
                             <motion.div
-                                variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                variants={isMobileOrTablet ? undefined : fadeIn} 
+                                initial={isMobileOrTablet ? "visible" : "hidden"} 
+                                whileInView={isMobileOrTablet ? undefined : "visible"} 
+                                viewport={isMobileOrTablet ? undefined : { once: true }}
                                 className="inline-flex items-center gap-3 mb-4"
                             >
                                 <span className="h-px w-12 bg-[#d4af37]/50" />
@@ -1210,7 +1213,10 @@ export const Portfolio = ({ isPreview = false }) => {
                                 </span>
                             </motion.div>
                             <motion.h2
-                                variants={slideLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                variants={isMobileOrTablet ? undefined : slideLeft} 
+                                initial={isMobileOrTablet ? "visible" : "hidden"} 
+                                whileInView={isMobileOrTablet ? undefined : "visible"} 
+                                viewport={isMobileOrTablet ? undefined : { once: true }}
                                 className="text-4xl md:text-6xl font-bold text-white"
                                 style={{ fontFamily: "'Cormorant Garamond', serif" }}
                             >
@@ -1267,7 +1273,10 @@ export const Portfolio = ({ isPreview = false }) => {
                                     <div key={category}>
                                         {/* Category heading */}
                                         <motion.div
-                                            variants={fadeIn} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                                            variants={isMobileOrTablet ? undefined : fadeIn} 
+                                            initial={isMobileOrTablet ? "visible" : "hidden"} 
+                                            whileInView={isMobileOrTablet ? undefined : "visible"} 
+                                            viewport={isMobileOrTablet ? undefined : { once: true }}
                                             className="inline-flex items-center gap-4 mb-10 px-5"
                                         >
                                             <PulsingLine />
