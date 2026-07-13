@@ -12,7 +12,7 @@ const Footer = () => {
     return (
         <footer id="contact" className="bg-black border-t border-white/10 pt-16 pb-8">
             <div className="max-w-7xl mx-auto px-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Brand & Description */}
                     <div className="space-y-4">
                         <Link to="/" className="block w-fit">
@@ -31,9 +31,9 @@ const Footer = () => {
                                 <Phone className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
                                 <span>+233 59 639 9006</span>
                             </a>
-                            <a href="mailto:Handasiyan.2020@gmail.com" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors">
+                            <a href="mailto:Handasiyan.2020@gmail.com" className="flex items-start space-x-3 text-white/60 text-sm hover:text-[#d4af37] transition-colors min-w-0">
                                 <Mail className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
-                                <span>Handasiyan.2020@gmail.com</span>
+                                <span className="break-all">Handasiyan.2020@gmail.com</span>
                             </a>
                             <div className="flex items-start space-x-3 text-white/60 text-sm">
                                 <MapPin className="w-5 h-5 flex-shrink-0 text-[#d4af37]" />
