@@ -219,6 +219,7 @@ const scaleIn = {
 export const Hero = () => {
     const ref = useRef(null);
     const videoRef = useRef(null);
+    const [shouldLoadVideo, setShouldLoadVideo] = useState(false);
     const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
     const y = useTransform(scrollYProgress, [0, 1], ['-4%', '2%']);
     const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
@@ -226,6 +227,25 @@ export const Hero = () => {
     const indicatorOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
 
     useEffect(() => {
+        // Data Saver & Network Check
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+            if (connection.saveData === true || connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+                setShouldLoadVideo(false);
+                return; // Do not load video on slow connections
+            }
+        }
+        
+        // Slight delay to prioritize FCP/LCP of the poster image
+        const timer = setTimeout(() => {
+            setShouldLoadVideo(true);
+        }, 500);
+        
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
+        if (!shouldLoadVideo) return;
         const video = videoRef.current;
         if (!video) return;
 
@@ -249,7 +269,7 @@ export const Hero = () => {
 
         document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }, []);
+    }, [shouldLoadVideo]);
 
     return (
         <section ref={ref} className="relative h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center text-center">
@@ -260,14 +280,20 @@ export const Hero = () => {
                     muted
                     loop
                     playsInline
-                    preload="auto"
+                    preload="none"
+                    poster="/poster.jpg"
                     title="Handasiyan Architectural Design - Showcasing our vision and craft"
                     className="absolute min-w-full min-h-full object-cover"
                     onPause={(e) => {
-                        if (!document.hidden) e.target.play().catch(() => { });
+                        if (shouldLoadVideo && !document.hidden) e.target.play().catch(() => { });
                     }}
                 >
-                    <source src="/video.mp4" type="video/mp4" />
+                    {shouldLoadVideo && (
+                        <>
+                            <source src="/video.webm" type="video/webm" />
+                            <source src="/video.mp4" type="video/mp4" />
+                        </>
+                    )}
                 </video>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/5 to-black/80 z-10" />
                 <div className="absolute inset-0 bg-black/15 z-[5]" />
@@ -865,8 +891,8 @@ export function ProjectCard({ project, index, onOpen, layout = 'grid', isPreview
                         <img
                             src={images[imageIndex]}
                             alt={`${project.style} - ${project.category} project by Handasiyan`}
-                            loading={imageIndex === 0 ? 'eager' : 'lazy'}
-                            fetchPriority={imageIndex === 0 ? 'high' : 'auto'}
+                            loading="lazy"
+                            decoding="async"
                             sizes={project.images ? 'auto' : undefined}
                             draggable={false}
                             onContextMenu={(e) => e.preventDefault()}
@@ -1570,7 +1596,7 @@ const HomePage = () => {
 
     return (
         <>
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');`}</style>
+
             <Hero />
             <Portfolio isPreview={true} />
             <About isPreview={true} />

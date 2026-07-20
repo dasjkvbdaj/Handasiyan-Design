@@ -1,23 +1,23 @@
-import { useEffect } from 'react'
+import { useEffect, Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 
 import Layout from './components/Layout'
 import HomePage from './pages/Homepage'
-import AboutPage from './pages/AboutPage'
-import ServicesPage from './pages/ServicesPage'
-import PortfolioPage from './pages/PortfolioPage'
-import ContactPage from './pages/ContactPage'
-// import AIDesignPage from './pages/AIDesignPage'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import Profile from './pages/Profile'
-import ResetPassword from './pages/ResetPassword'
-import DigitalCard from './pages/DigitalCard'
-import AdminPanel from './pages/AdminPanel'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsAndConditions from './pages/TermsOfService'
-import NotFoundPage from './pages/NotFoundPage'
 import ProtectedRoute from './components/ProtectedRoute'
+
+const AboutPage = lazy(() => import('./pages/AboutPage'))
+const ServicesPage = lazy(() => import('./pages/ServicesPage'))
+const PortfolioPage = lazy(() => import('./pages/PortfolioPage'))
+const ContactPage = lazy(() => import('./pages/ContactPage'))
+const Login = lazy(() => import('./pages/Login'))
+const Signup = lazy(() => import('./pages/Signup'))
+const Profile = lazy(() => import('./pages/Profile'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
+const DigitalCard = lazy(() => import('./pages/DigitalCard'))
+const AdminPanel = lazy(() => import('./pages/AdminPanel'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const TermsAndConditions = lazy(() => import('./pages/TermsOfService'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -65,36 +65,38 @@ function App() {
           path="*"
           element={
             <Layout>
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/services" element={<ServicesPage />} />
-                <Route path="/portfolio" element={<PortfolioPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                {/* <Route path="/ai-design" element={<AIDesignPage />} /> */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/digitalCard" element={<DigitalCard />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+              <Suspense fallback={<div className="min-h-[80vh] bg-[#061e15] flex items-center justify-center"><div className="w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div></div>}>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/portfolio" element={<PortfolioPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  {/* <Route path="/ai-design" element={<AIDesignPage />} /> */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/digitalCard" element={<DigitalCard />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
 
 
-                {/* Protected Routes */}
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
+                  {/* Protected Routes */}
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
 
-                <Route path="/admin" element={
-                  <ProtectedRoute adminOnly={true}>
-                    <AdminPanel />
-                  </ProtectedRoute>
-                } />
+                  <Route path="/admin" element={
+                    <ProtectedRoute adminOnly={true}>
+                      <AdminPanel />
+                    </ProtectedRoute>
+                  } />
 
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Suspense>
             </Layout>
           }
         />

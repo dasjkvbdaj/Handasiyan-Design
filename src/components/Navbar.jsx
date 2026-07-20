@@ -83,7 +83,7 @@ const Navbar = () => {
           {currentUser ? (
             <div className="relative flex items-center gap-4 transition-all duration-300">
               {/* Avatar */}
-              <button onClick={() => setOpenMenu(!openMenu)}>
+              <button onClick={() => setOpenMenu(!openMenu)} aria-label="Toggle user menu">
                 <img
                   src={`https://ui-avatars.com/api/?name=${currentUser.email}`}
                   className="w-9 h-9 rounded-full border border-white/20 cursor-pointer"
@@ -142,6 +142,7 @@ const Navbar = () => {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="lg:hidden text-white"
+          aria-label="Toggle mobile menu"
         >
           {isOpen ? <X /> : <Menu />}
         </button>

@@ -105,6 +105,8 @@ const CloudinaryImage = ({
         src={imgSrc}
         alt={alt}
         className={className}
+        loading="lazy"
+        decoding="async"
         onError={handleError}
         draggable={false}
         onContextMenu={(e) => e.preventDefault()}
