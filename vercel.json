@@ -1,5 +1,4 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
     "redirects": [
         {
             "source": "/3d",
@@ -9,7 +8,7 @@
     ],
     "rewrites": [
         {
-            "source": "/((?!(?:api|3d)(?:/|$)).*)",
+            "source": "/((?!(api|3d)(/|$)).*)",
             "destination": "/"
         }
     ],
