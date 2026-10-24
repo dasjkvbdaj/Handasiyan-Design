@@ -7,6 +7,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useScroll, useTransform, motion, useInView } from 'framer-motion';
 import { useSEO } from '../hooks/useSEO';
 
+
 /* ─────────────────────────────────────────────
    Reusable animation variants
 ───────────────────────────────────────────── */
@@ -18,6 +19,7 @@ const fadeLeft = {
         transition: { duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] },
     },
 };
+
 
 const staggerContainer = {
     hidden: {},
