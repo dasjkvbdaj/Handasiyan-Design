@@ -102,12 +102,8 @@ function App() {
                     </ProtectedRoute>
                   } />
 
-                  {/* <Route path="/3d" element={<NavigateTo3D />} />
-                  <Route path="/3d/*" element={<NavigateTo3D />} /> */}
-
-
-                  <Route path="/3d/" element={<Handasiyan3DProjects />} />
-                  <Route path="/3d/*" element={<Handasiyan3DProjects />} />
+                  {/* <Route path="/3d/" element={<Handasiyan3DProjects />} />
+                  <Route path="/3d/*" element={<Handasiyan3DProjects />} /> */}
 
 
                   <Route path="*" element={<NotFoundPage />} />
