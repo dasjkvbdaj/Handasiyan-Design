@@ -18,6 +18,14 @@ const AdminPanel = lazy(() => import('./pages/AdminPanel'))
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const TermsAndConditions = lazy(() => import('./pages/TermsOfService'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const Handasiyan3DProjects = lazy(() => import('./pages/Handasiyan3DProjects'))
+
+const NavigateTo3D = () => {
+  useEffect(() => {
+    window.location.replace('/3d/');
+  }, []);
+  return null;
+};
 
 const ScrollToTop = () => {
   const { pathname, hash } = useLocation();
@@ -93,6 +101,14 @@ function App() {
                       <AdminPanel />
                     </ProtectedRoute>
                   } />
+
+                  {/* <Route path="/3d" element={<NavigateTo3D />} />
+                  <Route path="/3d/*" element={<NavigateTo3D />} /> */}
+
+
+                  <Route path="/3d/" element={<Handasiyan3DProjects />} />
+                  <Route path="/3d/*" element={<Handasiyan3DProjects />} />
+
 
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>

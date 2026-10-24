@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import logo from "../assets/logo.avif";
+import logo from "/logo.avif";
 import { useAuth } from "../hooks/useAuth";
 
 const Navbar = () => {
@@ -25,6 +25,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Portfolio", path: "/portfolio" },
+    { name: "3D Projects", path: "/3d/", isStatic: true },
     { name: "About", path: "/about" },
     // { name: "AI Design", path: "/ai-design" },
     { name: "Digital Card", path: "/digitalCard" },
@@ -32,8 +33,6 @@ const Navbar = () => {
   ];
 
   const isActive = (path) => location.pathname === path;
-  const isHomePage = location.pathname === "/";
-  const shouldHide = false; // Never hide the navbar
 
   return (
     <nav
@@ -54,18 +53,31 @@ const Navbar = () => {
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center space-x-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                ? "text-[#d4af37] scale-105 blur-none"
-                : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
-                }`}
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map((link) =>
+            link.isStatic ? (
+              <a
+                key={link.name}
+                href={link.path}
+                className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
+                  }`}
+              >
+                {link.name}
+              </a>
+            ) : (
+              <Link
+                key={link.name}
+                to={link.path}
+                className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
+                  ? "text-[#d4af37] scale-105 blur-none"
+                  : "text-white/60 blur-[.7px] hover:blur-none hover:text-white transition-all duration-400"
+                  }`}
+              >
+                {link.name}
+              </Link>
+            )
+          )}
 
           {isAdmin && (
             <Link
@@ -152,19 +164,33 @@ const Navbar = () => {
       {isOpen && (
         <div className="lg:hidden bg-black/95 backdrop-blur-xl absolute top-20 left-0 w-full p-6 border-b border-white/10">
           <div className="flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
-                  ? "text-[#d4af37] scale-105 blur-none"
-                  : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
-                  }`}
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.isStatic ? (
+                <a
+                  key={link.name}
+                  href={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
+                    ? "text-[#d4af37] scale-105 blur-none"
+                    : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                    }`}
+                >
+                  {link.name}
+                </a>
+              ) : (
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className={`text-sm font-medium transition-all duration-300 ${isActive(link.path)
+                    ? "text-[#d4af37] scale-105 blur-none"
+                    : "text-white/60 blur-[.5px] hover:blur-none hover:text-white transition-all duration-400"
+                    }`}
+                >
+                  {link.name}
+                </Link>
+              )
+            )}
             {isAdmin && (
               <Link
                 to="/admin"

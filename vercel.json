@@ -1,7 +1,14 @@
 {
+    "redirects": [
+        {
+            "source": "/3d",
+            "destination": "/3d/",
+            "permanent": true
+        }
+    ],
     "rewrites": [
         {
-            "source": "/((?!api/).*)",
+            "source": "/((?!(api|3d)(/|$)).*)",
             "destination": "/"
         }
     ],
