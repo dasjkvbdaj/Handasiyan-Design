@@ -588,7 +588,7 @@ const FounderSection = () => {
                         className="space-y-6 text-white/60 text-lg leading-relaxed mt-8"
                     >
                         {[
-                            'At Handasiyan, we don’t just build spaces — we create environments designed for real living.',
+                            'At Handasiyan, we don’t just build spaces — we create environments designed for real living. xxxx',
                             'Based in Accra, Ghana, Handasiyan is a multidisciplinary company specializing in design, planning, and construction. Our work covers every stage of the process, from the first concept to the final details, ensuring that every project is delivered with precision and purpose.',
                             'We combine architecture, engineering, and interior design into one seamless experience. This allows us to control quality, maintain consistency, and bring each vision to life exactly as it was imagined.',
                         ].map((text, i) => (
