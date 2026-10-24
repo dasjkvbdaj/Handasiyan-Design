@@ -25,7 +25,7 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
     { name: "Portfolio", path: "/portfolio" },
-    // { name: "3D Projects", path: "/3d/", isStatic: true },
+    { name: "3D Projects", path: "/3d/", isStatic: true },
     { name: "About", path: "/about" },
     // { name: "AI Design", path: "/ai-design" },
     { name: "Digital Card", path: "/digitalCard" },
