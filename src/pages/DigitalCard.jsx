@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Mail, Phone, Instagram, Facebook, Download, MessageCircle } from 'lucide-react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import logo from '../assets/logo.avif';
+import logo from '/logo.avif';
 
 const WhatsappIcon = ({ size = 20 }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
